@@ -1,510 +1,908 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<html lang="zh-CN"><head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>精品车库展示</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>物流责任防范指南</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Noto+Sans+SC:wght@400;500;700;900&amp;display=swap" rel="stylesheet">
+    
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const currentHour = new Date().getHours();
+            const isNightTime = currentHour >= 19 || currentHour < 6;
+            if (savedTheme === 'dark' || (!savedTheme && isNightTime)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ==============================
+           1. 全局与移动端基础样式
+           ============================== */
+        :root {
+            --bg-body: #F2F4F7;
+            --bg-surface: #FFFFFF;
+            --text-primary: #1A1C21;
+            --text-secondary: #64748B;
+            
+            --accent-color: #3B82F6;
+            --accent-light: #EFF6FF;
+            --accent-text: #1D4ED8; 
+            
+            --danger-color: #EF4444;
+            --danger-bg: #FEF2F2;
+            --danger-text: #B91C1C;
+            
+            --success-color: #10B981;
+            --success-bg: #ECFDF5;
+            --success-text: #047857;
+            
+            --warning-color: #F59E0B;
+            --warning-bg: #FFFBEB;
+            --warning-text: #B45309;
+            
+            --border-radius: 24px;
+            /* 增强全局卡片阴影定义 */
+            --card-shadow: 0 10px 25px -5px rgba(0,0,0,0.06), 0 4px 10px -3px rgba(0,0,0,0.03);
+            --inner-card-shadow: 0 6px 16px rgba(0,0,0,0.06);
+            
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+            --nav-height: 80px;
+            --header-height: 72px;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0F172A;
+            --bg-surface: #1E293B;
+            --text-primary: #F8FAFC; 
+            --text-secondary: #CBD5E1; 
+            
+            --accent-color: #60A5FA;
+            --accent-light: rgba(59, 130, 246, 0.15);
+            --accent-text: #93C5FD; 
+            
+            --danger-bg: rgba(239, 68, 68, 0.15);
+            --danger-text: #FCA5A5;
+            
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --success-text: #6EE7B7;
+            
+            --warning-bg: rgba(245, 158, 11, 0.15);
+            --warning-text: #FCD34D;
+            
+            /* 深色模式阴影增强 */
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            --inner-card-shadow: 0 6px 16px rgba(0,0,0,0.3);
         }
 
         body {
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 25%, #0f0f0f 50%, #1c1c1c 75%, #0a0a0a 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            overflow-x: hidden;
-            position: relative;
+            font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            padding-bottom: calc(var(--nav-height) + 20px + var(--safe-bottom));
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
+            line-height: 1.6;
         }
 
-        /* 动态背景粒子效果 */
-        body::before {
-            content: '';
-            position: fixed;
+        /* Header */
+        .app-header {
+            padding: calc(12px + var(--safe-top)) 24px 12px;
+            background: rgba(255, 255, 255, 0.8);
+            background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface), 0.8) 100%);
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(120, 119, 198, 0.02) 0%, transparent 50%);
-            animation: float 20s ease-in-out infinite;
-            pointer-events: none;
-            z-index: -1;
+            z-index: 50;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+            min-height: var(--header-height);
+            box-sizing: border-box;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* Header 增加轻微阴影 */
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-10px) rotate(1deg); }
-            66% { transform: translateY(5px) rotate(-1deg); }
+        [data-theme="dark"] .app-header {
+            background: rgba(15, 23, 42, 0.8);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        .header {
-            margin: 40px 0 60px 0;
-            text-align: center;
-            position: relative;
-        }
-
-        .main-title {
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 25%, #f5f5f5 50%, #d0d0d0 75%, #ffffff 100%);
+        .header-title span {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align: center;
-            letter-spacing: -0.02em;
-            margin-bottom: 16px;
-            position: relative;
-            animation: titleGlow 3s ease-in-out infinite alternate;
         }
 
-        .subtitle {
+        .desktop-nav { display: none; }
+
+        /* 通用卡片样式 */
+        .section-card {
+            background: var(--bg-surface);
+            margin: 20px 20px;
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow); /* 使用统一的卡片阴影 */
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        [data-theme="dark"] .section-card {
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .section-title {
             font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.7);
-            font-weight: 300;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        @keyframes titleGlow {
-            from { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3)); }
-            to { filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5)); }
-        }
-
-        .vehicle-card {
-            width: min(90%, 1200px);
-            margin: 0 auto 40px auto;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .vehicle-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shimmer 3s ease-in-out infinite;
-        }
-
-        @keyframes shimmer {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
-
-        .vehicle-card:hover {
-            transform: translateY(-8px);
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 
-                0 32px 64px rgba(0, 0, 0, 0.4),
-                0 16px 32px rgba(255, 255, 255, 0.1);
-        }
-
-        .card-header {
-            padding: 32px 40px 24px 40px;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .card-header:hover::before {
-            left: 100%;
-        }
-
-        .vehicle-title {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #ffffff;
-            margin-bottom: 8px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             letter-spacing: -0.01em;
+            color: var(--text-primary);
         }
 
-        .vehicle-year {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-weight: 400;
-        }
-
-        .expand-indicator {
-            position: absolute;
-            right: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 24px;
-            height: 24px;
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            transition: all 0.3s ease;
+        .icon-box {
+            width: 38px;
+            height: 38px;
+            background: var(--accent-light);
+            color: var(--accent-color);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1rem;
+        }
+        
+        /* 提示框增强阴影 */
+        .alert {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        [data-theme="dark"] .alert {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .expand-indicator::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            border-top: 2px solid rgba(255, 255, 255, 0.6);
-            border-right: 2px solid rgba(255, 255, 255, 0.6);
-            transform: rotate(135deg);
-            transition: all 0.3s ease;
-        }
-
-        .vehicle-card.expanded .expand-indicator {
-            transform: translateY(-50%) rotate(180deg);
-            border-color: rgba(255, 255, 255, 0.8);
-        }
-
-        .card-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .vehicle-card.expanded .card-content {
-            max-height: none;
-            overflow: visible;
-        }
-
-        .content-inner {
-            padding: 40px;
-        }
-
-        .image-showcase {
-            position: relative;
-            margin-bottom: 40px;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
-            border-radius: 20px;
-            padding: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .vehicle-image {
-            width: 100%;
-            height: auto;
-            border-radius: 16px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            filter: brightness(0.95) contrast(1.1);
+        /* ==============================
+           3. 红色罚款卡片 - 增强阴影版
+           ============================== */
+        
+        .ticket-wrapper {
+            margin: 24px 20px;
             position: relative;
             z-index: 1;
+            
+            -webkit-filter: 
+                drop-shadow(0 8px 12px rgba(0, 0, 0, 0.35)) 
+                drop-shadow(0 20px 40px rgba(220, 38, 38, 0.6));
+            
+            filter: 
+                drop-shadow(0 8px 12px rgba(0, 0, 0, 0.35)) 
+                drop-shadow(0 20px 40px rgba(220, 38, 38, 0.6));
+            
+            transform: translateZ(0);
         }
 
-        .vehicle-image:hover {
-            transform: scale(1.02);
-            filter: brightness(1) contrast(1.15);
-            box-shadow: 
-                0 24px 48px rgba(0, 0, 0, 0.3),
-                0 12px 24px rgba(255, 255, 255, 0.1);
+        .ticket-card {
+            --notch-size: 14px; 
+            --bottom-height: 100px;
+            
+            width: 100%;
+            display: block;
+            border-radius: var(--border-radius);
+            
+            background: 
+                radial-gradient(circle at 100% 0%, rgba(255,255,255,0.2) 0%, transparent 50%),
+                linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 100%),
+                linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            
+            color: white;
+            position: relative;
+            
+            -webkit-mask-image: 
+                radial-gradient(circle at 0 calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)),
+                radial-gradient(circle at 100% calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px));
+            -webkit-mask-size: 51% 100%;
+            -webkit-mask-position: left, right;
+            -webkit-mask-repeat: no-repeat;
+            
+            mask-image: 
+                radial-gradient(circle at 0 calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)),
+                radial-gradient(circle at 100% calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px));
+            mask-size: 51% 100%;
+            mask-position: left, right;
+            mask-repeat: no-repeat;
+
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15); 
         }
 
-        .specs-table {
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(10px);
+        .ticket-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: repeating-linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.03) 0px,
+                rgba(255, 255, 255, 0.03) 10px,
+                transparent 10px,
+                transparent 20px
+            );
+            pointer-events: none;
+        }
+
+        .ticket-content { 
+            position: relative; 
+            z-index: 3; 
+            padding: 28px 24px 0px; 
+            padding-bottom: var(--bottom-height);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .ticket-dashed-line { 
+            position: absolute;
+            bottom: var(--bottom-height); 
+            left: 0;
+            right: 0;
+            border-top: 2px dashed rgba(255,255,255,0.3); 
+            height: 0;
+            opacity: 0.6;
+            margin: 0;
+        }
+
+        .fine-amount-wrapper {
+            display: flex;
+            align-items: baseline;
+            margin-top: 4px;
+        }
+        .fine-symbol {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-right: 4px;
+            opacity: 0.9;
+        }
+        .fine-amount { 
+            font-size: 3.8rem;
+            font-weight: 800; 
+            letter-spacing: -3px; 
+            line-height: 0.9; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            text-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .fine-unit {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .info-pill-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--bottom-height);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.2)); 
+            padding: 0 24px;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+        }
+        
+        .icon-warning-glow {
+            width: 44px; 
+            height: 44px; 
+            background: rgba(255,255,255,0.2); 
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 14px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* 步骤条 */
+        .steps-scroller {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 4px 4px 20px 4px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .steps-scroller::-webkit-scrollbar { display: none; }
+
+        .step-item {
+            min-width: 130px;
+            width: 130px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .step-item:active { transform: scale(0.95); }
+
+        .step-img-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1/1; 
             border-radius: 16px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.08); /* 保持原有阴影 */
+            border: 1px solid rgba(0,0,0,0.05);
+            background-color: #cbd5e1;
+            transition: box-shadow 0.3s ease;
         }
+        [data-theme="dark"] .step-img-wrapper { box-shadow: 0 8px 15px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); background-color: #334155; }
+        .step-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+        .step-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; }
+        .step-caption { font-size: 0.85rem; text-align: center; font-weight: 600; color: var(--text-primary); }
 
-        .table-header {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
-            padding: 20px 0;
-            text-align: center;
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #ffffff;
-            letter-spacing: 0.02em;
+        /* 操作按钮 */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        
+        .action-btn {
+            background: var(--bg-body);
+            padding: 20px;
+            border-radius: 20px;
+            /* 修改：移除透明边框，添加阴影 */
+            border: 0;
+            box-shadow: var(--inner-card-shadow);
+            text-align: left;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
+        .action-btn:active { transform: scale(0.96); }
+        .action-icon { font-size: 1.6rem; margin-bottom: 12px; display: inline-block; }
 
-        .spec-row {
+        /* 底部悬浮导航 */
+        .bottom-nav-container {
+            position: fixed;
+            bottom: calc(20px + var(--safe-bottom));
+            left: 0; right: 0;
             display: flex;
-            padding: 16px 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            transition: background-color 0.2s ease;
+            justify-content: center;
+            z-index: 1000;
+            pointer-events: none;
         }
-
-        .spec-row:hover {
-            background: rgba(255, 255, 255, 0.03);
+        .bottom-nav {
+            pointer-events: auto;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
         }
+        [data-theme="dark"] .bottom-nav { background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .nav-item { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 1.2rem; transition: all 0.3s; text-decoration: none; position: relative; }
+        .nav-item.active { color: #fff; background: var(--text-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        [data-theme="dark"] .nav-item.active { background: var(--accent-color); color: #fff; }
 
-        .spec-row:last-child {
-            border-bottom: none;
+        /* 天气 */
+        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        .weather-card { 
+            background: #64748B; 
+            border-radius: 16px; 
+            aspect-ratio: 16/9; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            position: relative; 
+            overflow: hidden;
+            /* 修改：添加阴影 */
+            box-shadow: var(--inner-card-shadow);
         }
+        .weather-card i { margin-bottom: 6px; font-size: 1.5rem; opacity: 0.9; }
 
-        .spec-label {
-            flex: 1;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.95rem;
-        }
+        /* 通用类 */
+        .btn-close-custom { background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; backdrop-filter: blur(4px); transition: background 0.2s; }
+        .btn-close-custom:active { background: rgba(0,0,0,0.8); }
+        .opacity-75 { opacity: 0.75; }
+        .fw-800 { font-weight: 800; }
+        .fw-900 { font-weight: 900; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .desktop-hint { display: none; }
 
-        .spec-value {
-            flex: 2;
-            color: #ffffff;
-            font-size: 0.95rem;
-            font-weight: 400;
-        }
+        /* ==============================
+           4. 桌面端优化
+           ============================== */
+        @media (min-width: 992px) {
+            body {
+                padding-bottom: 40px;
+            }
 
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .card-header {
-                padding: 24px 24px 20px 24px;
+            .main-layout-wrapper {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 24px;
+                display: grid;
+                grid-template-columns: 360px 1fr; 
+                grid-template-areas: 
+                    "fines process"
+                    "weather actions";
+                gap: 24px;
+                align-items: start;
+            }
+
+            .section-card, .ticket-wrapper {
+                margin: 0 !important;
+                height: 100%;
+            }
+            .ticket-card {
+                height: 100%;
+            }
+
+            .ticket-content {
+                justify-content: space-between;
+            }
+
+            #risk { grid-area: fines; }
+            #prevention { grid-area: process; }
+            #actions { grid-area: actions; }
+            #weather { grid-area: weather; }
+
+            .bottom-nav-container { display: none !important; }
+            
+            .desktop-nav {
+                display: flex;
+                gap: 12px;
+                margin-right: 24px;
             }
             
-            .content-inner {
-                padding: 24px;
-            }
-
-            .vehicle-title {
-                font-size: 1.6rem;
-            }
-
-            .expand-indicator {
-                right: 24px;
-            }
-
-            .spec-row {
-                flex-direction: column;
-                gap: 8px;
-                padding: 16px 20px;
-            }
-
-            .spec-label {
+            .desktop-nav-link {
+                text-decoration: none;
+                color: var(--text-secondary);
                 font-weight: 600;
-                color: rgba(255, 255, 255, 0.9);
+                font-size: 0.95rem;
+                padding: 8px 16px;
+                border-radius: 12px;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 8px;
             }
-        }
+            
+            .desktop-nav-link:hover {
+                background: rgba(0,0,0,0.03);
+                color: var(--text-primary);
+            }
+            
+            [data-theme="dark"] .desktop-nav-link:hover {
+                background: rgba(255,255,255,0.05);
+            }
 
-        /* 禁用右键菜单 */
-        img {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            pointer-events: none;
+            .desktop-nav-link.active {
+                background: var(--accent-light);
+                color: var(--accent-text);
+            }
+
+            .steps-scroller {
+                flex-wrap: wrap;
+                overflow: visible;
+                justify-content: space-between;
+                padding-bottom: 0;
+            }
+            .step-item {
+                width: 18%;
+                min-width: unset;
+            }
+            .step-item:hover .step-img-wrapper {
+                box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+                transform: translateY(-4px);
+            }
+            .step-item:hover .step-img {
+                transform: scale(1.08);
+            }
+            
+            .mobile-hint { display: none !important; }
+            .desktop-hint { display: block !important; }
+
+            .action-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .action-btn.w-100 {
+                grid-column: span 1 !important;
+            }
+            .action-btn.w-100 .d-flex {
+                flex-direction: column;
+                align-items: flex-start !important;
+            }
+            .action-btn.w-100 .d-flex > div:first-child {
+                margin-bottom: 12px;
+                margin-right: 0 !important;
+            }
+            
+            .action-btn:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+            }
+            [data-theme="dark"] .action-btn:hover {
+                 box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1 class="main-title">精品车库</h1>
-        <p class="subtitle">Premium Collection</p>
-    </div>
 
-    <div class="vehicle-card" id="suzuki-card">
-        <div class="card-header" onclick="toggleCard('suzuki-card')">
-            <div>
-                <h2 class="vehicle-title">铃木 GSX250</h2>
-                <p class="vehicle-year">2022年款</p>
+    <header class="app-header d-flex justify-content-between align-items-center">
+        <div>
+            <div class="header-title">
+                <span>物流责任防范指南</span>
             </div>
-            <div class="expand-indicator"></div>
+            <p class="text-secondary small mb-0 fw-medium opacity-75">物流责避险手册</p>
         </div>
+
+        <div class="d-flex align-items-center">
+            <nav class="desktop-nav">
+                <a href="#risk" class="desktop-nav-link active" onclick="handleNavClick(event, '#risk')">
+                    <i class="fas fa-exclamation-circle"></i> 罚款
+                </a>
+                <a href="#prevention" class="desktop-nav-link" onclick="handleNavClick(event, '#prevention')">
+                    <i class="fas fa-list-ol"></i> 流程
+                </a>
+                <a href="#actions" class="desktop-nav-link" onclick="handleNavClick(event, '#actions')">
+                    <i class="fas fa-bolt"></i> 紧急
+                </a>
+                <a href="#weather" class="desktop-nav-link" onclick="handleNavClick(event, '#weather')">
+                    <i class="fas fa-camera"></i> 天气
+                </a>
+            </nav>
+
+            <button id="themeToggle" class="btn border-0 rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: var(--bg-surface); color: var(--text-primary); box-shadow: var(--card-shadow);">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="main-layout-wrapper">
         
-        <div class="card-content">
-            <div class="content-inner">
-                <div class="image-showcase">
-                    <img src="https://i.ibb.co/VY96bmbk/IMG-20250619-002923.png" alt="铃木 GSX250" class="vehicle-image" loading="lazy">
-                </div>
-                
-                <div class="specs-table">
-                    <div class="table-header">技术规格</div>
+        <section id="risk" class="ticket-wrapper">
+            <div class="ticket-card">
+                <div class="ticket-content">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge bg-white text-danger fw-bold px-2 py-1" style="font-size: 0.7rem;">高风险</span>
+                                <span class="opacity-75 small fw-bold text-uppercase" style="letter-spacing: 1px;">Penalty</span>
+                            </div>
+                            <h5 class="mb-0 fw-900 fs-4">超时取消罚款</h5>
+                        </div>
+                        <div class="icon-warning-glow">
+                            <i class="fas fa-exclamation-triangle fs-5 text-white"></i>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 mb-4">
+                        <div class="fine-amount-wrapper">
+                            <span class="fine-symbol">¥</span>
+                            <span class="fine-amount">500</span>
+                            <span class="fine-unit">/ 单</span>
+                        </div>
+                        <div class="text-white text-opacity-75 text-xs fw-medium mt-1">
+                            <i class="fas fa-arrow-up me-1"></i> 单笔最高扣款金额
+                        </div>
+                    </div>
                     
-                    <div class="spec-row">
-                        <span class="spec-label">品牌</span>
-                        <span class="spec-value">铃木 (Suzuki)</span>
+                    <div class="ticket-dashed-line"></div>
+                    
+                    <div class="info-pill-container">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-info-circle me-3 mt-1 fs-5 opacity-75"></i>
+                            <div style="line-height: 1.4;">
+                                <span class="d-block text-white text-opacity-50 text-xs fw-bold mb-1">触发条件</span>
+                                <span class="d-block text-sm fw-medium">物流责任导致订单取消，未完成正常或强制报备流程。</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="spec-row">
-                        <span class="spec-label">产地</span>
-                        <span class="spec-value">日本</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="prevention" class="section-card">
+            <div class="section-title">
+                <div class="icon-box"><i class="fas fa-shield-alt"></i></div>
+                <span>免责核心：正常报备/强制报备</span>
+            </div>
+            
+            <div class="alert border-0 p-3 mb-4 rounded-4" style="background-color: var(--warning-bg); color: var(--warning-text);">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-bell me-2"></i>
+                    <span class="fw-bold">提前报备商家出餐慢</span>
+                </div>
+                <small class="d-block opacity-75" style="line-height: 1.5;">
+                    高峰期需优先识别超时隐患的订单。若距离商家较远，可直接强制报备。无论是否虚假，只要完成流程，订单取消均不计入物流责任。
+                </small>
+            </div>
+
+            <div class="mb-2 ps-1">
+                <small class="fw-800 text-danger"><i class="fas fa-angle-down me-1"></i> 以下步骤图为强制报备</small>
+            </div>
+
+            <div class="steps-scroller">
+                <div class="step-item" onclick="viewImage('https://i.ibb.co/ycpwLz53/IMG-5760.png')">
+                    <div class="step-img-wrapper">
+                        <span class="step-badge">步骤 1</span>
+                        <img src="https://i.ibb.co/ycpwLz53/IMG-5760.png" class="step-img" alt="step1" onerror="this.src='https://placehold.co/300x400?text=图片加载失败'">
                     </div>
-                    <div class="spec-row">
-                        <span class="spec-label">型号</span>
-                        <span class="spec-value">GSX250</span>
+                    <div class="step-caption">举证到店</div>
+                </div>
+                <div class="step-item" onclick="viewImage('https://i.ibb.co/mF5twXL8/IMG-5774.jpg')">
+                    <div class="step-img-wrapper">
+                        <span class="step-badge">步骤 2</span>
+                        <img src="https://i.ibb.co/mF5twXL8/IMG-5774.jpg" class="step-img" alt="step2" onerror="this.src='https://placehold.co/300x400?text=图片加载失败'">
                     </div>
-                    <div class="spec-row">
-                        <span class="spec-label">年份</span>
-                        <span class="spec-value">2022</span>
+                    <div class="step-caption">随便拍一张照片</div>
+                </div>
+                <div class="step-item" onclick="viewImage('https://i.ibb.co/zHn96kLf/IMG-5775.jpg')">
+                    <div class="step-img-wrapper">
+                        <span class="step-badge">步骤 3</span>
+                        <img src="https://i.ibb.co/zHn96kLf/IMG-5775.jpg" class="step-img" alt="step3" onerror="this.src='https://placehold.co/300x400?text=图片加载失败'">
                     </div>
-                    <div class="spec-row">
-                        <span class="spec-label">引擎类型</span>
-                        <span class="spec-value">双缸直列发动机</span>
+                    <div class="step-caption">提交举证</div>
+                </div>
+                <div class="step-item" onclick="viewImage('https://i.ibb.co/67PnNnBz/IMG-5777.jpg')">
+                    <div class="step-img-wrapper">
+                        <span class="step-badge">步骤 4</span>
+                        <img src="https://i.ibb.co/67PnNnBz/IMG-5777.jpg" class="step-img" alt="step4" onerror="this.src='https://placehold.co/300x400?text=图片加载失败'">
                     </div>
-                    <div class="spec-row">
-                        <span class="spec-label">排量</span>
-                        <span class="spec-value">248cc</span>
+                    <div class="step-caption">确认提交</div>
+                </div>
+                <div class="step-item" onclick="viewImage('https://i.ibb.co/fGdg0KjG/IMG-5779.jpg')">
+                    <div class="step-img-wrapper">
+                        <span class="step-badge">步骤 5</span>
+                        <img src="https://i.ibb.co/fGdg0KjG/IMG-5779.jpg" class="step-img" alt="step5" onerror="this.src='https://placehold.co/300x400?text=图片加载失败'">
                     </div>
-                    <div class="spec-row">
-                        <span class="spec-label">最大功率</span>
-                        <span class="spec-value">24.7马力 (18.4 kW) @ 8,000 rpm</span>
+                    <div class="step-caption">点击报备</div>
+                </div>
+            </div>
+            
+            <small class="text-secondary opacity-75 d-block text-center mt-3 text-xs fw-bold tracking-wider mobile-hint">
+                <i class="fas fa-exchange-alt me-1"></i> 左右滑动查看 <span class="mx-2 opacity-50">|</span> <i class="fas fa-expand me-1"></i> 图片可点击放大查看
+            </small>
+            <small class="text-secondary opacity-75 text-center mt-3 text-xs fw-bold tracking-wider desktop-hint">
+                <i class="fas fa-mouse-pointer me-1"></i> 点击图片可放大查看详情
+            </small>
+        </section>
+
+        <section id="actions" class="section-card">
+            <div class="section-title">
+                <div class="icon-box"><i class="fas fa-first-aid"></i></div>
+                <span>订单快取消了怎么办？</span>
+            </div>
+            <div class="action-grid">
+                <div class="action-btn" style="background: var(--danger-bg); color: var(--danger-text);">
+                    <i class="fas fa-phone action-icon"></i>
+                    <div class="fw-bold mb-1">先给商家打电话</div>
+                    <div class="text-xs opacity-75 lh-sm">让商家操作拒绝退款，拦截取消</div>
+                </div>
+                <div class="action-btn" style="background: var(--success-bg); color: var(--success-text);">
+                    <i class="fas fa-comments-dollar action-icon"></i>
+                    <div class="fw-bold mb-1">安抚顾客情绪</div>
+                    <div class="text-xs opacity-75 lh-sm">可以和顾客卖惨，如在平台取消会罚款500元，引导顾客私下微信/支付宝转账</div>
+                </div>
+                <div class="action-btn w-100 d-flex align-items-center gap-3" style="grid-column: span 2; background: var(--accent-light); color: var(--accent-text);">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; background: rgba(255,255,255,0.5); border-radius: 12px;">
+                        <i class="fas fa-check-circle fs-4"></i>
                     </div>
-                    <div class="spec-row">
-                        <span class="spec-label">最大扭矩</span>
-                        <span class="spec-value">22.2 Nm @ 6,500 rpm</span>
+                    <div>
+                        <div class="fw-bold">及时去点送达</div>
+                        <div class="text-xs opacity-75">如果离顾客位置不远，先去及时点送达</div>
                     </div>
-                    <div class="spec-row">
-                        <span class="spec-label">冷却系统</span>
-                        <span class="spec-value">油冷系统</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="weather" class="section-card mb-5">
+            <div class="section-title">
+                <div class="icon-box"><i class="fas fa-cloud-showers-heavy"></i></div>
+                <span>恶劣天气需拍照报备</span>
+            </div>
+            
+            <div class="alert border-0 p-3 mb-4 rounded-4" style="background: var(--accent-light); color: var(--accent-text);">
+                <div class="d-flex">
+                    <i class="fas fa-bullhorn mt-1 me-3"></i>
+                    <div class="small fw-bold" style="line-height: 1.5;">
+                        恶劣天气导致道路积水或积雪，需用水印相机拍摄照片后发送给站长
                     </div>
-                    <div class="spec-row">
-                        <span class="spec-label">变速箱</span>
-                        <span class="spec-value">6速手动变速箱</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">传动方式</span>
-                        <span class="spec-value">链条传动</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">最高速度</span>
-                        <span class="spec-value">约 140 km/h</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">重量</span>
-                        <span class="spec-value">178 kg</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">前悬挂</span>
-                        <span class="spec-value">正立式前叉</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">后悬挂</span>
-                        <span class="spec-value">单筒后减震器</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">前制动</span>
-                        <span class="spec-value">单 290mm 制动盘</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">后制动</span>
-                        <span class="spec-value">单制动盘</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">前轮胎规格</span>
-                        <span class="spec-value">110/70-17</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">后轮胎规格</span>
-                        <span class="spec-value">140/70-17</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">ABS系统</span>
-                        <span class="spec-value">标配</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">防滑控制</span>
-                        <span class="spec-value">无</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">仪表盘</span>
-                        <span class="spec-value">液晶显示屏</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">设计风格</span>
-                        <span class="spec-value">经典街车造型</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">外观设计</span>
-                        <span class="spec-value">简洁运动风格</span>
-                    </div>
-                    <div class="spec-row">
-                        <span class="spec-label">车架</span>
-                        <span class="spec-value">钢制梯形车架</span>
-                    </div>
+                </div>
+            </div>
+
+            <div class="bg-body p-3 rounded-4 mb-3 border border-opacity-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="small fw-bold text-secondary">水印照片发送对象</span>
+                    <span class="badge bg-primary rounded-pill px-3 py-2">站长：朱振伟</span>
+                </div>
+                <hr class="my-3 opacity-10" style="border-color: var(--text-secondary);">
+                <div class="small text-secondary fw-medium">
+                    <i class="fas fa-camera me-1"></i> 要求：水印相机拍照（含时间）
+                </div>
+            </div>
+
+            <div class="weather-grid">
+                <div class="weather-card">
+                    <i class="fas fa-water"></i>
+                    <div class="small fw-bold">积水拍摄</div>
+                </div>
+                <div class="weather-card">
+                    <i class="fas fa-snowflake"></i>
+                    <div class="small fw-bold">冰雪拍摄</div>
+                </div>
+            </div>
+        </section>
+
+    </div><nav class="bottom-nav-container">
+        <div class="bottom-nav">
+            <a href="#risk" class="nav-item active">
+                <i class="fas fa-exclamation-circle"></i>
+            </a>
+            <a href="#prevention" class="nav-item">
+                <i class="fas fa-list-ol"></i>
+            </a>
+            <a href="#actions" class="nav-item">
+                <i class="fas fa-bolt"></i>
+            </a>
+            <a href="#weather" class="nav-item">
+                <i class="fas fa-camera"></i>
+            </a>
+        </div>
+    </nav>
+
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-transparent border-0 shadow-none">
+                <div class="modal-body-wrapper text-center position-relative">
+                    <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <img src="" id="modalImg" class="img-fluid rounded-4 shadow-lg" alt="Full view" style="max-height: 85vh; width: auto;">
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 禁用右键菜单
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        
-        // 防止拖拽图片
-        document.addEventListener('dragstart', e => e.preventDefault());
-
-        function toggleCard(cardId) {
-            const card = document.getElementById(cardId);
-            const content = card.querySelector('.card-content');
+        function updateActiveNav() {
+            const sections = document.querySelectorAll('section');
+            const navItems = document.querySelectorAll('.nav-item');
+            const desktopLinks = document.querySelectorAll('.desktop-nav-link');
             
-            if (card.classList.contains('expanded')) {
-                // 收起时设置固定高度然后动画到0
-                const contentHeight = content.scrollHeight;
-                content.style.maxHeight = contentHeight + 'px';
-                
-                // 强制重绘后设置为0
-                requestAnimationFrame(() => {
-                    content.style.maxHeight = '0px';
-                });
-                
-                card.classList.remove('expanded');
+            let current = '';
+            
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 80) {
+                current = sections[sections.length - 1].getAttribute('id');
             } else {
-                // 展开时设置为实际内容高度
-                card.classList.add('expanded');
-                const contentHeight = content.scrollHeight;
-                content.style.maxHeight = contentHeight + 'px';
-                
-                // 动画完成后设置为none以允许内容自由增长
-                setTimeout(() => {
-                    if (card.classList.contains('expanded')) {
-                        content.style.maxHeight = 'none';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    // 调整触发偏移量
+                    if (window.scrollY >= sectionTop - 180) {
+                        current = section.getAttribute('id');
                     }
-                }, 800);
+                });
+            }
+
+            if (!current && sections.length > 0) {
+                current = sections[0].getAttribute('id');
+            }
+
+            // 更新移动端底部导航
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href').includes(current)) {
+                    item.classList.add('active');
+                }
+            });
+
+            // 更新桌面端顶部导航
+            desktopLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // ==========================================
+        // 核心：强制刷新后回到顶部
+        // ==========================================
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
+        window.addEventListener('load', function() {
+            window.scrollTo(0, 0);
+            setTimeout(function() {
+                updateActiveNav();
+            }, 50);
+        });
+
+        window.addEventListener('scroll', updateActiveNav);
+
+        // 处理点击导航
+        function handleNavClick(e, targetId) {
+            e.preventDefault();
+            const targetSection = document.querySelector(targetId);
+            if (targetSection) {
+                const bottomNav = document.querySelector('.bottom-nav-container');
+                const isMobile = window.getComputedStyle(bottomNav).display !== 'none';
+                
+                if (isMobile) {
+                    const elementTop = targetSection.getBoundingClientRect().top + window.scrollY;
+                    const offset = elementTop - (window.innerHeight / 2) + (targetSection.offsetHeight / 2);
+                    window.scrollTo({ top: offset, behavior: 'smooth' });
+                } else {
+                    const headerHeight = 90;
+                    const elementPosition = targetSection.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.scrollY - headerHeight;
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                }
             }
         }
 
-        // 添加页面加载动画
-        window.addEventListener('load', () => {
-            document.body.style.opacity = '0';
-            document.body.style.transition = 'opacity 0.8s ease';
-            setTimeout(() => {
-                document.body.style.opacity = '1';
-            }, 100);
+        document.querySelectorAll('.nav-item').forEach(link => {
+            link.addEventListener('click', function(e) {
+                handleNavClick(e, this.getAttribute('href'));
+            });
         });
 
-        // 添加平滑滚动效果
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('.card-header')) {
-                setTimeout(() => {
-                    const card = e.target.closest('.vehicle-card');
-                    if (card.classList.contains('expanded')) {
-                        card.scrollIntoView({ 
-                            behavior: 'smooth', 
-                            block: 'start' 
-                        });
-                    }
-                }, 300);
-            }
+        const themeToggle = document.getElementById('themeToggle');
+        const icon = themeToggle.querySelector('i');
+        const html = document.documentElement;
+
+        if (html.getAttribute('data-theme') === 'dark') {
+            icon.classList.replace('fa-moon', 'fa-sun');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            icon.style.transform = 'rotate(360deg)';
+            setTimeout(() => {
+                if (newTheme === 'dark') {
+                    icon.classList.replace('fa-moon', 'fa-sun');
+                } else {
+                    icon.classList.replace('fa-sun', 'fa-moon');
+                }
+                icon.style.transform = 'none';
+            }, 150);
         });
+
+        const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+        const modalImg = document.getElementById('modalImg');
+
+        window.viewImage = function(url) {
+            modalImg.src = url;
+            modalImg.onload = null;
+            modalImg.onerror = function() {
+                this.src = 'https://placehold.co/600x800?text=图片加载失败';
+            }
+            imageModal.show();
+        }
     </script>
-</body>
-</html>
+
+</body></html>
