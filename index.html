@@ -1,10 +1,12 @@
-<html lang="zh-CN"><head>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>物流责任防范指南</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Noto+Sans+SC:wght@400;500;700;900&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <script>
         (function() {
@@ -555,7 +557,7 @@
 
         <div class="d-flex align-items-center">
             <nav class="desktop-nav">
-                <a href="#risk" class="desktop-nav-link active" onclick="handleNavClick(event, '#risk')">
+                <a href="#risk" class="desktop-nav-link" onclick="handleNavClick(event, '#risk')">
                     <i class="fas fa-exclamation-circle"></i> 罚款
                 </a>
                 <a href="#prevention" class="desktop-nav-link" onclick="handleNavClick(event, '#prevention')">
@@ -569,7 +571,8 @@
                 </a>
             </nav>
 
-            <button id="themeToggle" class="btn border-0 rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: var(--bg-surface); color: var(--text-primary); box-shadow: var(--card-shadow);">
+            <button id="themeToggle" class="btn border-0 rounded-circle d-flex align-items-center justify-content-center" 
+                    style="width: 44px; height: 44px; background-color: var(--bg-surface); color: var(--text-primary); box-shadow: var(--card-shadow);">
                 <i class="fas fa-moon"></i>
             </button>
         </div>
@@ -753,7 +756,7 @@
 
     </div><nav class="bottom-nav-container">
         <div class="bottom-nav">
-            <a href="#risk" class="nav-item active">
+            <a href="#risk" class="nav-item">
                 <i class="fas fa-exclamation-circle"></i>
             </a>
             <a href="#prevention" class="nav-item">
@@ -904,5 +907,5 @@
             imageModal.show();
         }
     </script>
-
-</body></html>
+</body>
+</html>
