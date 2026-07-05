@@ -712,59 +712,59 @@
             let isProgrammaticScrolling = false;
             let scrollTimeout = null;
 
-            // 用于实时记录和对比所有卡片在屏幕上的可视区域占比
+            // 用于实时、无间断记录所有卡片在屏幕上的【绝对可视像素高度】
             const visibilityMap = {};
 
             function clearScrollLock() {
                 isProgrammaticScrolling = false;
             }
 
+            // 完美的滚动静止判定：支持现代原生 scrollend 
             if ('onscrollend' in window) {
                 window.addEventListener('scrollend', clearScrollLock);
             }
 
             // ==========================================
-            // 🔥 核心修复：高精度权重对比观测器
+            // 🔥 核心修复：绝对像素高度权重对比观测器
             // ==========================================
             const observerOptions = {
                 root: null,
-                rootMargin: '-5% 0px -15% 0px', // 针对高低屏全面优化的中心聚焦点
-                threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] // 极细密触发梯度
+                rootMargin: '0px 0px 0px 0px', // 捕获整个视口，不错过任何高度占比
+                threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] 
             };
 
             const observer = new IntersectionObserver((entries) => {
-                // 如果用户正在点击导航进行跳转，不干扰高亮状态
-                if (isProgrammaticScrolling) return;
-
                 entries.forEach(entry => {
                     const id = entry.target.getAttribute('id');
                     if (entry.isIntersecting) {
-                        // 动态更新可见占比
-                        visibilityMap[id] = entry.intersectionRatio;
+                        // 【突破修复】用绝对可视像素高度代替百分比，彻底解决长短卡片打架问题
+                        visibilityMap[id] = entry.intersectionRect.height;
                     } else {
-                        // 完全离开视口时销毁记录
                         delete visibilityMap[id];
                     }
                 });
 
-                // 核心算法：筛选当前在屏幕中露脸最多、占比最大的 section
-                let activeId = null;
-                let maxRatio = -1;
+                // 如果处于点击跳转导致的过渡中，数据照常收集（数据不脱节），但拦截 UI 渲染，杜绝乱闪
+                if (isProgrammaticScrolling) return;
 
+                let activeId = null;
+                let maxHeight = -1;
+
+                // 挑选出目前在用户手机/屏幕上露脸像素高度最大的卡片
                 for (const id in visibilityMap) {
                     if (id === 'scroll-sentinel') continue;
-                    if (visibilityMap[id] > maxRatio) {
-                        maxRatio = visibilityMap[id];
+                    if (visibilityMap[id] > maxHeight) {
+                        maxHeight = visibilityMap[id];
                         activeId = id;
                     }
                 }
 
-                // 极端触底兜底：若最下方的透明哨兵可见，强制绑定最后一个板块
+                // 极端触底判定：若最后一像素的隐形观察节点显露，强制锚定最后一项
                 if (visibilityMap['scroll-sentinel'] > 0) {
                     activeId = sections[sections.length - 1].getAttribute('id');
                 }
 
-                // 执行最终渲染，保证同一时间有且仅有一个对应的导航按钮亮起
+                // 执行最终单向渲染，绝对排他性亮起
                 if (activeId) {
                     allLinks.forEach(link => {
                         const href = link.getAttribute('href');
@@ -777,7 +777,7 @@
             if (sentinel) observer.observe(sentinel);
 
             // ==========================================
-            // 优化 2：带防抖的平滑滚动
+            // 修复 2：优化视觉截断，平滑锚点到内容头部
             // ==========================================
             function handleNavClick(e) {
                 e.preventDefault();
@@ -787,27 +787,22 @@
                 if (targetSection) {
                     isProgrammaticScrolling = true;
                     
-                    // 点击立刻强行高亮，不给界面任何闪烁跳动的机会
+                    // 点击强行精准卡位，杜绝界面滞后感
                     allLinks.forEach(link => {
                         link.classList.toggle('active', link.getAttribute('href') === targetId);
                     });
 
                     const bottomNav = document.querySelector('.bottom-nav-container');
                     const isMobile = window.getComputedStyle(bottomNav).display !== 'none';
-                    let offsetPosition = 0;
-
-                    if (isMobile) {
-                        const elementTop = targetSection.getBoundingClientRect().top + window.scrollY;
-                        offsetPosition = elementTop - (window.innerHeight / 2) + (targetSection.offsetHeight / 2);
-                    } else {
-                        const headerHeight = 90;
-                        const elementPosition = targetSection.getBoundingClientRect().top;
-                        offsetPosition = elementPosition + window.scrollY - headerHeight;
-                    }
+                    
+                    // 【突破修复】不管是手机还是电脑，均滚到卡片最头部（并扣除顶部导航栏高度和10px留白），防止超长内容被截断
+                    const headerHeight = isMobile ? 80 : 90; 
+                    const elementTop = targetSection.getBoundingClientRect().top + window.scrollY;
+                    const offsetPosition = elementTop - headerHeight - 10;
 
                     window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
 
-                    // 如果系统没有原生触发 scrollend，在 600ms 后释放滚动锁
+                    // 旧版本系统（不支持 scrollend）的防死锁 debounce 定时器
                     clearTimeout(scrollTimeout);
                     scrollTimeout = setTimeout(() => {
                         clearScrollLock();
@@ -818,7 +813,7 @@
             allLinks.forEach(link => link.addEventListener('click', handleNavClick));
 
             // ==========================================
-            // 优化 3：主题切换
+            // 优化 3：暗黑模式无损转换
             // ==========================================
             const themeToggle = document.getElementById('themeToggle');
             const icon = themeToggle.querySelector('i');
@@ -847,7 +842,7 @@
             });
 
             // ==========================================
-            // 优化 4：图片弹窗与全局异常劫持
+            // 优化 4：图片全局防死图及大图预览
             // ==========================================
             const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
             const modalImg = document.getElementById('modalImg');
