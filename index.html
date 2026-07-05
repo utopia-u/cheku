@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <script>
-        // 提前解析主题，防止页面闪烁（FOUC）
         (function() {
             const savedTheme = localStorage.getItem('theme');
             const currentHour = new Date().getHours();
@@ -28,7 +27,6 @@
            ============================== */
         :root {
             --bg-body: #F2F4F7;
-            /* 优化：提供 RGB 通道数值，解决原生 CSS 无法解析 hex 变量传给 rgba() 的缺陷 */
             --bg-surface-rgb: 255, 255, 255;
             --bg-surface: rgb(var(--bg-surface-rgb));
             --text-primary: #1A1C21;
@@ -85,7 +83,8 @@
         }
 
         html, body {
-            touch-action: manipulation; /* 优化：全局禁止双击缩放，提升触控敏捷度 */
+            touch-action: manipulation;
+            scroll-behavior: smooth;
         }
 
         body {
@@ -101,7 +100,6 @@
         /* Header */
         .app-header {
             padding: calc(12px + var(--safe-top)) 24px 12px;
-            /* 优化：使用修正后的 RGB 变量，确保半透明毛玻璃背景在所有浏览器完美渲染 */
             background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface-rgb), 0.8) 100%);
             position: sticky;
             top: 0;
@@ -341,7 +339,6 @@
         /* 紧急应对模块 */
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         
-        /* 优化：由于将 div 升级为了真正的 button 标签，在此重置和优化基础样式 */
         .action-btn {
             background: var(--bg-body);
             padding: 20px;
@@ -695,7 +692,7 @@
                     <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center" data-bs-dismiss="modal" aria-label="关闭弹窗">
                         <i class="fas fa-times"></i>
                     </button>
-                    <img src="" id="modalImg" class="img-fluid rounded-4 shadow-lg" alt="全屏查看" style="max-height: 85vh; width: auto;">
+                    <img src="" id="modalImg" class="img-fluid rounded-4 shadow-lg dynamic-modal-preview" alt="全屏查看" style="max-height: 85vh; width: auto;">
                 </div>
             </div>
         </div>
@@ -712,33 +709,44 @@
             const desktopLinks = document.querySelectorAll('.desktop-nav-link');
             const allLinks = [...navItems, ...desktopLinks];
 
+            // 核心锁：防止平滑锚点滚动时触发高亮乱闪
+            let isProgrammaticScrolling = false;
+            let scrollTimeout = null;
+
+            // 解锁器：统一处理滚动结束事件
+            function clearScrollLock() {
+                isProgrammaticScrolling = false;
+            }
+
+            // 监听现代浏览器原生 scrollend 事件，旧版本利用 debounce timeout 兜底
+            if ('onscrollend' in window) {
+                window.addEventListener('scrollend', clearScrollLock);
+            }
+
             // ==========================================
-            // 优化 1：完全移除了旧版本的 Window Scroll 监听
-            // 整合哨兵节点，使用无感、零开销的 IntersectionObserver 处理触底兜底
+            // 优化 1：彻底重构的高兼容多级观测机制
             // ==========================================
             const observerOptions = {
                 root: null,
-                rootMargin: '-30% 0px -50% 0px', 
-                threshold: 0
+                rootMargin: '-10% 0px -40% 0px', // 扩大检测边界，防止大屏失效
+                threshold: [0, 0.1, 0.2, 0.5]  // 引入多级比例触发
             };
 
             const observer = new IntersectionObserver((entries) => {
+                // 如果处于用户点击跳转引起的滚动中，直接拦截，不走检测逻辑
+                if (isProgrammaticScrolling) return;
+
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         let currentId = entry.target.getAttribute('id');
                         
-                        // 兜底机制：如果滚动到了隐形哨兵，代表页面彻底见底，直接强制激活最后一项
                         if (currentId === 'scroll-sentinel') {
                             currentId = sections[sections.length - 1].getAttribute('id');
                         }
                         
                         allLinks.forEach(link => {
                             const href = link.getAttribute('href');
-                            if (href && href.includes(currentId)) {
-                                link.classList.add('active');
-                            } else {
-                                link.classList.remove('active');
-                            }
+                            link.classList.toggle('active', href && href.includes(currentId));
                         });
                     }
                 });
@@ -748,7 +756,7 @@
             if (sentinel) observer.observe(sentinel);
 
             // ==========================================
-            // 优化 2：平滑锚点滚动定位
+            // 优化 2：带防闪烁锁定的平滑滚动定位
             // ==========================================
             function handleNavClick(e) {
                 e.preventDefault();
@@ -756,19 +764,34 @@
                 const targetSection = document.querySelector(targetId);
                 
                 if (targetSection) {
+                    // 激活高亮锁定
+                    isProgrammaticScrolling = true;
+                    
+                    // 立即手动高亮当前点击的导航，不产生视觉延迟
+                    allLinks.forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('href') === targetId);
+                    });
+
                     const bottomNav = document.querySelector('.bottom-nav-container');
                     const isMobile = window.getComputedStyle(bottomNav).display !== 'none';
-                    
+                    let offsetPosition = 0;
+
                     if (isMobile) {
                         const elementTop = targetSection.getBoundingClientRect().top + window.scrollY;
-                        const offset = elementTop - (window.innerHeight / 2) + (targetSection.offsetHeight / 2);
-                        window.scrollTo({ top: offset, behavior: 'smooth' });
+                        offsetPosition = elementTop - (window.innerHeight / 2) + (targetSection.offsetHeight / 2);
                     } else {
                         const headerHeight = 90;
                         const elementPosition = targetSection.getBoundingClientRect().top;
-                        const offsetPosition = elementPosition + window.scrollY - headerHeight;
-                        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                        offsetPosition = elementPosition + window.scrollY - headerHeight;
                     }
+
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+
+                    // 旧浏览器兜底防死锁机制 (Debounce)
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        if (isProgrammaticScrolling) clearScrollLock();
+                    }, 800); 
                 }
             }
 
@@ -804,7 +827,7 @@
             });
 
             // ==========================================
-            // 优化 4：图片全屏弹窗展示
+            // 优化 4：图片弹窗逻辑
             // ==========================================
             const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
             const modalImg = document.getElementById('modalImg');
@@ -815,20 +838,18 @@
             };
 
             // ==========================================
-            // 优化 5：全局图片错误劫持逻辑 (Event Capture)
-            // 避免在每个 <img> 标签中硬编码 onerror，统一优雅托管失效图片
+            // 优化 5：智能区分的分级全局错误劫持 (Event Capture)
             // ==========================================
             document.addEventListener('error', (e) => {
                 if (e.target.tagName.toLowerCase() === 'img') {
-                    e.target.src = 'https://placehold.co/300x400?text=图片加载失败';
+                    // 判断是否是弹窗大图发生损坏
+                    if (e.target.classList.contains('dynamic-modal-preview')) {
+                        e.target.src = 'https://placehold.co/800x1000?text=图片大图加载失败';
+                    } else {
+                        e.target.src = 'https://placehold.co/300x400?text=图片加载失败';
+                    }
                 }
             }, true);
-
-            // 强制刷新后初始化视图到顶部
-            if ('scrollRestoration' in history) {
-                history.scrollRestoration = 'manual';
-            }
-            window.scrollTo(0, 0);
         });
     </script>
 </body>
