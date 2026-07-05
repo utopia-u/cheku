@@ -28,7 +28,9 @@
            ============================== */
         :root {
             --bg-body: #F2F4F7;
-            --bg-surface: #FFFFFF;
+            /* 优化：提供 RGB 通道数值，解决原生 CSS 无法解析 hex 变量传给 rgba() 的缺陷 */
+            --bg-surface-rgb: 255, 255, 255;
+            --bg-surface: rgb(var(--bg-surface-rgb));
             --text-primary: #1A1C21;
             --text-secondary: #64748B;
             
@@ -60,7 +62,8 @@
 
         [data-theme="dark"] {
             --bg-body: #0F172A;
-            --bg-surface: #1E293B;
+            --bg-surface-rgb: 30, 41, 59;
+            --bg-surface: rgb(var(--bg-surface-rgb));
             --text-primary: #F8FAFC; 
             --text-secondary: #CBD5E1; 
             
@@ -98,7 +101,8 @@
         /* Header */
         .app-header {
             padding: calc(12px + var(--safe-top)) 24px 12px;
-            background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface), 0.8) 100%);
+            /* 优化：使用修正后的 RGB 变量，确保半透明毛玻璃背景在所有浏览器完美渲染 */
+            background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface-rgb), 0.8) 100%);
             position: sticky;
             top: 0;
             z-index: 50;
@@ -111,7 +115,6 @@
         }
 
         [data-theme="dark"] .app-header {
-            background: rgba(15, 23, 42, 0.8);
             border-bottom: 1px solid rgba(255,255,255,0.05);
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
@@ -338,6 +341,7 @@
         /* 紧急应对模块 */
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         
+        /* 优化：由于将 div 升级为了真正的 button 标签，在此重置和优化基础样式 */
         .action-btn {
             background: var(--bg-body);
             padding: 20px;
@@ -349,6 +353,7 @@
             position: relative;
             overflow: hidden;
             touch-action: manipulation;
+            font-family: inherit;
         }
         .action-btn:active { transform: scale(0.96); }
         .action-icon { font-size: 1.6rem; margin-bottom: 12px; display: inline-block; }
@@ -465,8 +470,6 @@
 
             .action-grid { grid-template-columns: repeat(3, 1fr); }
             .action-btn.w-100 { grid-column: span 1 !important; }
-            .action-btn.w-100 .d-flex { flex-direction: column; align-items: flex-start !important; }
-            .action-btn.w-100 .d-flex > div:first-child { margin-bottom: 12px; margin-right: 0 !important; }
             
             .action-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
             [data-theme="dark"] .action-btn:hover { box-shadow: 0 12px 24px rgba(0,0,0,0.3); }
@@ -485,14 +488,14 @@
 
         <div class="d-flex align-items-center">
             <nav class="desktop-nav">
-                <a href="#risk" class="desktop-nav-link"><i class="fas fa-exclamation-circle"></i> 罚款</a>
-                <a href="#prevention" class="desktop-nav-link"><i class="fas fa-list-ol"></i> 流程</a>
-                <a href="#actions" class="desktop-nav-link"><i class="fas fa-bolt"></i> 紧急</a>
-                <a href="#weather" class="desktop-nav-link"><i class="fas fa-camera"></i> 天气</a>
+                <a href="#risk" class="desktop-nav-link" aria-label="查看罚款风险"><i class="fas fa-exclamation-circle"></i> 罚款</a>
+                <a href="#prevention" class="desktop-nav-link" aria-label="查看核心流程"><i class="fas fa-list-ol"></i> 流程</a>
+                <a href="#actions" class="desktop-nav-link" aria-label="查看紧急应对"><i class="fas fa-bolt"></i> 紧急</a>
+                <a href="#weather" class="desktop-nav-link" aria-label="查看天气防范"><i class="fas fa-camera"></i> 天气</a>
             </nav>
 
             <button id="themeToggle" class="btn border-0 rounded-circle d-flex align-items-center justify-content-center" 
-                    style="width: 44px; height: 44px; background-color: var(--bg-surface); color: var(--text-primary); box-shadow: var(--card-shadow);">
+                    style="width: 44px; height: 44px; background-color: var(--bg-surface); color: var(--text-primary); box-shadow: var(--card-shadow);" aria-label="切换深浅主题">
                 <i class="fas fa-moon" style="transition: transform 0.2s ease;"></i>
             </button>
         </div>
@@ -566,35 +569,35 @@
                 <div class="step-item" onclick="viewImage('https://i.ibb.co/ycpwLz53/IMG-5760.png')">
                     <div class="step-img-wrapper">
                         <span class="step-badge">步骤 1</span>
-                        <img src="https://i.ibb.co/ycpwLz53/IMG-5760.png" class="step-img" alt="举证到店" onerror="this.src='https://placehold.co/300x400?text=图片加载失败'">
+                        <img src="https://i.ibb.co/ycpwLz53/IMG-5760.png" class="step-img" alt="举证到店">
                     </div>
                     <div class="step-caption">举证到店</div>
                 </div>
                 <div class="step-item" onclick="viewImage('https://i.ibb.co/mF5twXL8/IMG-5774.jpg')">
                     <div class="step-img-wrapper">
                         <span class="step-badge">步骤 2</span>
-                        <img src="https://i.ibb.co/mF5twXL8/IMG-5774.jpg" class="step-img" alt="照片留证" onerror="this.src='https://placehold.co/300x400?text=图片加载失败'">
+                        <img src="https://i.ibb.co/mF5twXL8/IMG-5774.jpg" class="step-img" alt="照片留证">
                     </div>
                     <div class="step-caption">随便拍一张照片</div>
                 </div>
                 <div class="step-item" onclick="viewImage('https://i.ibb.co/zHn96kLf/IMG-5775.jpg')">
                     <div class="step-img-wrapper">
                         <span class="step-badge">步骤 3</span>
-                        <img src="https://i.ibb.co/zHn96kLf/IMG-5775.jpg" class="step-img" alt="提交举证" onerror="this.src='https://placehold.co/300x400?text=图片加载失败'">
+                        <img src="https://i.ibb.co/zHn96kLf/IMG-5775.jpg" class="step-img" alt="提交举证">
                     </div>
                     <div class="step-caption">提交举证</div>
                 </div>
                 <div class="step-item" onclick="viewImage('https://i.ibb.co/67PnNnBz/IMG-5777.jpg')">
                     <div class="step-img-wrapper">
                         <span class="step-badge">步骤 4</span>
-                        <img src="https://i.ibb.co/67PnNnBz/IMG-5777.jpg" class="step-img" alt="确认提交" onerror="this.src='https://placehold.co/300x400?text=图片加载失败'">
+                        <img src="https://i.ibb.co/67PnNnBz/IMG-5777.jpg" class="step-img" alt="确认提交">
                     </div>
                     <div class="step-caption">确认提交</div>
                 </div>
                 <div class="step-item" onclick="viewImage('https://i.ibb.co/fGdg0KjG/IMG-5779.jpg')">
                     <div class="step-img-wrapper">
                         <span class="step-badge">步骤 5</span>
-                        <img src="https://i.ibb.co/fGdg0KjG/IMG-5779.jpg" class="step-img" alt="点击报备" onerror="this.src='https://placehold.co/300x400?text=图片加载失败'">
+                        <img src="https://i.ibb.co/fGdg0KjG/IMG-5779.jpg" class="step-img" alt="点击报备">
                     </div>
                     <div class="step-caption">点击报备</div>
                 </div>
@@ -614,25 +617,25 @@
                 <span>订单快取消了怎么办？</span>
             </div>
             <div class="action-grid">
-                <div class="action-btn" style="background: var(--danger-bg); color: var(--danger-text);">
+                <button type="button" class="action-btn" style="background: var(--danger-bg); color: var(--danger-text);">
                     <i class="fas fa-phone action-icon"></i>
-                    <div class="fw-bold mb-1">先给商家打电话</div>
-                    <div class="text-xs opacity-75 lh-sm">让商家操作拒绝退款，拦截取消</div>
-                </div>
-                <div class="action-btn" style="background: var(--success-bg); color: var(--success-text);">
+                    <span class="d-block fw-bold mb-1">先给商家打电话</span>
+                    <span class="d-block text-xs opacity-75 lh-sm">让商家操作拒绝退款，拦截取消</span>
+                </button>
+                <button type="button" class="action-btn" style="background: var(--success-bg); color: var(--success-text);">
                     <i class="fas fa-comments-dollar action-icon"></i>
-                    <div class="fw-bold mb-1">安抚顾客情绪</div>
-                    <div class="text-xs opacity-75 lh-sm">可以和顾客卖惨，如在平台取消会罚款500元，引导顾客私下微信/支付宝转账</div>
-                </div>
-                <div class="action-btn w-100 d-flex align-items-center gap-3" style="grid-column: span 2; background: var(--accent-light); color: var(--accent-text);">
-                    <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; background: rgba(255,255,255,0.5); border-radius: 12px;">
+                    <span class="d-block fw-bold mb-1">安抚顾客情绪</span>
+                    <span class="d-block text-xs opacity-75 lh-sm">可以和顾客卖惨，引导顾客私下转账，避免罚款</span>
+                </button>
+                <button type="button" class="action-btn w-100 d-flex align-items-center gap-3" style="grid-column: span 2; background: var(--accent-light); color: var(--accent-text);">
+                    <span class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; background: rgba(255,255,255,0.5); border-radius: 12px;">
                         <i class="fas fa-check-circle fs-4"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">及时去点送达</div>
-                        <div class="text-xs opacity-75">如果离顾客位置不远，先去及时点送达</div>
-                    </div>
-                </div>
+                    </span>
+                    <span class="text-start">
+                        <span class="d-block fw-bold">及时去点送达</span>
+                        <span class="d-block text-xs opacity-75">如果离顾客位置不远，先去及时点送达</span>
+                    </span>
+                </button>
             </div>
         </section>
 
@@ -678,10 +681,10 @@
 
     <nav class="bottom-nav-container">
         <div class="bottom-nav">
-            <a href="#risk" class="nav-item"><i class="fas fa-exclamation-circle"></i></a>
-            <a href="#prevention" class="nav-item"><i class="fas fa-list-ol"></i></a>
-            <a href="#actions" class="nav-item"><i class="fas fa-bolt"></i></a>
-            <a href="#weather" class="nav-item"><i class="fas fa-camera"></i></a>
+            <a href="#risk" class="nav-item" aria-label="罚款风险"><i class="fas fa-exclamation-circle"></i></a>
+            <a href="#prevention" class="nav-item" aria-label="免责流程"><i class="fas fa-list-ol"></i></a>
+            <a href="#actions" class="nav-item" aria-label="紧急应对"><i class="fas fa-bolt"></i></a>
+            <a href="#weather" class="nav-item" aria-label="天气报备"><i class="fas fa-camera"></i></a>
         </div>
     </nav>
 
@@ -689,7 +692,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content bg-transparent border-0 shadow-none">
                 <div class="modal-body-wrapper text-center position-relative">
-                    <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center" data-bs-dismiss="modal">
+                    <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center" data-bs-dismiss="modal" aria-label="关闭弹窗">
                         <i class="fas fa-times"></i>
                     </button>
                     <img src="" id="modalImg" class="img-fluid rounded-4 shadow-lg" alt="全屏查看" style="max-height: 85vh; width: auto;">
@@ -698,29 +701,37 @@
         </div>
     </div>
 
+    <div id="scroll-sentinel" style="height: 1px; margin-top: -1px; pointer-events: none;"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const sections = document.querySelectorAll('section');
+            const sentinel = document.getElementById('scroll-sentinel');
             const navItems = document.querySelectorAll('.nav-item');
             const desktopLinks = document.querySelectorAll('.desktop-nav-link');
             const allLinks = [...navItems, ...desktopLinks];
 
             // ==========================================
-            // 优化 1：使用 IntersectionObserver 代替 Scroll 监听
+            // 优化 1：完全移除了旧版本的 Window Scroll 监听
+            // 整合哨兵节点，使用无感、零开销的 IntersectionObserver 处理触底兜底
             // ==========================================
             const observerOptions = {
                 root: null,
-                rootMargin: '-30% 0px -50% 0px', // 精准判定视口中部的激活卡片
+                rootMargin: '-30% 0px -50% 0px', 
                 threshold: 0
             };
 
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        const currentId = entry.target.getAttribute('id');
+                        let currentId = entry.target.getAttribute('id');
                         
-                        // 同步移动端和桌面端的导航高亮
+                        // 兜底机制：如果滚动到了隐形哨兵，代表页面彻底见底，直接强制激活最后一项
+                        if (currentId === 'scroll-sentinel') {
+                            currentId = sections[sections.length - 1].getAttribute('id');
+                        }
+                        
                         allLinks.forEach(link => {
                             const href = link.getAttribute('href');
                             if (href && href.includes(currentId)) {
@@ -734,16 +745,7 @@
             }, observerOptions);
 
             sections.forEach(section => observer.observe(section));
-
-            // 特殊边缘兜底：滑动到页面最底部时直接高亮最后一项
-            window.addEventListener('scroll', () => {
-                if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 50) {
-                    const lastId = sections[sections.length - 1].getAttribute('id');
-                    allLinks.forEach(link => {
-                        link.classList.toggle('active', link.getAttribute('href').includes(lastId));
-                    });
-                }
-            }, { passive: true });
+            if (sentinel) observer.observe(sentinel);
 
             // ==========================================
             // 优化 2：平滑锚点滚动定位
@@ -802,18 +804,25 @@
             });
 
             // ==========================================
-            // 优化 4：图片弹窗展示及异常兜底
+            // 优化 4：图片全屏弹窗展示
             // ==========================================
             const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
             const modalImg = document.getElementById('modalImg');
 
             window.viewImage = function(url) {
                 modalImg.src = url;
-                modalImg.onerror = function() {
-                    this.src = 'https://placehold.co/600x800?text=图片加载失败';
-                };
                 imageModal.show();
             };
+
+            // ==========================================
+            // 优化 5：全局图片错误劫持逻辑 (Event Capture)
+            // 避免在每个 <img> 标签中硬编码 onerror，统一优雅托管失效图片
+            // ==========================================
+            document.addEventListener('error', (e) => {
+                if (e.target.tagName.toLowerCase() === 'img') {
+                    e.target.src = 'https://placehold.co/300x400?text=图片加载失败';
+                }
+            }, true);
 
             // 强制刷新后初始化视图到顶部
             if ('scrollRestoration' in history) {
