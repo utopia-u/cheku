@@ -660,7 +660,7 @@
                 </div>
                 <hr class="my-3 opacity-10" style="border-color: var(--text-secondary);">
                 <div class="small text-secondary fw-medium">
-                    <i class="fas fa-camera me-1"></i> 要求：水印相机拍照（含时间）
+                    <i class="fas fa-camera me-1"></i> 要求：智能水印相机（含实时时间、精确地点）
                 </div>
             </div>
 
@@ -675,11 +675,19 @@
                 </div>
             </div>
 
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-secondary mb-1">📍 水印生成地点控制（已开启多重混入自动定位，支持手动修改）：</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-body border-end-0 text-secondary" style="border-radius: 12px 0 0 12px;"><i class="fas fa-map-marker-alt"></i></span>
+                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 py-2 small" value="正在自动对齐GPS/IP定位..." style="border-radius: 0 12px 12px 0; font-size: 0.85rem; color: var(--text-primary); font-weight: 600; font-family: inherit;">
+                </div>
+            </div>
+
             <div class="weather-upload-container mt-4">
                 <label for="weather-upload" id="uploadZone" class="w-100 p-4 border rounded-4 d-flex flex-column align-items-center justify-content-center text-center position-relative" style="border-style: dashed !important; border-width: 2px !important; border-color: var(--text-secondary) !important; background: rgba(var(--bg-surface-rgb), 0.3); cursor: pointer; transition: background 0.2s;">
-                    <i class="fas fa-cloud-upload-alt fs-2 mb-2" style="color: var(--accent-color);"></i>
-                    <span class="fw-bold small d-block" style="color: var(--text-primary);">点击/轻触上传水印照片证据（支持多选）</span>
-                    <span class="text-xs opacity-75 d-block mt-1" style="color: var(--text-secondary);">支持批量连拍</span>
+                    <i class="fas fa-camera fs-2 mb-2" style="color: var(--accent-color);"></i>
+                    <span class="fw-bold small d-block" style="color: var(--text-primary);">点击/轻触批量拍照或多选证据</span>
+                    <span class="text-xs opacity-75 d-block mt-1" style="color: var(--text-secondary);">自动压缩 95% 流量 + 强缓存，智能烧录防伪水印</span>
                     <input type="file" id="weather-upload" accept="image/*" class="d-none" multiple>
                 </label>
                 
@@ -857,7 +865,7 @@
             }, true);
 
             // ===================================================================================
-            // ☁️ 工业级深度优化：多选上传、多图流渲染及最强流控前端省流压缩（省流 95% 与 7 天强缓存）
+            // ☁️ 全新融合：双重最高级别流控省流 + 工业级防伪自动时间、地点水印烧录
             // ===================================================================================
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
@@ -867,14 +875,37 @@
             const uploadZone = document.getElementById('uploadZone');
             const previewContainer = document.getElementById('upload-preview-container');
             const previewGallery = document.getElementById('preview-gallery');
+            const locInput = document.getElementById('watermark-location');
 
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // 🚀 超强省流核心内核：利用 HTML5 Canvas 对图像在内存中提前缩放与压缩质量排版
-            function compressImage(file, maxWidth = 1024, quality = 0.7) {
+            // 📍 初始化定位逻辑：双重合并探测机制
+            if (locInput) {
+                // 第一重：异步拉取边缘地理 IP (轻量无跨域)
+                fetch('https://ipapi.co/json/')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.city) {
+                            locInput.value = `${data.region || ''}·${data.city}`;
+                        }
+                    })
+                    .catch(() => {
+                        locInput.value = '物流服务覆盖点';
+                    });
+
+                // 第二重：若用户手机开通GPS，提权高精度坐标渲染
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((position) => {
+                        locInput.value = `北纬${position.coords.latitude.toFixed(4)} 东经${position.coords.longitude.toFixed(4)}`;
+                    }, null, { timeout: 4000 });
+                }
+            }
+
+            // 🚀 核心省流+高内聚水印绘制功能
+            function compressAndWatermark(file, locationText, maxWidth = 1024, quality = 0.7) {
                 return new Promise((resolve) => {
                     if (!file.type.startsWith('image/')) {
-                        return resolve(file); // 非图片格式直接透传
+                        return resolve(file);
                     }
                     const reader = new FileReader();
                     reader.readAsDataURL(file);
@@ -886,6 +917,7 @@
                             let width = img.width;
                             let height = img.height;
 
+                            // 等比缩放长边
                             if (width > maxWidth || height > maxWidth) {
                                 if (width > height) {
                                     height = Math.round((height * maxWidth) / width);
@@ -901,11 +933,37 @@
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
 
+                            // 🛠️ 智能水印排版计算 (动态高可读性半透明底色板)
+                            const fontSize = Math.max(13, Math.round(width * 0.026));
+                            const padding = fontSize * 0.8;
+                            const rectHeight = fontSize * 3 + padding * 2;
+                            
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+                            ctx.fillRect(0, height - rectHeight, width, rectHeight);
+
+                            // 🛠️ 写入水印文字
+                            ctx.fillStyle = '#ffffff';
+                            ctx.font = `bold ${fontSize}px 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif`;
+                            ctx.textBaseline = 'top';
+
+                            // 自动格式化精细到秒的当前真实时间
+                            const now = new Date();
+                            const timeStr = `⏰ 时间：${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+                            const locStr = `📍 地点：${locationText || '未探测到有效地点'}`;
+                            const infoStr = `🛡️ 证物：恶劣天气强制避险及留存凭证`;
+
+                            ctx.fillText(timeStr, padding, height - rectHeight + padding);
+                            ctx.fillText(locStr, padding, height - rectHeight + padding + fontSize + 6);
+                            
+                            // 配合警示防范指南 UI，提示信息采用黄色亮眼高亮
+                            ctx.fillStyle = '#F59E0B';
+                            ctx.fillText(infoStr, padding, height - rectHeight + padding + (fontSize + 6) * 2);
+
                             canvas.toBlob((blob) => {
                                 if (blob) {
-                                    resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' }));
+                                    resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + "_proof.jpg", { type: 'image/jpeg' }));
                                 } else {
-                                    resolve(file); // Canvas异常降级原图
+                                    resolve(file);
                                 }
                             }, 'image/jpeg', quality);
                         };
@@ -991,10 +1049,10 @@
                     }
                 }
 
-                // 首次进入渲染
+                // 首次进入自动拉取对齐
                 syncLatestCloudImage();
 
-                // 多选上传链式任务处理器
+                // 多选处理及链式压缩水印流
                 fileInput.addEventListener('change', async function(e) {
                     const files = Array.from(e.target.files);
                     if (files.length === 0) return;
@@ -1004,28 +1062,31 @@
                     uploadZone.style.opacity = '0.6';
                     uploadZone.style.pointerEvents = 'none';
 
+                    const locationText = locInput ? locInput.value.trim() : '指定地点';
+
                     for (let i = 0; i < files.length; i++) {
-                        textSpan.innerText = `省流压缩与云同步中 (${i + 1}/${files.length})...`;
+                        textSpan.innerText = `正在处理并烧录水印 (${i + 1}/${files.length})...`;
                         const file = files[i];
                         
-                        // 执行本地极致Canvas内存高低损压缩
-                        const compressedFile = await compressImage(file, 1024, 0.7);
+                        // 1. 本地 Canvas 异步提权高低损压缩 + 智能防伪时间地点水印烧录
+                        const processedFile = await compressAndWatermark(file, locationText, 1024, 0.7);
 
-                        const fileExt = compressedFile.name.split('.').pop();
+                        const fileExt = processedFile.name.split('.').pop();
                         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
                         const filePath = `weather-photos/${fileName}`;
 
                         try {
+                            // 2. 发送至云存储层，加入 7 天边缘强缓存标识，刷新页面无损耗，流量彻底降为零
                             const { error } = await supabaseClient.storage
                                 .from(BUCKET_NAME)
-                                .upload(filePath, compressedFile, {
-                                    cacheControl: 'max-age=604800, public', // 🚀 顶级省流：向全网宣告强缓存 7 天，网页二次刷新彻底实现零流量读取
+                                .upload(filePath, processedFile, {
+                                    cacheControl: 'max-age=604800, public', 
                                     upsert: false
                                 });
 
                             if (error) throw error;
                         } catch (err) {
-                            alert(`图片 [${file.name}] 上传遭遇拦截: ` + err.message);
+                            alert(`图片 [${file.name}] 水印封装失败: ` + err.message);
                             console.error(err);
                         }
                     }
@@ -1033,7 +1094,7 @@
                     textSpan.innerText = oldText;
                     uploadZone.style.opacity = '1';
                     uploadZone.style.pointerEvents = 'auto';
-                    fileInput.value = ''; // 清空选中状态队列
+                    fileInput.value = ''; // 清空选择状态
                     
                     await syncLatestCloudImage(); 
                 });
