@@ -664,7 +664,7 @@
                 </div>
             </div>
 
-            <div class="weather-grid mb-4">
+            <div class="weather-grid">
                 <div class="weather-card">
                     <i class="fas fa-water"></i>
                     <div class="small fw-bold">积水拍摄</div>
@@ -675,11 +675,11 @@
                 </div>
             </div>
 
-            <div class="weather-upload-container">
+            <div class="weather-upload-container mt-4">
                 <label for="weather-upload" id="uploadZone" class="w-100 p-4 border rounded-4 d-flex flex-column align-items-center justify-content-center text-center position-relative" style="border-style: dashed !important; border-width: 2px !important; border-color: var(--text-secondary) !important; background: rgba(var(--bg-surface-rgb), 0.3); cursor: pointer; transition: background 0.2s;">
                     <i class="fas fa-cloud-upload-alt fs-2 mb-2" style="color: var(--accent-color);"></i>
                     <span class="fw-bold small d-block" style="color: var(--text-primary);">点击/轻触上传水印照片证据</span>
-                    <span class="text-xs opacity-75 d-block mt-1" style="color: var(--text-secondary);">支持现场拍照或从相册选择</span>
+                    <span class="text-xs opacity-75 d-block mt-1" style="color: var(--text-secondary);">支持现场拍照或从相册选择并全网云同步</span>
                     <input type="file" id="weather-upload" accept="image/*" class="d-none">
                 </label>
                 
@@ -859,7 +859,7 @@
             }, true);
 
             // ========================================================
-            // ☁️ 核心逻辑升级：直接拉取云端网盘数据，彻底防刷新丢失
+            // ☁️ 云端闭环：对接 Supabase Storage 异步真实上传与云端删除逻辑
             // ========================================================
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
@@ -872,13 +872,14 @@
             const removeBtn = document.getElementById('remove-upload');
 
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            let isDeletedLocally = false; // 用于控制本地删除状态
+            
+            // 全局追踪当前在云端展示的文件相对路径，给删除按钮精确导航
+            let currentCloudFilePath = '';
 
             if (fileInput && uploadZone && previewContainer && previewImg && removeBtn && supabaseClient) {
                 
                 // 📡 自动拉取云端存储桶内最新上传文件的核心函数
                 async function syncLatestCloudImage() {
-                    if (isDeletedLocally) return; 
                     try {
                         const { data, error } = await supabaseClient
                             .storage
@@ -894,25 +895,41 @@
                             // 过滤系统占位符文件
                             const imageFiles = data.filter(file => file.name !== '.emptyFolderPlaceholder');
                             if (imageFiles.length > 0) {
-                                // 按照真实建立时间最亲排序
+                                // 按照真实建立时间最新排序
                                 imageFiles.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                                 const latestFile = imageFiles[0];
                                 
+                                currentCloudFilePath = `weather-photos/${latestFile.name}`;
+                                
                                 const { data: publicUrlData } = supabaseClient.storage
                                     .from(BUCKET_NAME)
-                                    .getPublicUrl(`weather-photos/${latestFile.name}`);
+                                    .getPublicUrl(currentCloudFilePath);
 
                                 previewImg.src = publicUrlData.publicUrl;
                                 previewContainer.classList.remove('d-none');
                                 uploadZone.classList.add('d-none');
+                            } else {
+                                // 云端无图片时展现上传状态
+                                clearLocalUI();
                             }
+                        } else {
+                            clearLocalUI();
                         }
                     } catch (err) {
                         console.error('自动读取云端图片失败，请检查 RLS SELECT 权限策略是否开放：', err);
                     }
                 }
 
-                // 首次进入或每次刷新页面时，自动同步最新的云端图片
+                // 辅助清空本地 UI 展现
+                function clearLocalUI() {
+                    fileInput.value = ''; 
+                    previewImg.src = '';
+                    previewContainer.classList.add('d-none'); 
+                    uploadZone.classList.remove('d-none'); 
+                    currentCloudFilePath = '';
+                }
+
+                // 首次进入或每次刷新页面时，自动从云端同步最新状态
                 syncLatestCloudImage();
 
                 // 监听新图片选择并上传
@@ -940,8 +957,7 @@
 
                         if (error) throw error;
 
-                        isDeletedLocally = false; // 解除删除状态标记
-                        await syncLatestCloudImage(); // 上传成功后，刷新抓取最新图片
+                        await syncLatestCloudImage(); // 上传成功后，刷新抓取并对齐最新云路径
 
                     } catch (error) {
                         alert('上传到云存储失败，请确保后台 RLS 策略已允许 INSERT 操作：' + error.message);
@@ -953,16 +969,37 @@
                     }
                 });
 
-                // 监听删除按钮
-                removeBtn.addEventListener('click', function(e) {
-                    e.stopPropagation(); 
-                    fileInput.value = ''; 
-                    previewImg.src = '';
-                    previewContainer.classList.add('d-none'); 
-                    uploadZone.style.opacity = '1';
-                    uploadZone.style.pointerEvents = 'auto';
-                    uploadZone.classList.remove('d-none'); 
-                    isDeletedLocally = true; // 锁定本地删除，直到下一次重新主动上传新图
+                // 监听删除按钮（真正销毁云端文件，实现完全闭环）
+                removeBtn.addEventListener('click', async function(e) {
+                    e.stopPropagation(); // 阻止触发预览弹窗
+
+                    if (currentCloudFilePath) {
+                        // 局部加载动画状态，提升工程体验
+                        removeBtn.disabled = true;
+                        removeBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 0.85rem;"></i>';
+
+                        try {
+                            // 调用 Supabase 存储层销毁 API
+                            const { data, error } = await supabaseClient.storage
+                                .from(BUCKET_NAME)
+                                .remove([currentCloudFilePath]);
+
+                            if (error) throw error;
+
+                            // 销毁成功后，重置本地 UI
+                            clearLocalUI();
+                            console.log('云端文件已彻底销毁');
+
+                        } catch (error) {
+                            alert('从云端彻底删除失败！请先在 Supabase 执行最新的 SQL 以开放 DELETE 权限：' + error.message);
+                            console.error(error);
+                        } finally {
+                            removeBtn.disabled = false;
+                            removeBtn.innerHTML = '<i class="fas fa-times" style="font-size: 0.85rem;"></i>';
+                        }
+                    } else {
+                        clearLocalUI();
+                    }
                 });
             }
         });
