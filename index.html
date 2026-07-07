@@ -24,132 +24,484 @@
     </script>
 
     <style>
-        /* [保留原版所有 CSS 样式，未作删减以保证 UI 还原度] */
+        /* ==============================
+           1. 全局与移动端基础样式
+           ============================== */
         :root {
-            --bg-body: #F2F4F7; --bg-surface-rgb: 255, 255, 255; --bg-surface: rgb(var(--bg-surface-rgb));
-            --text-primary: #1A1C21; --text-secondary: #64748B;
-            --accent-color: #3B82F6; --accent-light: #EFF6FF; --accent-text: #1D4ED8; 
-            --danger-color: #EF4444; --danger-bg: #FEF2F2; --danger-text: #B91C1C;
-            --success-color: #10B981; --success-bg: #ECFDF5; --success-text: #047857;
-            --warning-color: #F59E0B; --warning-bg: #FFFBEB; --warning-text: #B45309;
+            --bg-body: #F2F4F7;
+            --bg-surface-rgb: 255, 255, 255;
+            --bg-surface: rgb(var(--bg-surface-rgb));
+            --text-primary: #1A1C21;
+            --text-secondary: #64748B;
+            
+            --accent-color: #3B82F6;
+            --accent-light: #EFF6FF;
+            --accent-text: #1D4ED8; 
+            
+            --danger-color: #EF4444;
+            --danger-bg: #FEF2F2;
+            --danger-text: #B91C1C;
+            
+            --success-color: #10B981;
+            --success-bg: #ECFDF5;
+            --success-text: #047857;
+            
+            --warning-color: #F59E0B;
+            --warning-bg: #FFFBEB;
+            --warning-text: #B45309;
+            
             --border-radius: 24px;
             --card-shadow: 0 10px 25px -5px rgba(0,0,0,0.06), 0 4px 10px -3px rgba(0,0,0,0.03);
             --inner-card-shadow: 0 6px 16px rgba(0,0,0,0.06);
-            --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom);
-            --nav-height: 80px; --header-height: 72px;
+            
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+            --nav-height: 80px;
+            --header-height: 72px;
         }
 
         [data-theme="dark"] {
-            --bg-body: #0F172A; --bg-surface-rgb: 30, 41, 59; --bg-surface: rgb(var(--bg-surface-rgb));
-            --text-primary: #F8FAFC; --text-secondary: #CBD5E1; 
-            --accent-color: #60A5FA; --accent-light: rgba(59, 130, 246, 0.15); --accent-text: #93C5FD; 
-            --danger-bg: rgba(239, 68, 68, 0.15); --danger-text: #FCA5A5;
-            --success-bg: rgba(16, 185, 129, 0.15); --success-text: #6EE7B7;
-            --warning-bg: rgba(245, 158, 11, 0.15); --warning-text: #FCD34D;
-            --card-shadow: 0 10px 30px rgba(0,0,0,0.4); --inner-card-shadow: 0 6px 16px rgba(0,0,0,0.3);
+            --bg-body: #0F172A;
+            --bg-surface-rgb: 30, 41, 59;
+            --bg-surface: rgb(var(--bg-surface-rgb));
+            --text-primary: #F8FAFC; 
+            --text-secondary: #CBD5E1; 
+            
+            --accent-color: #60A5FA;
+            --accent-light: rgba(59, 130, 246, 0.15);
+            --accent-text: #93C5FD; 
+            
+            --danger-bg: rgba(239, 68, 68, 0.15);
+            --danger-text: #FCA5A5;
+            
+            --success-bg: rgba(16, 185, 129, 0.15);
+            --success-text: #6EE7B7;
+            
+            --warning-bg: rgba(245, 158, 11, 0.15);
+            --warning-text: #FCD34D;
+            
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            --inner-card-shadow: 0 6px 16px rgba(0,0,0,0.3);
         }
 
-        html, body { touch-action: manipulation; scroll-behavior: smooth; }
-        body { font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif; background-color: var(--bg-body); color: var(--text-primary); padding-bottom: calc(var(--nav-height) + 20px + var(--safe-bottom)); -webkit-tap-highlight-color: transparent; transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease; line-height: 1.6; }
-        .app-header { padding: calc(12px + var(--safe-top)) 24px 12px; background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface-rgb), 0.8) 100%); position: sticky; top: 0; z-index: 50; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.03); min-height: var(--header-height); box-sizing: border-box; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-        [data-theme="dark"] .app-header { border-bottom: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-        .header-title span { font-size: 1.25rem; font-weight: 800; background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        html, body {
+            touch-action: manipulation;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            padding-bottom: calc(var(--nav-height) + 20px + var(--safe-bottom));
+            -webkit-tap-highlight-color: transparent;
+            transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .app-header {
+            padding: calc(12px + var(--safe-top)) 24px 12px;
+            background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface-rgb), 0.8) 100%);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+            min-height: var(--header-height);
+            box-sizing: border-box;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+
+        [data-theme="dark"] .app-header {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .header-title span {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         .desktop-nav { display: none; }
-        .section-card { background: var(--bg-surface); margin: 20px; padding: 24px; border-radius: var(--border-radius); box-shadow: var(--card-shadow); border: 1px solid rgba(255,255,255,0.5); transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        [data-theme="dark"] .section-card { border: 1px solid rgba(255,255,255,0.05); }
-        .section-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; letter-spacing: -0.01em; color: var(--text-primary); }
-        .icon-box { width: 38px; height: 38px; background: var(--accent-light); color: var(--accent-color); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-        .alert { box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02); }
-        [data-theme="dark"] .alert { box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.05); }
-        .ticket-wrapper { margin: 24px 20px; position: relative; z-index: 1; -webkit-filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(220, 38, 38, 0.3)); filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(220, 38, 38, 0.3)); transform: translateZ(0); }
-        .ticket-card { --notch-size: 14px; --bottom-height: 100px; width: 100%; display: block; border-radius: var(--border-radius); background: radial-gradient(circle at 100% 0%, rgba(255,255,255,0.2) 0%, transparent 50%), linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 100%), linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; position: relative; -webkit-mask-image: radial-gradient(circle at 0 calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)), radial-gradient(circle at 100% calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)); -webkit-mask-size: 51% 100%; -webkit-mask-position: left, right; -webkit-mask-repeat: no-repeat; mask-image: radial-gradient(circle at 0 calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)), radial-gradient(circle at 100% calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)); mask-size: 51% 100%; mask-position: left, right; mask-repeat: no-repeat; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15); }
-        .ticket-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 10px, transparent 10px, transparent 20px); pointer-events: none; }
-        .ticket-content { position: relative; z-index: 3; padding: 28px 24px var(--bottom-height); display: flex; flex-direction: column; height: 100%; }
-        .ticket-dashed-line { position: absolute; bottom: var(--bottom-height); left: 0; right: 0; border-top: 2px dashed rgba(255,255,255,0.3); height: 0; opacity: 0.6; margin: 0; }
-        .fine-amount-wrapper { display: flex; align-items: baseline; margin-top: 4px; }
-        .fine-symbol { font-size: 1.5rem; font-weight: 600; margin-right: 4px; opacity: 0.9; }
-        .fine-amount { font-size: 3.8rem; font-weight: 800; letter-spacing: -3px; line-height: 0.9; font-family: 'Plus Jakarta Sans', sans-serif; text-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-        .fine-unit { font-size: 1rem; opacity: 0.8; font-weight: 600; margin-left: 8px; }
-        .info-pill-container { position: absolute; bottom: 0; left: 0; right: 0; height: var(--bottom-height); background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.2)); padding: 0 24px; backdrop-filter: blur(5px); display: flex; align-items: center; }
-        .icon-warning-glow { width: 44px; height: 44px; background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3); border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .steps-scroller { display: flex; gap: 16px; overflow-x: auto; padding: 4px 4px 20px 4px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+
+        /* 通用卡片样式 */
+        .section-card {
+            background: var(--bg-surface);
+            margin: 20px;
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        [data-theme="dark"] .section-card {
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+        }
+
+        .icon-box {
+            width: 38px;
+            height: 38px;
+            background: var(--accent-light);
+            color: var(--accent-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .alert {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        [data-theme="dark"] .alert {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* ==============================
+           2. 票据罚款卡片
+           ============================== */
+        .ticket-wrapper {
+            margin: 24px 20px;
+            position: relative;
+            z-index: 1;
+            -webkit-filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(220, 38, 38, 0.3));
+            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(220, 38, 38, 0.3));
+            transform: translateZ(0);
+        }
+
+        .ticket-card {
+            --notch-size: 14px; 
+            --bottom-height: 100px;
+            width: 100%;
+            display: block;
+            border-radius: var(--border-radius);
+            background: 
+                radial-gradient(circle at 100% 0%, rgba(255,255,255,0.2) 0%, transparent 50%),
+                linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 100%),
+                linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            color: white;
+            position: relative;
+            
+            -webkit-mask-image: 
+                radial-gradient(circle at 0 calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)),
+                radial-gradient(circle at 100% calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px));
+            -webkit-mask-size: 51% 100%;
+            -webkit-mask-position: left, right;
+            -webkit-mask-repeat: no-repeat;
+            
+            mask-image: 
+                radial-gradient(circle at 0 calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)),
+                radial-gradient(circle at 100% calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px));
+            mask-size: 51% 100%;
+            mask-position: left, right;
+            mask-repeat: no-repeat;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15); 
+        }
+
+        .ticket-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: repeating-linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.03) 0px,
+                rgba(255, 255, 255, 0.03) 10px,
+                transparent 10px,
+                transparent 20px
+            );
+            pointer-events: none;
+        }
+
+        .ticket-content { 
+            position: relative; 
+            z-index: 3; 
+            padding: 28px 24px var(--bottom-height);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .ticket-dashed-line { 
+            position: absolute;
+            bottom: var(--bottom-height); 
+            left: 0; right: 0;
+            border-top: 2px dashed rgba(255,255,255,0.3); 
+            height: 0;
+            opacity: 0.6;
+            margin: 0;
+        }
+
+        .fine-amount-wrapper {
+            display: flex;
+            align-items: baseline;
+            margin-top: 4px;
+        }
+        .fine-symbol {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-right: 4px;
+            opacity: 0.9;
+        }
+        .fine-amount { 
+            font-size: 3.8rem;
+            font-weight: 800; 
+            letter-spacing: -3px; 
+            line-height: 0.9; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            text-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .fine-unit {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .info-pill-container {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: var(--bottom-height);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.2)); 
+            padding: 0 24px;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+        }
+        
+        .icon-warning-glow {
+            width: 44px; height: 44px; 
+            background: rgba(255,255,255,0.2); 
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 14px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* 步骤横向滚动列表 */
+        .steps-scroller {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 4px 4px 20px 4px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
         .steps-scroller::-webkit-scrollbar { display: none; }
-        .step-item { min-width: 130px; width: 130px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: transform 0.2s ease; }
+
+        .step-item {
+            min-width: 130px;
+            width: 130px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
         .step-item:active { transform: scale(0.95); }
-        .step-img-wrapper { position: relative; width: 100%; aspect-ratio: 1/1; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 15px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.05); background-color: #cbd5e1; transition: box-shadow 0.3s ease; }
+
+        .step-img-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1/1; 
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.08); 
+            border: 1px solid rgba(0,0,0,0.05);
+            background-color: #cbd5e1;
+            transition: box-shadow 0.3s ease;
+        }
         [data-theme="dark"] .step-img-wrapper { box-shadow: 0 8px 15px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); background-color: #334155; }
         .step-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
         .step-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; }
         .step-caption { font-size: 0.85rem; text-align: center; font-weight: 600; color: var(--text-primary); }
+
+        /* 紧急应对模块 */
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .action-btn { background: var(--bg-body); padding: 20px; border-radius: 20px; border: 0; box-shadow: var(--inner-card-shadow); text-align: left; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; touch-action: manipulation; font-family: inherit; }
+        
+        .action-btn {
+            background: var(--bg-body);
+            padding: 20px;
+            border-radius: 20px;
+            border: 0;
+            box-shadow: var(--inner-card-shadow);
+            text-align: left;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            touch-action: manipulation;
+            font-family: inherit;
+        }
         .action-btn:active { transform: scale(0.96); }
         .action-icon { font-size: 1.6rem; margin-bottom: 12px; display: inline-block; }
-        .bottom-nav-container { position: fixed; bottom: calc(20px + var(--safe-bottom)); left: 0; right: 0; display: flex; justify-content: center; z-index: 1000; pointer-events: none; }
-        .bottom-nav { pointer-events: auto; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 32px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.3); }
+
+        /* 移动端底部悬浮导航 */
+        .bottom-nav-container {
+            position: fixed;
+            bottom: calc(20px + var(--safe-bottom));
+            left: 0; right: 0;
+            display: flex;
+            justify-content: center;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .bottom-nav {
+            pointer-events: auto;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
         [data-theme="dark"] .bottom-nav { background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .nav-item { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 1.2rem; transition: all 0.3s; text-decoration: none; position: relative; touch-action: manipulation; }
         .nav-item.active { color: #fff; background: var(--text-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         [data-theme="dark"] .nav-item.active { background: var(--accent-color); color: #fff; }
+
+        /* 气象防范摄影模块 */
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .weather-card { background: #64748B; border-radius: 16px; aspect-ratio: 16/9; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; position: relative; overflow: hidden; box-shadow: var(--inner-card-shadow); }
+        .weather-card { 
+            background: #64748B; 
+            border-radius: 16px; 
+            aspect-ratio: 16/9; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: var(--inner-card-shadow);
+        }
         .weather-card i { margin-bottom: 6px; font-size: 1.5rem; opacity: 0.9; }
+
+        /* 通用原子辅助类 */
         .btn-close-custom { background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; backdrop-filter: blur(4px); transition: background 0.2s; }
         .btn-close-custom:active { background: rgba(0,0,0,0.8); }
-        .opacity-75 { opacity: 0.75; } .fw-800 { font-weight: 800; } .fw-900 { font-weight: 900; }
-        .text-xs { font-size: 0.75rem; } .text-sm { font-size: 0.875rem; }
+        .opacity-75 { opacity: 0.75; }
+        .fw-800 { font-weight: 800; }
+        .fw-900 { font-weight: 900; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
         .desktop-hint { display: none; }
-        
-        /* Toast 提示框样式补充 */
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1055; }
 
+        /* ==============================
+           3. 宽屏/桌面PC端媒体查询响应式
+           ============================== */
         @media (min-width: 992px) {
             body { padding-bottom: 40px; }
-            .main-layout-wrapper { max-width: 1200px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 360px 1fr; grid-template-areas: "fines process" "weather actions"; gap: 24px; align-items: start; }
+
+            .main-layout-wrapper {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 24px;
+                display: grid;
+                grid-template-columns: 360px 1fr; 
+                grid-template-areas: 
+                    "fines process"
+                    "weather actions";
+                gap: 24px;
+                align-items: start;
+            }
+
             .section-card, .ticket-wrapper { margin: 0 !important; height: 100%; }
             .ticket-card { height: 100%; }
             .ticket-content { justify-content: space-between; }
-            #risk { grid-area: fines; } #prevention { grid-area: process; } #actions { grid-area: actions; } #weather { grid-area: weather; }
+
+            #risk { grid-area: fines; }
+            #prevention { grid-area: process; }
+            #actions { grid-area: actions; }
+            #weather { grid-area: weather; }
+
             .bottom-nav-container { display: none !important; }
+            
             .desktop-nav { display: flex; gap: 12px; margin-right: 24px; }
-            .desktop-nav-link { text-decoration: none; color: var(--text-secondary); font-weight: 600; font-size: 0.95rem; padding: 8px 16px; border-radius: 12px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+            .desktop-nav-link {
+                text-decoration: none;
+                color: var(--text-secondary);
+                font-weight: 600;
+                font-size: 0.95rem;
+                padding: 8px 16px;
+                border-radius: 12px;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
             .desktop-nav-link:hover { background: rgba(0,0,0,0.03); color: var(--text-primary); }
             [data-theme="dark"] .desktop-nav-link:hover { background: rgba(255,255,255,0.05); }
             .desktop-nav-link.active { background: var(--accent-light); color: var(--accent-text); }
+
             .steps-scroller { flex-wrap: wrap; overflow: visible; justify-content: space-between; padding-bottom: 0; }
             .step-item { width: 18%; min-width: unset; }
             .step-item:hover .step-img-wrapper { box-shadow: 0 15px 30px rgba(0,0,0,0.12); transform: translateY(-4px); }
             .step-item:hover .step-img { transform: scale(1.08); }
-            .mobile-hint { display: none !important; } .desktop-hint { display: block !important; }
+            
+            .mobile-hint { display: none !important; }
+            .desktop-hint { display: block !important; }
+
             .action-grid { grid-template-columns: repeat(3, 1fr); }
             .action-btn.w-100 { grid-column: span 1 !important; }
+            
             .action-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
             [data-theme="dark"] .action-btn:hover { box-shadow: 0 12px 24px rgba(0,0,0,0.3); }
         }
     </style>
 </head>
 <body>
-    <div id="toast-container" class="toast-container"></div>
 
     <header class="app-header d-flex justify-content-between align-items-center">
         <div>
-            <div class="header-title"><span>物流责任防范指南</span></div>
+            <div class="header-title">
+                <span>物流责任防范指南</span>
+            </div>
             <p class="text-secondary small mb-0 fw-medium opacity-75">物流责避险手册</p>
         </div>
+
         <div class="d-flex align-items-center">
             <nav class="desktop-nav">
-                <a href="#risk" class="desktop-nav-link"><i class="fas fa-exclamation-circle"></i> 罚款</a>
-                <a href="#prevention" class="desktop-nav-link"><i class="fas fa-list-ol"></i> 流程</a>
-                <a href="#actions" class="desktop-nav-link"><i class="fas fa-bolt"></i> 紧急</a>
-                <a href="#weather" class="desktop-nav-link"><i class="fas fa-camera"></i> 天气</a>
+                <a href="#risk" class="desktop-nav-link" aria-label="查看罚款风险"><i class="fas fa-exclamation-circle"></i> 罚款</a>
+                <a href="#prevention" class="desktop-nav-link" aria-label="查看核心流程"><i class="fas fa-list-ol"></i> 流程</a>
+                <a href="#actions" class="desktop-nav-link" aria-label="查看紧急应对"><i class="fas fa-bolt"></i> 紧急</a>
+                <a href="#weather" class="desktop-nav-link" aria-label="查看天气防范"><i class="fas fa-camera"></i> 天气</a>
             </nav>
-            <button id="themeToggle" class="btn border-0 rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: var(--bg-surface); color: var(--text-primary); box-shadow: var(--card-shadow);">
+
+            <button id="themeToggle" class="btn border-0 rounded-circle d-flex align-items-center justify-content-center" 
+                    style="width: 44px; height: 44px; background-color: var(--bg-surface); color: var(--text-primary); box-shadow: var(--card-shadow);" aria-label="切换深浅主题">
                 <i class="fas fa-moon" style="transition: transform 0.2s ease;"></i>
             </button>
         </div>
     </header>
 
     <div class="main-layout-wrapper">
+        
         <section id="risk" class="ticket-wrapper">
             <div class="ticket-card">
                 <div class="ticket-content">
@@ -161,17 +513,24 @@
                             </div>
                             <h5 class="mb-0 fw-900 fs-4">超时取消罚款</h5>
                         </div>
-                        <div class="icon-warning-glow"><i class="fas fa-exclamation-triangle fs-5 text-white"></i></div>
+                        <div class="icon-warning-glow">
+                            <i class="fas fa-exclamation-triangle fs-5 text-white"></i>
+                        </div>
                     </div>
+
                     <div class="mt-3 mb-4">
                         <div class="fine-amount-wrapper">
-                            <span class="fine-symbol">¥</span><span class="fine-amount">500</span><span class="fine-unit">/ 单</span>
+                            <span class="fine-symbol">¥</span>
+                            <span class="fine-amount">500</span>
+                            <span class="fine-unit">/ 单</span>
                         </div>
                         <div class="text-white text-opacity-75 text-xs fw-medium mt-1">
                             <i class="fas fa-arrow-up me-1"></i> 单笔最高扣款金额
                         </div>
                     </div>
+                    
                     <div class="ticket-dashed-line"></div>
+                    
                     <div class="info-pill-container">
                         <div class="d-flex align-items-start">
                             <i class="fas fa-info-circle me-3 mt-1 fs-5 opacity-75"></i>
@@ -190,12 +549,65 @@
                 <div class="icon-box"><i class="fas fa-shield-alt"></i></div>
                 <span>免责核心：正常报备/强制报备</span>
             </div>
+            
+            <div class="alert border-0 p-3 mb-4 rounded-4" style="background-color: var(--warning-bg); color: var(--warning-text);">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-bell me-2"></i>
+                    <span class="fw-bold">提前报备商家出餐慢</span>
+                </div>
+                <small class="d-block opacity-75" style="line-height: 1.5;">
+                    高峰期需优先识别超时隐患的订单。若距离商家较远，可直接强制报备。无论是否虚假，只要完成流程，订单取消均不计入物流责任。
+                </small>
+            </div>
+
+            <div class="mb-2 ps-1">
+                <small class="fw-800 text-danger"><i class="fas fa-angle-down me-1"></i> 以下步骤图为强制报备</small>
+            </div>
+
             <div class="steps-scroller">
                 <div class="step-item" onclick="viewImage('https://i.ibb.co/ycpwLz53/IMG-5760.png')">
-                    <div class="step-img-wrapper"><span class="step-badge">步骤 1</span><img src="https://i.ibb.co/ycpwLz53/IMG-5760.png" class="step-img" alt="举证到店"></div>
+                    <div class="step-img-wrapper">
+                        <span class="step-badge">步骤 1</span>
+                        <img src="https://i.ibb.co/ycpwLz53/IMG-5760.png" class="step-img" alt="举证到店">
+                    </div>
                     <div class="step-caption">举证到店</div>
                 </div>
+                <div class="step-item" onclick="viewImage('https://i.ibb.co/mF5twXL8/IMG-5774.jpg')">
+                    <div class="step-img-wrapper">
+                        <span class="step-badge">步骤 2</span>
+                        <img src="https://i.ibb.co/mF5twXL8/IMG-5774.jpg" class="step-img" alt="照片留证">
+                    </div>
+                    <div class="step-caption">随便拍一张照片</div>
                 </div>
+                <div class="step-item" onclick="viewImage('https://i.ibb.co/zHn96kLf/IMG-5775.jpg')">
+                    <div class="step-img-wrapper">
+                        <span class="step-badge">步骤 3</span>
+                        <img src="https://i.ibb.co/zHn96kLf/IMG-5775.jpg" class="step-img" alt="提交举证">
+                    </div>
+                    <div class="step-caption">提交举证</div>
+                </div>
+                <div class="step-item" onclick="viewImage('https://i.ibb.co/67PnNnBz/IMG-5777.jpg')">
+                    <div class="step-img-wrapper">
+                        <span class="step-badge">步骤 4</span>
+                        <img src="https://i.ibb.co/67PnNnBz/IMG-5777.jpg" class="step-img" alt="确认提交">
+                    </div>
+                    <div class="step-caption">确认提交</div>
+                </div>
+                <div class="step-item" onclick="viewImage('https://i.ibb.co/fGdg0KjG/IMG-5779.jpg')">
+                    <div class="step-img-wrapper">
+                        <span class="step-badge">步骤 5</span>
+                        <img src="https://i.ibb.co/fGdg0KjG/IMG-5779.jpg" class="step-img" alt="点击报备">
+                    </div>
+                    <div class="step-caption">点击报备</div>
+                </div>
+            </div>
+            
+            <small class="text-secondary opacity-75 d-block text-center mt-3 text-xs fw-bold tracking-wider mobile-hint">
+                <i class="fas fa-exchange-alt me-1"></i> 左右滑动查看 <span class="mx-2 opacity-50">|</span> <i class="fas fa-expand me-1"></i> 图片可点击放大查看
+            </small>
+            <small class="text-secondary opacity-75 text-center mt-3 text-xs fw-bold tracking-wider desktop-hint">
+                <i class="fas fa-mouse-pointer me-1"></i> 点击图片可放大查看详情
+            </small>
         </section>
 
         <section id="actions" class="section-card">
@@ -204,36 +616,96 @@
                 <span>订单快取消了怎么办？</span>
             </div>
             <div class="action-grid">
-                </div>
+                <button type="button" class="action-btn" style="background: var(--danger-bg); color: var(--danger-text);">
+                    <i class="fas fa-phone action-icon"></i>
+                    <span class="d-block fw-bold mb-1">先给商家打电话</span>
+                    <span class="d-block text-xs opacity-75 lh-sm">让商家操作拒绝退款，拦截取消</span>
+                </button>
+                <button type="button" class="action-btn" style="background: var(--success-bg); color: var(--success-text);">
+                    <i class="fas fa-comments-dollar action-icon"></i>
+                    <span class="d-block fw-bold mb-1">安抚顾客情绪</span>
+                    <span class="d-block text-xs opacity-75 lh-sm">可以和顾客卖惨，引导顾客私下转账，避免罚款</span>
+                </button>
+                <button type="button" class="action-btn w-100 d-flex align-items-center gap-3" style="grid-column: span 2; background: var(--accent-light); color: var(--accent-text);">
+                    <span class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; background: rgba(255,255,255,0.5); border-radius: 12px;">
+                        <i class="fas fa-check-circle fs-4"></i>
+                    </span>
+                    <span class="text-start">
+                        <span class="d-block fw-bold">及时去点送达</span>
+                        <span class="d-block text-xs opacity-75">如果离顾客位置不远，先去及时点送达</span>
+                    </span>
+                </button>
+            </div>
         </section>
 
         <section id="weather" class="section-card mb-5">
-            <div class="mb-3">
-                <label class="form-label small fw-bold text-secondary mb-1">📍 自动定位的位置：</label>
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-body border-end-0 text-secondary" style="border-radius: 12px 0 0 12px;"><i class="fas fa-map-marker-alt"></i></span>
-                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 py-2 small" value="正在自动定位当前所在小区和街道..." style="border-radius: 0 12px 12px 0; font-size: 0.85rem;">
+            <div class="section-title">
+                <div class="icon-box"><i class="fas fa-cloud-showers-heavy"></i></div>
+                <span>恶劣天气需拍照报备</span>
+            </div>
+            
+            <div class="alert border-0 p-3 mb-4 rounded-4" style="background: var(--accent-light); color: var(--accent-text);">
+                <div class="d-flex">
+                    <i class="fas fa-bullhorn mt-1 me-3"></i>
+                    <div class="small fw-bold" style="line-height: 1.5;">
+                        提示：路上遇到积水或结冰时，直接用手机普通相机拍下来传到这里就行。系统会自动在照片上印出当前时间和具体位置，不用你再单独去打开别的水印相机APP拍了！
+                    </div>
                 </div>
             </div>
+
+            <div class="bg-body p-3 rounded-4 mb-3 border border-opacity-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="small fw-bold text-secondary">水印照片发送对象</span>
+                    <span class="badge bg-primary rounded-pill px-3 py-2">站长：朱振伟</span>
+                </div>
+                <hr class="my-3 opacity-10" style="border-color: var(--text-secondary);">
+                <div class="small text-secondary fw-medium">
+                    <i class="fas fa-camera me-1"></i> 说明：用普通相机拍照上传后，系统就会在照片上盖上时间和位置印章
+                </div>
+            </div>
+
+            <div class="weather-grid mb-4">
+                <div class="weather-card">
+                    <i class="fas fa-water"></i>
+                    <div class="small fw-bold">积水拍摄</div>
+                </div>
+                <div class="weather-card">
+                    <i class="fas fa-snowflake"></i>
+                    <div class="small fw-bold">冰雪拍摄</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-secondary mb-1">📍 自动定位的位置（如果定位不准，你可以自己点进去修改文字）：</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-body border-end-0 text-secondary" style="border-radius: 12px 0 0 12px;"><i class="fas fa-map-marker-alt"></i></span>
+                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 py-2 small" value="正在自动定位当前所在小区和街道..." style="border-radius: 0 12px 12px 0; font-size: 0.85rem; color: var(--text-primary); font-weight: 600; font-family: inherit;">
+                </div>
+            </div>
+
             <div class="weather-upload-container mt-4">
-                <label for="weather-upload" id="uploadZone" class="w-100 p-4 border rounded-4 d-flex flex-column align-items-center justify-content-center text-center position-relative">
+                <label for="weather-upload" id="uploadZone" class="w-100 p-4 border rounded-4 d-flex flex-column align-items-center justify-content-center text-center position-relative" style="border-style: dashed !important; border-width: 2px !important; border-color: var(--text-secondary) !important; background: rgba(var(--bg-surface-rgb), 0.3); cursor: pointer; transition: background 0.2s;">
                     <i class="fas fa-camera fs-2 mb-2" style="color: var(--accent-color);"></i>
                     <span class="fw-bold small d-block" style="color: var(--text-primary);">点击拍照或者选择照片上传（可多选）</span>
+                    <span class="text-xs opacity-75 d-block mt-1" style="color: var(--text-secondary);">图片会自动压缩省流量，刷新页面照片不会丢</span>
                     <input type="file" id="weather-upload" accept="image/*" class="d-none" multiple>
                 </label>
+                
                 <div id="upload-preview-container" class="mt-4 d-none">
-                    <div id="preview-gallery" class="row row-cols-2 row-cols-md-3 g-3"></div>
+                    <div id="preview-gallery" class="row row-cols-2 row-cols-md-3 g-3">
+                        </div>
                 </div>
             </div>
         </section>
+
     </div>
 
     <nav class="bottom-nav-container">
         <div class="bottom-nav">
-            <a href="#risk" class="nav-item"><i class="fas fa-exclamation-circle"></i></a>
-            <a href="#prevention" class="nav-item"><i class="fas fa-list-ol"></i></a>
-            <a href="#actions" class="nav-item"><i class="fas fa-bolt"></i></a>
-            <a href="#weather" class="nav-item"><i class="fas fa-camera"></i></a>
+            <a href="#risk" class="nav-item" aria-label="罚款风险"><i class="fas fa-exclamation-circle"></i></a>
+            <a href="#prevention" class="nav-item" aria-label="免责流程"><i class="fas fa-list-ol"></i></a>
+            <a href="#actions" class="nav-item" aria-label="紧急应对"><i class="fas fa-bolt"></i></a>
+            <a href="#weather" class="nav-item" aria-label="天气报备"><i class="fas fa-camera"></i></a>
         </div>
     </nav>
 
@@ -241,7 +713,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content bg-transparent border-0 shadow-none">
                 <div class="modal-body-wrapper text-center position-relative">
-                    <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center" data-bs-dismiss="modal">
+                    <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center" data-bs-dismiss="modal" aria-label="关闭弹窗">
                         <i class="fas fa-times"></i>
                     </button>
                     <img src="" id="modalImg" class="img-fluid rounded-4 shadow-lg dynamic-modal-preview" alt="全屏查看" style="max-height: 85vh; width: auto;">
@@ -254,52 +726,146 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // ==========================================
-        // 【修复 1】补全全局缺失的图片预览闭环方法
-        // ==========================================
+        // 修复：定义全局图片预览函数，挂载 Bootstrap Modal
         window.viewImage = function(imgSrc) {
-            if (!imgSrc) return;
             const modalImg = document.getElementById('modalImg');
-            modalImg.src = imgSrc;
-            const imageModalElement = document.getElementById('imageModal');
-            const modalInstance = bootstrap.Modal.getOrCreateInstance(imageModalElement);
-            modalInstance.show();
-        };
-
-        // ==========================================
-        // 【优化】定制化轻量级 Toast 通知系统替代丑陋的 alert()
-        // ==========================================
-        const ToastUtils = {
-            show(message, type = 'danger') {
-                const toastContainer = document.getElementById('toast-container');
-                const toastEl = document.createElement('div');
-                toastEl.className = `toast align-items-center text-bg-${type} border-0 mb-2`;
-                toastEl.setAttribute('role', 'alert');
-                toastEl.setAttribute('aria-live', 'assertive');
-                toastEl.setAttribute('aria-atomic', 'true');
-                toastEl.innerHTML = `
-                    <div class="d-flex">
-                        <div class="toast-body fw-bold text-sm">
-                            ${type === 'danger' ? '<i class="fas fa-exclamation-triangle me-2"></i>' : '<i class="fas fa-check-circle me-2"></i>'}
-                            ${message}
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                `;
-                toastContainer.appendChild(toastEl);
-                const bsToast = new bootstrap.Toast(toastEl, { delay: 3000 });
-                bsToast.show();
-                toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+            const modalElement = document.getElementById('imageModal');
+            
+            if (modalImg && modalElement) {
+                modalImg.src = imgSrc;
+                let bsModal = bootstrap.Modal.getInstance(modalElement);
+                if (!bsModal) {
+                    bsModal = new bootstrap.Modal(modalElement);
+                }
+                bsModal.show();
+            } else {
+                console.error('未找到模态框 DOM 元素');
             }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            // ... 导航栏与滚动监听逻辑（保持不变）...
-            
+            const sections = document.querySelectorAll('section');
+            const sentinel = document.getElementById('scroll-sentinel');
+            const navItems = document.querySelectorAll('.nav-item');
+            const desktopLinks = document.querySelectorAll('.desktop-nav-link');
+            const allLinks = [...navItems, ...desktopLinks];
+
+            let isProgrammaticScrolling = false;
+            let scrollTimeout = null;
+
+            const visibilityMap = {};
+
+            function clearScrollLock() {
+                isProgrammaticScrolling = false;
+            }
+
+            if ('onscrollend' in window) {
+                window.addEventListener('scrollend', clearScrollLock);
+            }
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px 0px 0px 0px', 
+                threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] 
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const id = entry.target.getAttribute('id');
+                    if (entry.isIntersecting) {
+                        visibilityMap[id] = entry.intersectionRect.height;
+                    } else {
+                        delete visibilityMap[id];
+                    }
+                });
+
+                if (isProgrammaticScrolling) return;
+
+                let activeId = null;
+                let maxHeight = -1;
+
+                for (const id in visibilityMap) {
+                    if (id === 'scroll-sentinel') continue;
+                    if (visibilityMap[id] > maxHeight) {
+                        maxHeight = visibilityMap[id];
+                        activeId = id;
+                    }
+                }
+
+                if (visibilityMap['scroll-sentinel'] > 0) {
+                    activeId = sections[sections.length - 1].getAttribute('id');
+                }
+
+                if (activeId) {
+                    allLinks.forEach(link => {
+                        const href = link.getAttribute('href');
+                        link.classList.toggle('active', href && href.includes(activeId));
+                    });
+                }
+            }, observerOptions);
+
+            sections.forEach(section => observer.observe(section));
+            if (sentinel) observer.observe(sentinel);
+
+            function handleNavClick(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    isProgrammaticScrolling = true;
+                    
+                    allLinks.forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('href') === targetId);
+                    });
+
+                    const bottomNav = document.querySelector('.bottom-nav-container');
+                    const isMobile = window.getComputedStyle(bottomNav).display !== 'none';
+                    
+                    const headerHeight = isMobile ? 80 : 90; 
+                    const elementTop = targetSection.getBoundingClientRect().top + window.scrollY;
+                    const offsetPosition = elementTop - headerHeight - 10;
+
+                    window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        clearScrollLock();
+                    }, 600); 
+                }
+            }
+
+            allLinks.forEach(link => link.addEventListener('click', handleNavClick));
+
+            const themeToggle = document.getElementById('themeToggle');
+            const icon = themeToggle.querySelector('i');
+            const html = document.documentElement;
+
+            if (html.getAttribute('data-theme') === 'dark') {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            }
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                html.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                icon.style.transform = 'scale(0) rotate(180deg)';
+                setTimeout(() => {
+                    if (newTheme === 'dark') {
+                        icon.classList.replace('fa-moon', 'fa-sun');
+                    } else {
+                        icon.classList.replace('fa-sun', 'fa-moon');
+                    }
+                    icon.style.transform = 'scale(1) rotate(0deg)';
+                }, 150);
+            });
+
             // ===================================================================================
-            // ☁️ 数据库与对象存储交互
+            // ☁️ 国内网络专项提速加固：秒级国内开放IP反查引擎 + GPS重构方案
             // ===================================================================================
-            // ⚠️ 警告：请在生产环境勿将敏感信息写在前端，或确保该 bucket 开通了严格的 RLS 规则。
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
             const BUCKET_NAME = 'weather-proofs'; 
@@ -312,90 +878,160 @@
 
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // 【容错加固】混合定位引擎逻辑优化
+            // 🚀 【双引并行动态定位】：为彻底消除国内卡死，优先启动国内极速骨干网免Key IP区反查，同步追频物理GPS
             if (locInput) {
+                // 1. 率先插入全开放国内无任何跨域限制的太平洋网络位置解析 (JSONP模式)
                 window.amap_local_callback = function(data) {
                     if (data && data.pro && data.city && data.region) {
-                        locInput.value = `${data.pro}${data.city}${data.region} (可手动修改)`;
+                        locInput.value = `${data.pro}${data.city}${data.region} (定位不准，你可以点进来改)`;
                     }
                 };
+
                 const script = document.createElement('script');
                 script.src = 'https://whois.pconline.com.cn/ipJson.jsp?callback=amap_local_callback';
-                // 防止脚本加载失败导致页面卡住，使用 onerror
-                script.onerror = () => console.warn('JSONP 定位接口加载失败');
                 document.body.appendChild(script);
 
+                // 2. 并发提权唤醒手机物理GPS传感器，抓取高精准位置（已修复国内防阻断）
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(async (position) => {
-                        const { latitude: lat, longitude: lon } = position.coords;
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        
+                        // ⏱️ 将熔断器放宽至 4.5 秒，国内首次网络握手通常需要 1-2 秒
                         const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 2500);
+                        const timeoutId = setTimeout(() => controller.abort(), 4500);
                         
                         try {
-                            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=zh-CN`, {
-                                headers: { 'User-Agent': 'LogisticsGuideApp/1.0' },
+                            // 🚀 替换为对国内网络更友好的免 Key 逆向地理编码 API
+                            const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=zh`, {
                                 signal: controller.signal
                             });
-                            clearTimeout(timeoutId); 
-                            if (!response.ok) throw new Error('通信受阻');
+                            
+                            clearTimeout(timeoutId); // 顺利返回则撤销熔断
+                            if (!response.ok) throw new Error('地理编码服务通信受阻');
+                            
                             const geoData = await response.json();
                             
-                            if (geoData?.address) {
-                                const addr = geoData.address;
-                                const combinedText = `${addr.suburb || addr.district || ''}${addr.residential || addr.neighbourhood || ''}${addr.road || ''}`;
-                                if (combinedText) locInput.value = combinedText;
+                            if (geoData) {
+                                // 提取省、市、区及具体街道信息
+                                const prov = geoData.principalSubdivision || '';
+                                const city = geoData.city || geoData.locality || '';
+                                const district = geoData.localityInfo?.administrative?.find(adm => adm.adminLevel === 6)?.name || '';
+                                
+                                const combinedText = `${prov}${city}${district}`;
+                                if (combinedText && locInput) {
+                                    locInput.value = combinedText; // 填入更精准的位置
+                                }
                             }
                         } catch (err) {
-                            console.warn('GPS高精度解析降级：', err.message);
+                            console.warn('GPS高精度反查受限于网络延迟，已安全降级至IP位置：', err.message);
                         }
-                    }, null, { enableHighAccuracy: true, timeout: 4000 });
+                    }, (error) => {
+                        console.error('GPS追踪阻断 (用户拒绝或硬件超时):', error);
+                    }, { 
+                        enableHighAccuracy: true,
+                        timeout: 10000, 
+                        maximumAge: 0
+                    });
                 }
             }
 
-            // 【性能优化】图像压缩与水印绘制函数
+            // 🚀 顶级省流压缩与多行自动换行水印绘制（先事件后src，防范并发Race Condition死锁）
             function compressAndWatermark(file, locationText, maxWidth = 1024, quality = 0.7) {
                 return new Promise((resolve) => {
-                    if (!file.type.startsWith('image/')) return resolve(file);
-                    
+                    if (!file.type.startsWith('image/')) {
+                        return resolve(file);
+                    }
                     const reader = new FileReader();
                     reader.onload = (event) => {
                         const img = new Image();
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
-                            let { width, height } = img;
+                            let width = img.width;
+                            let height = img.height;
 
-                            // 约束最大边长，保证内存安全
                             if (width > maxWidth || height > maxWidth) {
-                                const ratio = width / height;
-                                if (ratio > 1) { width = maxWidth; height = Math.round(maxWidth / ratio); } 
-                                else { height = maxWidth; width = Math.round(maxWidth * ratio); }
+                                if (width > height) {
+                                    height = Math.round((height * maxWidth) / width);
+                                    width = maxWidth;
+                                } else {
+                                    width = Math.round((width * maxWidth) / height);
+                                    height = maxWidth;
+                                }
                             }
 
-                            canvas.width = width; canvas.height = height;
+                            canvas.width = width;
+                            canvas.height = height;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
 
-                            // 水印逻辑（简化与加固，避免文字超限）
                             const fontSize = Math.max(14, Math.round(width * 0.026));
                             const padding = fontSize * 0.8;
-                            ctx.font = `bold ${fontSize}px sans-serif`;
+                            const maxTextWidth = width - padding * 2; 
+                            const lineSpacing = 6; 
+                            const bottomOffset = Math.max(15, Math.round(height * 0.04));
+
+                            ctx.font = `bold ${fontSize}px 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif`;
                             ctx.textBaseline = 'top';
 
                             const now = new Date();
-                            const timeStr = `⏰ 时间：${now.toLocaleString('zh-CN')}`;
+                            const timeStr = `⏰ 时间：${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
                             const locStr = `📍 位置：${locationText || '未输入位置'}`;
-                            
-                            // 绘制半透明黑色底托
-                            ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-                            ctx.fillRect(0, height - (fontSize * 2 + padding * 3), width, fontSize * 2 + padding * 3);
+                            const infoStr = `🛡️ 说明：恶劣天气报备现场拍照留底`;
 
-                            // 绘制白字
+                            function getWrappedLines(text, maxW) {
+                                const chars = text.split('');
+                                const lines = [];
+                                let currentLine = '';
+
+                                for (let n = 0; n < chars.length; n++) {
+                                    let testLine = currentLine + chars[n];
+                                    if (ctx.measureText(testLine).width > maxW && n > 0) {
+                                        lines.push(currentLine);
+                                        currentLine = chars[n];
+                                    } else {
+                                        currentLine = testLine;
+                                    }
+                                }
+                                lines.push(currentLine);
+                                return lines;
+                            }
+
+                            const timeLines = getWrappedLines(timeStr, maxTextWidth);
+                            const locLines = getWrappedLines(locStr, maxTextWidth);
+                            const infoLines = getWrappedLines(infoStr, maxTextWidth);
+
+                            const totalLinesCount = timeLines.length + locLines.length + infoLines.length;
+                            const rectHeight = totalLinesCount * fontSize + (totalLinesCount - 1) * lineSpacing + padding * 2;
+                            
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+                            ctx.fillRect(0, height - rectHeight - bottomOffset, width, rectHeight);
+
+                            let currentY = height - rectHeight - bottomOffset + padding;
+
                             ctx.fillStyle = '#ffffff';
-                            ctx.fillText(timeStr, padding, height - (fontSize * 2 + padding * 2));
-                            ctx.fillText(locStr, padding, height - (fontSize + padding));
+                            timeLines.forEach(line => {
+                                ctx.fillText(line, padding, currentY);
+                                currentY += fontSize + lineSpacing;
+                            });
+
+                            locLines.forEach(line => {
+                                ctx.fillText(line, padding, currentY);
+                                currentY += fontSize + lineSpacing;
+                            });
+                            
+                            ctx.fillStyle = '#F59E0B';
+                            infoLines.forEach(line => {
+                                ctx.fillText(line, padding, currentY);
+                                currentY += fontSize + lineSpacing;
+                            });
 
                             canvas.toBlob((blob) => {
-                                resolve(blob ? new File([blob], file.name.replace(/\.[^/.]+$/, "") + "_proof.jpg", { type: 'image/jpeg' }) : file);
+                                if (blob) {
+                                    resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + "_proof.jpg", { type: 'image/jpeg' }));
+                                } else {
+                                    resolve(file);
+                                }
                             }, 'image/jpeg', quality);
                         };
                         img.onerror = () => resolve(file);
@@ -405,113 +1041,143 @@
                 });
             }
 
-            // 列表拉取
-            async function syncLatestCloudImage() {
-                try {
-                    previewContainer.classList.remove('d-none');
-                    previewGallery.innerHTML = `<div class="col-12 text-center text-secondary small py-4"><i class="fas fa-spinner fa-spin me-2"></i>正在加载照片...</div>`;
+            if (fileInput && uploadZone && previewContainer && previewGallery && supabaseClient) {
+                
+                // 📡 可视状态机同步管理器：防止国内由于云端列表波动导致图墙无提示空白隐藏
+                async function syncLatestCloudImage() {
+                    try {
+                        // 1. 先切入 Loading 状态挂载指示器，拉近设备间协同体感
+                        previewContainer.classList.remove('d-none');
+                        previewGallery.innerHTML = `
+                            <div id="gallery-loading-status" class="col-12 text-center text-secondary small py-4">
+                                <i class="fas fa-spinner fa-spin me-2"></i>正在刷新照片墙，看有没有人上传新照片...
+                            </div>
+                        `;
 
-                    const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list('weather-photos', { limit: 50, sortBy: { column: 'name', order: 'desc' } });
-                    if (error) throw error;
+                        const { data, error } = await supabaseClient
+                            .storage
+                            .from(BUCKET_NAME)
+                            .list('weather-photos', {
+                                limit: 50,
+                                sortBy: { column: 'name', order: 'desc' }
+                            });
 
-                    previewGallery.innerHTML = ''; 
-                    const imageFiles = data?.filter(f => f.name !== '.emptyFolderPlaceholder') || [];
-                    
-                    if (imageFiles.length === 0) {
-                        return previewGallery.innerHTML = '<div class="col-12 text-center text-secondary small py-3">这里暂时没有其他人上传的照片</div>';
-                    }
+                        if (error) throw error;
 
-                    // 使用文档片段（DocumentFragment）减少重绘
-                    const fragment = document.createDocumentFragment();
-                    imageFiles.forEach(file => {
-                        const filePath = `weather-photos/${file.name}`;
-                        const { data: { publicUrl } } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(filePath);
+                        previewGallery.innerHTML = ''; 
 
-                        const col = document.createElement('div');
-                        col.className = 'col-6 col-md-4 position-relative';
-                        col.innerHTML = `
-                            <div class="position-relative overflow-hidden rounded-4 shadow-sm" style="aspect-ratio: 4/3; background: var(--bg-body);">
-                                <img src="${publicUrl}" loading="lazy" class="w-100 h-100" style="object-fit: cover; cursor: pointer;" alt="报备照片" onclick="viewImage('${publicUrl}')">
-                                <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center shadow-lg delete-cloud-btn" data-path="${filePath}">
-                                    <i class="fas fa-times" style="font-size: 0.75rem;"></i>
+                        if (data && data.length > 0) {
+                            const imageFiles = data.filter(file => file.name !== '.emptyFolderPlaceholder');
+                            if (imageFiles.length > 0) {
+                                
+                                imageFiles.forEach(file => {
+                                    const filePath = `weather-photos/${file.name}`;
+                                    const { data: publicUrlData } = supabaseClient.storage
+                                        .from(BUCKET_NAME)
+                                        .getPublicUrl(filePath);
+
+                                    const imgUrl = publicUrlData.publicUrl;
+
+                                    const col = document.createElement('div');
+                                    col.className = 'col-6 col-md-4 position-relative';
+                                    col.innerHTML = `
+                                        <div class="position-relative overflow-hidden rounded-4 shadow-sm" style="aspect-ratio: 4/3; background: var(--bg-body);">
+                                            <img src="${imgUrl}" class="w-100 h-100" style="object-fit: cover; cursor: pointer;" alt="报备照片" onclick="viewImage('${imgUrl}')">
+                                            <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center shadow-lg delete-cloud-btn" data-path="${filePath}" style="width: 28px; height: 28px; background: rgba(239, 68, 68, 0.9);" aria-label="删除照片">
+                                                <i class="fas fa-times" style="font-size: 0.75rem;"></i>
+                                            </button>
+                                        </div>
+                                    `;
+                                    previewGallery.appendChild(col);
+                                });
+
+                                // 云端物理通道动作
+                                previewGallery.querySelectorAll('.delete-cloud-btn').forEach(btn => {
+                                    btn.addEventListener('click', async function(e) {
+                                        e.stopPropagation(); 
+                                        const pathToDelete = this.getAttribute('data-path');
+                                        this.disabled = true;
+                                        this.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 0.7rem;"></i>';
+
+                                        try {
+                                            const { error } = await supabaseClient.storage
+                                                .from(BUCKET_NAME)
+                                                .remove([pathToDelete]);
+
+                                            if (error) throw error;
+                                            await syncLatestCloudImage(); 
+                                        } catch (err) {
+                                            alert('图片删除失败，国内服务器握手超时，请重试：' + err.message);
+                                            this.disabled = false;
+                                            this.innerHTML = '<i class="fas fa-times" style="font-size: 0.75rem;"></i>';
+                                        }
+                                    });
+                                });
+                            } else {
+                                previewGallery.innerHTML = '<div class="col-12 text-center text-secondary small py-3">这里暂时没有其他人上传的照片</div>';
+                            }
+                        } else {
+                            previewGallery.innerHTML = '<div class="col-12 text-center text-secondary small py-3">这里暂时没有其他人上传的照片</div>';
+                        }
+                    } catch (err) {
+                        console.error('云列表拉取遇阻：', err);
+                        // 2. 遭遇弱网拦截时，优雅抛出高提示度物理修复重载按钮，支持单独强刷回流
+                        previewGallery.innerHTML = `
+                            <div class="col-12 text-center text-danger small py-3 fw-medium">
+                                <i class="fas fa-wifi me-2"></i>国内网络连接有些慢，照片墙没刷出来。<br>
+                                <button type="button" class="btn btn-sm btn-primary mt-2 px-3" onclick="window.retryFetchGallery()" style="border-radius:8px; font-size:12px;">
+                                    <i class="fas fa-sync-alt me-1"></i> 点这里重新加载照片
                                 </button>
                             </div>
                         `;
-                        fragment.appendChild(col);
-                    });
-                    previewGallery.appendChild(fragment);
-
-                    // 绑定删除事件
-                    document.querySelectorAll('.delete-cloud-btn').forEach(btn => {
-                        btn.addEventListener('click', async function(e) {
-                            e.stopPropagation(); 
-                            if(!confirm('确定删除该报备留档吗？')) return;
-                            
-                            const path = this.getAttribute('data-path');
-                            this.disabled = true;
-                            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
-                            try {
-                                const { error } = await supabaseClient.storage.from(BUCKET_NAME).remove([path]);
-                                if (error) throw error;
-                                ToastUtils.show('图片已成功删除', 'success');
-                                await syncLatestCloudImage(); 
-                            } catch (err) {
-                                ToastUtils.show('网络超时，删除失败');
-                                this.disabled = false;
-                                this.innerHTML = '<i class="fas fa-times"></i>';
-                            }
-                        });
-                    });
-
-                } catch (err) {
-                    previewGallery.innerHTML = `
-                        <div class="col-12 text-center text-danger small py-3 fw-medium">
-                            <i class="fas fa-wifi me-2"></i>连接服务器超时<br>
-                            <button class="btn btn-sm btn-outline-danger mt-2" onclick="syncLatestCloudImage()">重试</button>
-                        </div>
-                    `;
+                    }
                 }
-            }
 
-            // 对外暴露重试方法
-            window.syncLatestCloudImage = syncLatestCloudImage;
-            syncLatestCloudImage();
+                // 外部暴露的强制单向重载接口，避免刷新全页导致用户输入丢失
+                window.retryFetchGallery = function() {
+                    syncLatestCloudImage();
+                };
 
-            // 文件上传与并发控制
-            if(fileInput) {
+                syncLatestCloudImage();
+
+                // 批量多选上传及 Canvas 压缩流水线
                 fileInput.addEventListener('change', async function(e) {
                     const files = Array.from(e.target.files);
-                    if (!files.length) return;
+                    if (files.length === 0) return;
 
                     const textSpan = uploadZone.querySelector('.fw-bold');
-                    const originalText = textSpan.innerText;
+                    const oldText = textSpan.innerText;
                     uploadZone.style.opacity = '0.6';
                     uploadZone.style.pointerEvents = 'none';
 
                     const locationText = locInput ? locInput.value.trim() : '';
-                    let successCount = 0;
 
                     for (let i = 0; i < files.length; i++) {
-                        textSpan.innerText = `正在处理并上传 (${i + 1}/${files.length})...`;
+                        textSpan.innerText = `自动盖水印中 (${i + 1}/${files.length})...`;
                         const file = files[i];
                         
-                        try {
-                            const processedFile = await compressAndWatermark(file, locationText);
-                            const fileExt = processedFile.name.split('.').pop() || 'jpg';
-                            const filePath = `weather-photos/${Date.now()}-${Math.random().toString(36).substring(2,7)}.${fileExt}`;
+                        const processedFile = await compressAndWatermark(file, locationText, 1024, 0.7);
 
-                            const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(filePath, processedFile, { upsert: false });
+                        const fileExt = processedFile.name.split('.').pop();
+                        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+                        const filePath = `weather-photos/${fileName}`;
+
+                        try {
+                            const { error } = await supabaseClient.storage
+                                .from(BUCKET_NAME)
+                                .upload(filePath, processedFile, {
+                                    cacheControl: 'max-age=604800, public', 
+                                    upsert: false
+                                });
+
                             if (error) throw error;
-                            successCount++;
                         } catch (err) {
-                            ToastUtils.show(`照片 [${file.name}] 上传失败`);
+                            alert(`照片 [${file.name}] 上传失败了，请重试: ` + err.message);
+                            console.error(err);
                         }
                     }
 
-                    if (successCount > 0) ToastUtils.show(`成功上传 ${successCount} 张照片`, 'success');
-                    
-                    textSpan.innerText = originalText;
+                    textSpan.innerText = oldText;
                     uploadZone.style.opacity = '1';
                     uploadZone.style.pointerEvents = 'auto';
                     fileInput.value = ''; 
