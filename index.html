@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
         (function() {
             const savedTheme = localStorage.getItem('theme');
@@ -856,37 +858,84 @@
                 }
             }, true);
 
-            // ==========================================
-            // 🛠 新增：天气照片本地上传与预览的 JS 逻辑
-            // ==========================================
+            // ========================================================
+            // ☁️ 凭证已成功替换，自动匹配云端路径配置！
+            // ========================================================
+            const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
+            const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
+            const BUCKET_NAME = 'weather-proofs'; 
+
             const fileInput = document.getElementById('weather-upload');
             const uploadZone = document.getElementById('uploadZone');
             const previewContainer = document.getElementById('upload-preview-container');
             const previewImg = document.getElementById('upload-preview');
             const removeBtn = document.getElementById('remove-upload');
 
+            // 检查配置是否已经填入
+            const isConfigured = SUPABASE_URL.indexOf('你的项目ID') === -1;
+            const supabaseClient = isConfigured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
             if (fileInput && uploadZone && previewContainer && previewImg && removeBtn) {
-                // 监听文件选择事件
-                fileInput.addEventListener('change', function(e) {
+                fileInput.addEventListener('change', async function(e) {
                     const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            previewImg.src = event.target.result;
-                            previewContainer.classList.remove('d-none'); // 显示预览
-                            uploadZone.classList.add('d-none'); // 隐藏上传框
-                        };
-                        reader.readAsDataURL(file);
+                    if (!file) return;
+
+                    if (!isConfigured) {
+                        alert('请先在代码中填入您的 Supabase URL 和 Key！');
+                        fileInput.value = '';
+                        return;
+                    }
+
+                    const textSpan = uploadZone.querySelector('.fw-bold');
+                    const oldText = textSpan.innerText;
+                    textSpan.innerText = '正在上传到云端...';
+                    uploadZone.style.opacity = '0.6';
+                    uploadZone.style.pointerEvents = 'none';
+
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+                    const filePath = `weather-photos/${fileName}`;
+
+                    try {
+                        const { data, error } = await supabaseClient.storage
+                            .from(BUCKET_NAME)
+                            .upload(filePath, file, {
+                                cacheControl: '3600',
+                                upsert: false
+                            });
+
+                        if (error) throw error;
+
+                        const { data: publicUrlData } = supabaseClient.storage
+                            .from(BUCKET_NAME)
+                            .getPublicUrl(filePath);
+
+                        const cloudImageUrl = publicUrlData.publicUrl;
+
+                        previewImg.src = cloudImageUrl;
+                        previewContainer.classList.remove('d-none');
+                        uploadZone.classList.add('d-none');
+                        
+                        console.log('云托管链接获取成功:', cloudImageUrl);
+
+                    } catch (error) {
+                        alert('上传失败，请确认后台存储桶(Bucket)名字是否为 weather-proofs，且 RLS 策略已允许匿名写入：' + error.message);
+                        console.error(error);
+                    } finally {
+                        textSpan.innerText = oldText;
+                        uploadZone.style.opacity = '1';
+                        uploadZone.style.pointerEvents = 'auto';
                     }
                 });
 
-                // 监听删除按钮事件
                 removeBtn.addEventListener('click', function(e) {
-                    e.stopPropagation(); // 阻止事件冒泡防止触发图片放大
-                    fileInput.value = ''; // 清空 file input 值
+                    e.stopPropagation(); 
+                    fileInput.value = ''; 
                     previewImg.src = '';
-                    previewContainer.classList.add('d-none'); // 隐藏预览
-                    uploadZone.classList.remove('d-none'); // 重新显示上传框
+                    previewContainer.classList.add('d-none'); 
+                    uploadZone.style.opacity = '1';
+                    uploadZone.style.pointerEvents = 'auto';
+                    uploadZone.classList.remove('d-none'); 
                 });
             }
         });
