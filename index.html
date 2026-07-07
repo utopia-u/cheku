@@ -6,7 +6,7 @@
     <title>物流责任防范指南</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2 family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -676,10 +676,10 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label small fw-bold text-secondary mb-1">📍 水印生成位置控制（已升级高精度小区/街道逆地理检测）：</label>
+                <label class="form-label small fw-bold text-secondary mb-1">📍 水印生成具体位置（高精度小区/街道门牌号级逆地理检测）：</label>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-body border-end-0 text-secondary" style="border-radius: 12px 0 0 12px;"><i class="fas fa-map-marker-alt"></i></span>
-                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 py-2 small" value="正在高精度解析当前小区街道..." style="border-radius: 0 12px 12px 0; font-size: 0.85rem; color: var(--text-primary); font-weight: 600; font-family: inherit;">
+                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 py-2 small" value="正在高精度定位并解析国内具体街道小区..." style="border-radius: 0 12px 12px 0; font-size: 0.85rem; color: var(--text-primary); font-weight: 600; font-family: inherit;">
                 </div>
             </div>
 
@@ -865,11 +865,14 @@
             }, true);
 
             // ===================================================================================
-            // ☁️ 云端核心升级：高精度智能硬件级 GPS 探测 + 逆地理位置深度解析具体小区、街道门牌号
+            // ☁️ 国内精准级高德地图 Web服务 API 逆地理编码模块 + 闭环多选省流压缩与销毁
             // ===================================================================================
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
             const BUCKET_NAME = 'weather-proofs'; 
+            
+            // 🚀 【关键配置】：请在这里填写您申请的高德地图【Web服务】类型的 Key
+            const AMAP_KEY = '请在此处填入您的高德地图Web服务Key'; 
 
             const fileInput = document.getElementById('weather-upload');
             const uploadZone = document.getElementById('uploadZone');
@@ -879,53 +882,61 @@
 
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // 📍 【硬件提权】：强制请求手机级 GPS 传感器，获取精确地理反查（细化到路名、社区、具体小区）
+            // 📍 【提权升级】：GPS 坐标捕获 + 高德地图网络服务（路名、所属街道、小区、村落及门牌精准匹配）
             if (locInput) {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(async (position) => {
                         const lat = position.coords.latitude;
                         const lon = position.coords.longitude;
+                        const locationStr = `${lon},${lat}`; // 高德规则：经度在前，纬度在后
                         
+                        if (!AMAP_KEY || AMAP_KEY.includes('请在此处填入')) {
+                            locInput.value = `经纬度: ${locationStr} (请在代码第414行配置高德Key以解锁小区街道解析)`;
+                            return;
+                        }
+
                         try {
-                            // 调度开源高级逆地理信息服务反查详细中文字符串
-                            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=zh-CN`);
-                            if (!response.ok) throw new Error('网络请求异常');
+                            // 调度国内高德地图 Web服务 API 进行高性能逆地理编码
+                            const response = await fetch(`https://restapi.amap.com/v3/geocode/regeo?key=${AMAP_KEY}&location=${locationStr}&extensions=all`);
+                            if (!response.ok) throw new Error('高德地图通信受阻');
                             const data = await response.json();
                             
-                            if (data && data.address) {
-                                const addr = data.address;
-                                // 深度提权高内聚局部特征，完美拼接：街道/镇 + 小区/社区/村委 + 道路名及门牌号
-                                const suburb = addr.suburb || addr.town || addr.district || ''; 
-                                const neighborhood = addr.residential || addr.neighbourhood || addr.village || addr.community || '';
-                                const road = addr.road || '';
-                                const number = addr.house_number ? `${addr.house_number}号` : '';
+                            if (data && data.status === '1' && data.regeocode) {
+                                const addrComp = data.regeocode.addressComponent;
                                 
-                                const combinedText = `${suburb}${neighborhood}${road}${number}`;
-                                locInput.value = combinedText || data.display_name.split(',')[0] || '具体小区与街道';
+                                // 高德精细化字段抓取与拼接
+                                const township = typeof addrComp.township === 'string' ? addrComp.township : ''; // 街道/镇
+                                const neighborhood = (addrComp.neighborhood && typeof addrComp.neighborhood.name === 'string') ? addrComp.neighborhood.name : ''; // 具体小区/大厦
+                                const streetNumber = addrComp.streetNumber;
+                                const street = (streetNumber && typeof streetNumber.street === 'string') ? streetNumber.street : ''; // 路名
+                                const number = (streetNumber && typeof streetNumber.number === 'string') ? streetNumber.number : ''; // 门牌号
+                                
+                                const combinedText = `${township}${neighborhood}${street}${number}`;
+                                locInput.value = combinedText || data.regeocode.formatted_address || '已精准对齐国内位置';
                             } else {
-                                locInput.value = '解析失败，请点击在此处手动修改';
+                                locInput.value = `定位成功但解析受限: ${data.info || '参数/状态异常'}`;
                             }
                         } catch (err) {
-                            console.error('地理网格反查遇阻:', err);
-                            locInput.value = '定位超时，请点击在此处手动补充具体位置';
+                            console.error('高德网格反查拦截:', err);
+                            locInput.value = '高德网络解析超时，请在此手动输入具体小区街道';
                         }
                     }, (error) => {
-                        console.error('GPS硬件捕获遇阻:', error);
-                        // 如果硬件层锁坐标超时，无缝降级到边缘轻量级 IP 地理定位进行兜底
+                        console.error('GPS硬件捕获异常:', error);
+                        // 硬件层GPS在部分室内或老旧机型获取失败时，通过三方轻量级IP定位降级
                         fetch('https://ipapi.co/json/')
                             .then(res => res.json())
                             .then(data => {
-                                locInput.value = `${data.city || '配送覆盖区'} (请点击在此处手动输入具体小区街道)`;
+                                locInput.value = `${data.city || '配送网点'} (请在此手动补充具体小区与街道名)`;
                             })
                             .catch(() => {
-                                locInput.value = '定位失败，请点击在此处手动输入具体小区街道';
+                                locInput.value = '定位失败，请点击此处手动补充具体小区街道';
                             });
                     }, { 
-                        enableHighAccuracy: true, // 强制开启硬件级高精度追踪
-                        timeout: 5000 
+                        enableHighAccuracy: true, // 开启硬件GPS提权
+                        timeout: 6000 
                     });
                 } else {
-                    locInput.value = '设备不支持自动定位，请在此处手动输入具体小区街道';
+                    locInput.value = '当前设备环境不支持GPS，请在此手动输入具体小区与街道';
                 }
             }
 
@@ -960,7 +971,7 @@
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
 
-                            // 🛠️ 智能防伪暗色背景带动态计算（完美兼顾横屏竖屏高清晰度）
+                            // 智能防伪暗色背景带动态计算（完美兼顾横屏竖屏高清晰度）
                             const fontSize = Math.max(13, Math.round(width * 0.026));
                             const padding = fontSize * 0.8;
                             const rectHeight = fontSize * 3 + padding * 2;
