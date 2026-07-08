@@ -414,6 +414,36 @@
         .text-sm { font-size: 0.875rem; }
         .desktop-hint { display: none; }
 
+        /* 云端照片删除按钮专属样式 (本次重构优化重点) */
+        .delete-cloud-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0;
+            cursor: pointer;
+        }
+        .delete-cloud-btn:active {
+            transform: scale(0.85);
+            background: rgba(220, 38, 38, 0.95);
+        }
+        .delete-cloud-btn i {
+            font-size: 0.85rem;
+        }
+
         /* ==============================
            3. 宽屏/桌面PC端媒体查询响应式
            ============================== */
@@ -925,7 +955,6 @@
 
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // 🚀 核心修复：水印底宽满铺，颜色加深，彻底遮盖任何带旧水印的底图
             function compressAndWatermark(file, locationText, maxWidth = 1024, quality = 0.7) {
                 return new Promise((resolve) => {
                     if (!file.type.startsWith('image/')) {
@@ -992,14 +1021,10 @@
 
                             const totalLinesCount = timeLines.length + locLines.length + infoLines.length;
                             
-                            // 计算文字主块的高度
                             const textBlockHeight = totalLinesCount * fontSize + (totalLinesCount - 1) * lineSpacing;
-                            
-                            // 重新计算背景条的高度：包含文字高度 + 上下内边距 + 到底部的额外延伸，形成满铺的底条
                             const bannerHeight = textBlockHeight + padding * 2 + bottomOffset;
                             const bannerY = height - bannerHeight;
                             
-                            // 将底色加深至90%的不透明度，并将黑框直接拉满到图片最底端，彻底盖住旧水印！
                             ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
                             ctx.fillRect(0, bannerY, width, bannerHeight);
 
@@ -1083,11 +1108,12 @@
 
                                 const col = document.createElement('div');
                                 col.className = 'col-6 col-md-4 position-relative';
+                                // 将原有的内联样式替换为专用的 delete-cloud-btn 类，并使用 fa-trash 图标
                                 col.innerHTML = `
                                     <div class="position-relative overflow-hidden rounded-4 shadow-sm" style="aspect-ratio: 4/3; background: var(--bg-body);">
                                         <img src="${imgUrl}" class="w-100 h-100" style="object-fit: cover; cursor: pointer;" alt="报备照片" onclick="viewImage('${imgUrl}')">
-                                        <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center shadow-lg delete-cloud-btn" data-path="${filePath}" style="width: 28px; height: 28px; background: rgba(239, 68, 68, 0.9);" aria-label="删除照片">
-                                            <i class="fas fa-times" style="font-size: 0.75rem;"></i>
+                                        <button type="button" class="delete-cloud-btn" data-path="${filePath}" aria-label="删除照片">
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
                                 `;
@@ -1112,7 +1138,7 @@
                                     } catch (err) {
                                         alert('因国内骨干网短暂闪断，删除未能同步到云网盘，请重试：' + err.message);
                                         this.disabled = false;
-                                        this.innerHTML = '<i class="fas fa-times" style="font-size: 0.75rem;"></i>';
+                                        this.innerHTML = '<i class="fas fa-trash-alt" style="font-size: 0.85rem;"></i>';
                                     }
                                 });
                             });
