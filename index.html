@@ -847,7 +847,7 @@
             });
 
             // ===================================================================================
-            // ☁️ 国内网络专属深度加固：完全替换为高德无墙 API 节点 + 修复基础语法报错问题 + 兜底防止卡死
+            // ☁️ 国内网络专属深度加固：GPS -> 高德IP -> PConline 多级熔断兜底，彻底杜绝死锁卡顿
             // ===================================================================================
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
@@ -861,11 +861,11 @@
 
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // 📍 启动定位：移除易被墙的跨境API，纯净调用国内高德服务，增加防卡死兜底机制
+            // 📍 启动多级混合定位引擎
             if (locInput) {
                 const amapKey = 'b058a5e82b75a109594f8b22a0f8bfdf';
                 
-                // 专门写一个兜底清理函数：任何定位失败，立刻清空输入框让用户手动输入
+                // 终极清理器：任何一步彻底失败时，擦除卡顿文字，唤醒人工输入
                 const fallbackToManual = (msg) => {
                     if (locInput.value === '正在自动定位当前所在小区和街道...') {
                         locInput.value = '';
@@ -873,33 +873,74 @@
                     }
                 };
 
-                // IP 定位函数 (作为 GPS 失败时的备用方案)
+                // Level 3 兜底：太平洋电脑网跨域 JSONP 定位 (无视鉴权、无视CORS限制)
+                const fetchPConlineIP = () => {
+                    const callbackName = 'ipCallback_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+                    window[callbackName] = function(data) {
+                        if (data && (data.pro || data.city)) {
+                            if (locInput.value === '正在自动定位当前所在小区和街道...') {
+                                locInput.value = `${data.pro || ''}${data.city || ''}${data.region || ''} (请点击补充详细地址)`;
+                            }
+                        } else {
+                            fallbackToManual('定位失败，请点击手动输入');
+                        }
+                        delete window[callbackName];
+                    };
+                    const script = document.createElement('script');
+                    script.src = `https://whois.pconline.com.cn/ipJson.jsp?json=true&callback=${callbackName}`;
+                    script.charset = 'gbk'; 
+                    
+                    const timer = setTimeout(() => {
+                        fallbackToManual('网络受限，请点击手动输入');
+                        delete window[callbackName];
+                        if(script.parentNode) script.remove();
+                    }, 4000);
+
+                    script.onload = () => clearTimeout(timer);
+                    script.onerror = () => {
+                        clearTimeout(timer);
+                        fallbackToManual('网络受限，请点击手动输入');
+                        delete window[callbackName];
+                    };
+                    document.body.appendChild(script);
+                };
+
+                // Level 2 兜底：高德 IP 定位 (加入硬超时与空数组容错)
                 const fetchIpLocation = () => {
-                    fetch(`https://restapi.amap.com/v3/ip?key=${amapKey}`)
-                        .then(res => res.json())
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+                    fetch(`https://restapi.amap.com/v3/ip?key=${amapKey}`, { signal: controller.signal })
+                        .then(res => {
+                            clearTimeout(timeoutId);
+                            return res.json();
+                        })
                         .then(ipData => {
-                            if (ipData && ipData.status === '1' && (ipData.province || ipData.city)) {
+                            // 严谨校验：高德查不到IP时 province 会返回空数组 []，导致对象判真逻辑崩盘。这里严格校验字符串。
+                            if (ipData && ipData.status === '1' && (typeof ipData.province === 'string' || typeof ipData.city === 'string')) {
                                 if (locInput.value === '正在自动定位当前所在小区和街道...') {
-                                    let cityInfo = typeof ipData.city === 'string' ? ipData.city : '';
                                     let provInfo = typeof ipData.province === 'string' ? ipData.province : '';
-                                    locInput.value = `${provInfo}${cityInfo} (请点击手动补充具体位置)`;
+                                    let cityInfo = typeof ipData.city === 'string' ? ipData.city : '';
+                                    locInput.value = `${provInfo}${cityInfo} (请点击补充具体位置)`;
                                 }
                             } else {
-                                fallbackToManual('IP解析失败，请点击手动输入');
+                                // Key鉴权失败或IP未收录，立刻降级 PConline
+                                fetchPConlineIP();
                             }
                         })
                         .catch(() => {
-                            fallbackToManual('网络受限，请点击手动输入');
+                            clearTimeout(timeoutId);
+                            // 断网或跨域被拦截，降级 PConline
+                            fetchPConlineIP();
                         });
                 };
 
-                // 优先尝试唤醒硬件级 GPS 传感器
+                // Level 1 优先：原生 GPS 硬件级定位
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(async (position) => {
                         const lat = position.coords.latitude;
                         const lon = position.coords.longitude;
                         
-                        // 国内直连无压力，超时设为 3 秒防挂起
                         const controller = new AbortController();
                         const timeoutId = setTimeout(() => controller.abort(), 3000);
                         
@@ -916,36 +957,32 @@
                                 const addr = geoData.regeocode.addressComponent;
                                 const formattedAddress = geoData.regeocode.formatted_address || '';
                                 
-                                // 提取有用的地标信息进行拼接
                                 const poi = geoData.regeocode.pois && geoData.regeocode.pois.length > 0 ? geoData.regeocode.pois[0].name : '';
                                 const township = addr.township || '';
                                 const street = (addr.streetNumber && addr.streetNumber.street) || '';
                                 const number = (addr.streetNumber && addr.streetNumber.number) || '';
                                 
-                                // 优先显示地标(小区/大厦)，没有则显示乡镇街道门牌号，最后用全地址兜底
                                 const combinedText = poi || (township + street + number) || formattedAddress;
                                 
                                 if (combinedText) {
                                     locInput.value = combinedText;
                                 } else {
-                                    fetchIpLocation(); // 高德没查到具体文字，降级到 IP 定位
+                                    fetchIpLocation(); 
                                 }
                             } else {
                                 fetchIpLocation();
                             }
                         } catch (err) {
-                            console.warn('高德反查网络受到干扰:', err);
-                            fetchIpLocation(); // 请求出错，降级到 IP 定位
+                            fetchIpLocation(); 
                         }
                     }, (error) => {
-                        console.warn('GPS底层追踪遇阻(可能没给权限):', error);
-                        fetchIpLocation(); // 核心修复：如果用户没给GPS权限或超时，立刻降级到IP定位，不再卡死
+                        // 用户拒绝授权或GPS超时 (5秒)，立即降级
+                        fetchIpLocation(); 
                     }, { 
                         enableHighAccuracy: true, 
-                        timeout: 5000 // 如果 5 秒还没拿到 GPS 坐标，直接判定超时走上面 error 的降级逻辑
+                        timeout: 5000 
                     });
                 } else {
-                    // 如果浏览器完全不支持 GPS，直接走 IP 定位
                     fetchIpLocation();
                 }
             }
