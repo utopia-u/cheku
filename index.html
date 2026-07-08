@@ -847,7 +847,7 @@
             });
 
             // ===================================================================================
-            // ☁️ 国内专属纯血修复：0秒卡顿防死锁架构 + 原生安全定位引擎
+            // 防卡死定位系统：消除一切未知报错，实现无缝手动接管
             // ===================================================================================
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
@@ -861,102 +861,84 @@
 
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // 📍 启动定位引擎 (极度兼容版，杜绝任何卡死和未知错误)
+            // 安全沙箱定位引擎
             if (locInput) {
                 const amapKey = 'b058a5e82b75a109594f8b22a0f8bfdf';
                 
-                // 终极兜底：强行清空占位符文字，让骑手能马上手动打字，绝不卡住！
-                const fallbackToManual = () => {
-                    if (locInput.value.includes('正在自动定位')) {
+                // 核心控制：当任何步骤失败或超时，立即清空框，让骑手手动输入
+                const setManualFallback = (message) => {
+                    if (locInput.value === '正在自动定位当前所在小区和街道...' || locInput.value === '') {
                         locInput.value = '';
-                        locInput.placeholder = '🚫 自动定位失败，请直接点击这里输入位置';
+                        locInput.placeholder = message || '📍 自动定位失败，请点击此处手动打字输入';
                     }
                 };
 
-                // 兼容所有老旧安卓机型和微信内核的 Fetch 包装器 (防死锁超时拦截)
-                const safeFetch = (url, timeoutMs = 3500) => {
-                    return new Promise((resolve, reject) => {
-                        let isDone = false;
-                        const timer = setTimeout(() => {
-                            if (!isDone) {
-                                isDone = true;
-                                reject(new Error('请求超时'));
-                            }
-                        }, timeoutMs);
-
-                        fetch(url).then(res => {
-                            if (!isDone) {
-                                isDone = true;
-                                clearTimeout(timer);
-                                resolve(res);
-                            }
-                        }).catch(err => {
-                            if (!isDone) {
-                                isDone = true;
-                                clearTimeout(timer);
-                                reject(err);
-                            }
-                        });
-                    });
-                };
-
-                // 备用方案 2：高德 IP 定位 (只信任完全正常返回的省市中文字符)
-                const tryAmapIP = () => {
-                    safeFetch(`https://restapi.amap.com/v3/ip?key=${amapKey}`, 3500)
-                        .then(res => res.json())
-                        .then(data => {
-                            // 拦截高德返回的 '[]' 空数组和无效字符，确保只有纯正中文才会上屏
-                            if (data && data.status === '1' && typeof data.province === 'string' && data.province !== '[]' && data.province.trim() !== '') {
-                                let prov = data.province;
-                                let city = (typeof data.city === 'string' && data.city !== '[]') ? data.city : '';
-                                if (locInput.value.includes('正在自动定位')) {
-                                    locInput.value = `${prov}${city} (请点击补充详细地址)`;
-                                }
-                            } else {
-                                fallbackToManual();
-                            }
-                        })
-                        .catch(() => fallbackToManual());
-                };
-
-                // 主力方案：原生 GPS 硬件级高精度逆地址解析
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition((position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
+                // 备用步骤：尝试获取城市和省份
+                const getIpLocation = async () => {
+                    try {
+                        const res = await fetch(`https://restapi.amap.com/v3/ip?key=${amapKey}`);
+                        const data = await res.json();
                         
-                        safeFetch(`https://restapi.amap.com/v3/geocode/regeo?output=json&location=${lon},${lat}&key=${amapKey}&radius=1000&extensions=all`, 4000)
-                            .then(res => res.json())
-                            .then(geoData => {
-                                if (geoData && geoData.status === '1' && geoData.regeocode) {
-                                    const addr = geoData.regeocode.addressComponent;
-                                    const formatted = geoData.regeocode.formatted_address || '';
-                                    const poi = geoData.regeocode.pois && geoData.regeocode.pois.length > 0 ? geoData.regeocode.pois[0].name : '';
-                                    const township = addr.township || '';
-                                    const street = (addr.streetNumber && addr.streetNumber.street) || '';
-                                    const number = (addr.streetNumber && addr.streetNumber.number) || '';
-                                    
-                                    const combinedText = poi || (township + street + number) || formatted;
-                                    
-                                    // 拦截一切异常的拼音、未知等字符
-                                    if (combinedText && !combinedText.includes('未知') && combinedText !== '[]') {
-                                        if (locInput.value.includes('正在自动定位')) {
-                                            locInput.value = combinedText;
-                                        }
-                                        return;
-                                    }
+                        // 严防空数组 '[]' 和无效数据
+                        if (data && data.status === '1' && typeof data.province === 'string' && data.province !== '[]') {
+                            const prov = data.province;
+                            const city = (typeof data.city === 'string' && data.city !== '[]') ? data.city : '';
+                            if (locInput.value === '正在自动定位当前所在小区和街道...' || locInput.value === '') {
+                                locInput.value = `${prov}${city} (请点击此处补充详细位置)`;
+                            }
+                        } else {
+                            setManualFallback('📍 定位服务受限，请直接点击这里输入');
+                        }
+                    } catch (e) {
+                        setManualFallback('📍 信号较弱，请直接点击这里手动输入');
+                    }
+                };
+
+                // 主要步骤：调用硬件 GPS 坐标并反查具体街道
+                if (navigator.geolocation) {
+                    // 如果 4 秒内没拿到 GPS（如在地下室或被微信拦截），强行执行备用方案
+                    const gpsTimeout = setTimeout(() => {
+                        getIpLocation();
+                    }, 4000);
+
+                    navigator.geolocation.getCurrentPosition(async (position) => {
+                        clearTimeout(gpsTimeout);
+                        try {
+                            const lat = position.coords.latitude;
+                            const lon = position.coords.longitude;
+                            const res = await fetch(`https://restapi.amap.com/v3/geocode/regeo?output=json&location=${lon},${lat}&key=${amapKey}&radius=1000&extensions=all`);
+                            const data = await res.json();
+                            
+                            if (data && data.status === '1' && data.regeocode) {
+                                const ac = data.regeocode.addressComponent;
+                                const formatted = data.regeocode.formatted_address || '';
+                                const poi = (data.regeocode.pois && data.regeocode.pois.length > 0) ? data.regeocode.pois[0].name : '';
+                                
+                                // 提取有用的中文信息，过滤掉意外的空数组或乱码
+                                const text = poi || `${ac.district || ''}${ac.township || ''}${ac.streetNumber?.street || ''}` || formatted;
+
+                                if (text && !text.includes('[]') && !text.includes('未知')) {
+                                    locInput.value = text;
+                                    return; // 成功拿到准确地址，结束
                                 }
-                                tryAmapIP();
-                            })
-                            .catch(() => tryAmapIP());
-                    }, (error) => {
-                        tryAmapIP(); // 若骑手未开GPS权限，迅速降级
+                            }
+                            // 如果反查出来的数据有问题，降级到 IP 定位
+                            getIpLocation();
+                        } catch (e) {
+                            // 如果网络断了，降级到 IP 定位
+                            getIpLocation();
+                        }
+                    }, (err) => {
+                        // 骑手没给权限或手机关了定位服务
+                        clearTimeout(gpsTimeout);
+                        getIpLocation();
                     }, { 
                         enableHighAccuracy: true, 
+                        maximumAge: 0, 
                         timeout: 5000 
                     });
                 } else {
-                    tryAmapIP();
+                    getIpLocation();
                 }
             }
 
