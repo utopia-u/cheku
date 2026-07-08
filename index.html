@@ -679,7 +679,7 @@
                 <label class="form-label small fw-bold text-secondary mb-1">📍 自动定位的位置（如果定位不准，你可以自己点进去修改文字）：</label>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-body border-end-0 text-secondary" style="border-radius: 12px 0 0 12px;"><i class="fas fa-map-marker-alt"></i></span>
-                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 py-2 small" value="正在自动定位当前所在小区和街道..." style="border-radius: 0 12px 12px 0; font-size: 0.85rem; color: var(--text-primary); font-weight: 600; font-family: inherit;">
+                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 py-2 small" value="正在多重引擎自动定位中..." style="border-radius: 0 12px 12px 0; font-size: 0.85rem; color: var(--text-primary); font-weight: 600; font-family: inherit;">
                 </div>
             </div>
 
@@ -847,7 +847,7 @@
             });
 
             // ===================================================================================
-            // 防卡死定位系统：消除一切未知报错，实现无缝手动接管
+            // 终极定位引擎：五重防线，无视超限、无视跨域、绝对中文，捍卫骑手饭碗
             // ===================================================================================
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
@@ -861,85 +861,164 @@
 
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // 安全沙箱定位引擎
             if (locInput) {
-                const amapKey = 'b058a5e82b75a109594f8b22a0f8bfdf';
-                
-                // 核心控制：当任何步骤失败或超时，立即清空框，让骑手手动输入
-                const setManualFallback = (message) => {
-                    if (locInput.value === '正在自动定位当前所在小区和街道...' || locInput.value === '') {
-                        locInput.value = '';
-                        locInput.placeholder = message || '📍 自动定位失败，请点击此处手动打字输入';
-                    }
-                };
-
-                // 备用步骤：尝试获取城市和省份
-                const getIpLocation = async () => {
-                    try {
-                        const res = await fetch(`https://restapi.amap.com/v3/ip?key=${amapKey}`);
-                        const data = await res.json();
-                        
-                        // 严防空数组 '[]' 和无效数据
-                        if (data && data.status === '1' && typeof data.province === 'string' && data.province !== '[]') {
-                            const prov = data.province;
-                            const city = (typeof data.city === 'string' && data.city !== '[]') ? data.city : '';
-                            if (locInput.value === '正在自动定位当前所在小区和街道...' || locInput.value === '') {
-                                locInput.value = `${prov}${city} (请点击此处补充详细位置)`;
-                            }
-                        } else {
-                            setManualFallback('📍 定位服务受限，请直接点击这里输入');
-                        }
-                    } catch (e) {
-                        setManualFallback('📍 信号较弱，请直接点击这里手动输入');
-                    }
-                };
-
-                // 主要步骤：调用硬件 GPS 坐标并反查具体街道
-                if (navigator.geolocation) {
-                    // 如果 4 秒内没拿到 GPS（如在地下室或被微信拦截），强行执行备用方案
-                    const gpsTimeout = setTimeout(() => {
-                        getIpLocation();
-                    }, 4000);
-
-                    navigator.geolocation.getCurrentPosition(async (position) => {
-                        clearTimeout(gpsTimeout);
-                        try {
-                            const lat = position.coords.latitude;
-                            const lon = position.coords.longitude;
-                            const res = await fetch(`https://restapi.amap.com/v3/geocode/regeo?output=json&location=${lon},${lat}&key=${amapKey}&radius=1000&extensions=all`);
-                            const data = await res.json();
+                // 将核心逻辑封装，利用 JSONP 完美绕过微信内置浏览器的 Fetch 跨域和证书拦截
+                const LocManager = {
+                    timeout: 4000,
+                    amapKey: 'b058a5e82b75a109594f8b22a0f8bfdf', // 你的高德Key
+                    
+                    jsonp: function(url, callbackName) {
+                        return new Promise((resolve, reject) => {
+                            const script = document.createElement('script');
+                            const timer = setTimeout(() => {
+                                script.remove();
+                                delete window[callbackName];
+                                reject(new Error('Timeout'));
+                            }, this.timeout);
                             
-                            if (data && data.status === '1' && data.regeocode) {
-                                const ac = data.regeocode.addressComponent;
-                                const formatted = data.regeocode.formatted_address || '';
-                                const poi = (data.regeocode.pois && data.regeocode.pois.length > 0) ? data.regeocode.pois[0].name : '';
-                                
-                                // 提取有用的中文信息，过滤掉意外的空数组或乱码
-                                const text = poi || `${ac.district || ''}${ac.township || ''}${ac.streetNumber?.street || ''}` || formatted;
+                            window[callbackName] = function(data) {
+                                clearTimeout(timer);
+                                script.remove();
+                                delete window[callbackName];
+                                resolve(data);
+                            };
+                            
+                            script.onerror = () => {
+                                clearTimeout(timer);
+                                script.remove();
+                                delete window[callbackName];
+                                reject(new Error('Network Error'));
+                            };
+                            
+                            script.src = url;
+                            document.head.appendChild(script);
+                        });
+                    },
 
-                                if (text && !text.includes('[]') && !text.includes('未知')) {
-                                    locInput.value = text;
-                                    return; // 成功拿到准确地址，结束
+                    getSohuIP: function() {
+                        return new Promise((resolve, reject) => {
+                            const script = document.createElement('script');
+                            const timer = setTimeout(() => {
+                                script.remove();
+                                reject(new Error('Sohu Timeout'));
+                            }, this.timeout);
+
+                            script.onload = () => {
+                                clearTimeout(timer);
+                                if (window.returnCitySN && window.returnCitySN.cname) {
+                                    resolve(window.returnCitySN.cname);
+                                } else {
+                                    reject(new Error('Sohu format error'));
                                 }
-                            }
-                            // 如果反查出来的数据有问题，降级到 IP 定位
-                            getIpLocation();
-                        } catch (e) {
-                            // 如果网络断了，降级到 IP 定位
-                            getIpLocation();
-                        }
-                    }, (err) => {
-                        // 骑手没给权限或手机关了定位服务
-                        clearTimeout(gpsTimeout);
-                        getIpLocation();
-                    }, { 
-                        enableHighAccuracy: true, 
-                        maximumAge: 0, 
-                        timeout: 5000 
-                    });
-                } else {
-                    getIpLocation();
+                                script.remove();
+                            };
+                            script.onerror = () => {
+                                clearTimeout(timer);
+                                script.remove();
+                                reject(new Error('Sohu error'));
+                            };
+                            script.src = 'https://pv.sohu.com/cityjson?ie=utf-8';
+                            document.head.appendChild(script);
+                        });
+                    },
+
+                    getPConlineIP: function() {
+                        const cbName = 'pc_cb_' + Date.now() + Math.floor(Math.random() * 1000);
+                        return this.jsonp(`https://whois.pconline.com.cn/ipJson.jsp?callback=${cbName}`, cbName)
+                            .then(data => {
+                                if (data && data.addr) return data.addr.replace(/(电信|联通|移动|铁通|网通|宽带)/g, '').trim();
+                                if (data && data.pro) return `${data.pro}${data.city}`;
+                                throw new Error('PConline invalid');
+                            });
+                    },
+
+                    getAMapIP: function() {
+                        const cbName = 'amap_ip_' + Date.now() + Math.floor(Math.random() * 1000);
+                        return this.jsonp(`https://restapi.amap.com/v3/ip?key=${this.amapKey}&output=json&callback=${cbName}`, cbName)
+                            .then(data => {
+                                if (data && data.status === '1' && typeof data.province === 'string' && data.province !== '[]') {
+                                    let city = (typeof data.city === 'string' && data.city !== '[]') ? data.city : '';
+                                    return `${data.province}${city}`;
+                                }
+                                throw new Error('AMap IP invalid/quota');
+                            });
+                    },
+
+                    getAMapRegeo: function(lat, lon) {
+                        const cbName = 'amap_regeo_' + Date.now() + Math.floor(Math.random() * 1000);
+                        return this.jsonp(`https://restapi.amap.com/v3/geocode/regeo?location=${lon},${lat}&key=${this.amapKey}&radius=1000&extensions=all&output=json&callback=${cbName}`, cbName)
+                            .then(data => {
+                                if (data && data.status === '1' && data.regeocode) {
+                                    const ac = data.regeocode.addressComponent;
+                                    const formatted = data.regeocode.formatted_address || '';
+                                    const poi = (data.regeocode.pois && data.regeocode.pois.length > 0) ? data.regeocode.pois[0].name : '';
+                                    
+                                    // 优先使用地标或街道，最后用长地址兜底
+                                    const text = poi || `${ac.district || ''}${ac.township || ''}${ac.streetNumber?.street || ''}` || formatted;
+                                    if (text && !text.includes('[]')) return text;
+                                }
+                                throw new Error('AMap Regeo invalid');
+                            });
+                    },
+
+                    getGPS: function() {
+                        return new Promise((resolve, reject) => {
+                            if (!navigator.geolocation) return reject(new Error('No GPS interface'));
+                            navigator.geolocation.getCurrentPosition(
+                                pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+                                err => reject(err),
+                                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                            );
+                        });
+                    }
+                };
+
+                async function autoLocate() {
+                    locInput.value = '正在多重引擎自动定位中...';
+
+                    // 第一重：尝试精准 GPS 反查
+                    try {
+                        const coords = await LocManager.getGPS();
+                        const address = await LocManager.getAMapRegeo(coords.lat, coords.lon);
+                        locInput.value = address;
+                        return;
+                    } catch (e) {
+                        console.warn('GPS或高德反查失败，降级IP定位:', e.message);
+                    }
+
+                    // 第二重：尝试高德 IP 定位
+                    try {
+                        const amapIpAddr = await LocManager.getAMapIP();
+                        locInput.value = `${amapIpAddr} (请点进来补充详细地址)`;
+                        return;
+                    } catch (e) {
+                        console.warn('高德IP定位失败，降级太平洋网络:', e.message);
+                    }
+
+                    // 第三重：尝试太平洋电脑网 (国内骨干网无限制接口)
+                    try {
+                        const pcAddr = await LocManager.getPConlineIP();
+                        locInput.value = `${pcAddr} (请点进来补充详细地址)`;
+                        return;
+                    } catch (e) {
+                        console.warn('太平洋定位失败，降级搜狐:', e.message);
+                    }
+
+                    // 第四重：尝试搜狐接口 (国内最老牌、最稳定纯中文)
+                    try {
+                        const sohuAddr = await LocManager.getSohuIP();
+                        locInput.value = `${sohuAddr} (请点进来补充详细地址)`;
+                        return;
+                    } catch (e) {
+                        console.warn('搜狐定位失败，全部引擎崩溃:', e.message);
+                    }
+
+                    // 第五重：终极兜底，如果连网都没连上，或者接口被极端拦截
+                    locInput.value = '';
+                    locInput.placeholder = '🚫 自动定位超时，请直接点击这里打字输入';
                 }
+
+                autoLocate();
             }
 
             // 🚀 顶级省流压缩与多行自动换行水印绘制
