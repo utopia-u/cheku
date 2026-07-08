@@ -847,7 +847,7 @@
             });
 
             // ===================================================================================
-            // ☁️ 国内网络专属深度加固：全 HTTPS 直连 + 8秒 VPN 切换重连容忍度 + 无脑安全兜底
+            // ☁️ 国内专属纯血修复：高德 GPS + 搜狐纯中文 IP 强力兜底 (绝不报错、绝不卡死、绝无拼音)
             // ===================================================================================
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
@@ -861,10 +861,9 @@
 
             const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // 📍 启动多级混合定位引擎 (优化了 VPN 切换时的网络断流容错)
+            // 📍 启动定位引擎
             if (locInput) {
-                const amapKey = 'b058a5e82b75a109594f8b22a0f8bfdf';
-                
+                // 终极清理器
                 const fallbackToManual = (msg) => {
                     if (locInput.value === '正在自动定位当前所在小区和街道...') {
                         locInput.value = '';
@@ -872,98 +871,83 @@
                     }
                 };
 
-                // 带清理机制的安全 Fetch 包装器
-                const fetchWithTimeout = async (url, timeout = 6000) => {
-                    const controller = new AbortController();
-                    const id = setTimeout(() => controller.abort(), timeout);
-                    try {
-                        const response = await fetch(url, { signal: controller.signal });
-                        clearTimeout(id);
-                        return response;
-                    } catch (error) {
-                        clearTimeout(id);
-                        throw error;
-                    }
-                };
+                // Level 2 兜底：搜狐狐友 API (绝对稳定、无视拦截跨域、百分百纯正中文，如：河北省石家庄市)
+                const fetchSohuIP = () => {
+                    const script = document.createElement('script');
+                    script.src = 'https://pv.sohu.com/cityjson?ie=utf-8';
+                    
+                    const timer = setTimeout(() => {
+                        fallbackToManual('网络受限，请点击手动输入');
+                        if(script.parentNode) script.remove();
+                    }, 3500);
 
-                const fetchIpLocation = async () => {
-                    try {
-                        // Level 2: 高德 IP 定位 (等待 5 秒，容忍 VPN 断开后的网络重连)
-                        const res = await fetchWithTimeout(`https://restapi.amap.com/v3/ip?key=${amapKey}`, 5000);
-                        if (!res.ok) throw new Error('AMap HTTP Error');
-                        const ipData = await res.json();
-                        
-                        // 严谨校验：高德查不到IP时 province 会返回空数组 []
-                        if (ipData && ipData.status === '1' && (typeof ipData.province === 'string' || typeof ipData.city === 'string')) {
-                            let provInfo = typeof ipData.province === 'string' ? ipData.province : '';
-                            let cityInfo = typeof ipData.city === 'string' ? ipData.city : '';
+                    script.onload = () => {
+                        clearTimeout(timer);
+                        if (window.returnCitySN && window.returnCitySN.cname) {
                             if (locInput.value === '正在自动定位当前所在小区和街道...') {
-                                locInput.value = `${provInfo}${cityInfo} (请点击补充具体位置)`;
+                                locInput.value = `${window.returnCitySN.cname} (请点击手动补充详细位置)`;
                             }
-                            return;
+                        } else {
+                            fallbackToManual('定位失败，请点击手动输入');
                         }
-                        throw new Error('AMap Data Empty');
-                    } catch (err) {
-                        try {
-                            // Level 3: 国际无 CORS 限制的 IP 定位 (ipwho.is)，作为最终兜底解决 PConline 导致的报错
-                            const resFallback = await fetchWithTimeout('https://ipwho.is/', 5000);
-                            if (!resFallback.ok) throw new Error('IPWho HTTP Error');
-                            const fallbackData = await resFallback.json();
-                            
-                            if (fallbackData && fallbackData.success && fallbackData.city) {
-                                if (locInput.value === '正在自动定位当前所在小区和街道...') {
-                                    locInput.value = `${fallbackData.region || ''}${fallbackData.city || ''} (请点击手动补充)`;
-                                }
-                                return;
-                            }
-                            throw new Error('Fallback Data Empty');
-                        } catch (fallbackErr) {
-                            fallbackToManual('网络连接受限，请点击这里手动输入');
-                        }
-                    }
+                    };
+                    
+                    script.onerror = () => {
+                        clearTimeout(timer);
+                        fallbackToManual('网络受限，请点击这里手动输入');
+                    };
+                    
+                    document.head.appendChild(script);
                 };
 
-                // Level 1: 优先原生 GPS (放宽到 8 秒超时，给硬件唤醒和网络切换留出充足时间)
+                // Level 1 主力：原生 GPS + 高德地图 API 高精度反查
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(async (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        const amapKey = 'b058a5e82b75a109594f8b22a0f8bfdf';
+                        
                         try {
-                            const lat = position.coords.latitude;
-                            const lon = position.coords.longitude;
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 4000);
                             
-                            const res = await fetchWithTimeout(`https://restapi.amap.com/v3/geocode/regeo?output=json&location=${lon},${lat}&key=${amapKey}&radius=1000&extensions=all`, 6000);
-                            if (!res.ok) throw new Error('AMap Regeo Error');
+                            const res = await fetch(`https://restapi.amap.com/v3/geocode/regeo?output=json&location=${lon},${lat}&key=${amapKey}&radius=1000&extensions=all`, { 
+                                signal: controller.signal 
+                            });
+                            clearTimeout(timeoutId);
                             
+                            if (!res.ok) throw new Error('网络受限');
                             const geoData = await res.json();
+                            
                             if (geoData && geoData.status === '1' && geoData.regeocode) {
                                 const addr = geoData.regeocode.addressComponent;
-                                const formattedAddress = geoData.regeocode.formatted_address || '';
-                                
+                                const formatted = geoData.regeocode.formatted_address || '';
                                 const poi = geoData.regeocode.pois && geoData.regeocode.pois.length > 0 ? geoData.regeocode.pois[0].name : '';
                                 const township = addr.township || '';
                                 const street = (addr.streetNumber && addr.streetNumber.street) || '';
                                 const number = (addr.streetNumber && addr.streetNumber.number) || '';
                                 
-                                const combinedText = poi || (township + street + number) || formattedAddress;
-                                
+                                const combinedText = poi || (township + street + number) || formatted;
                                 if (combinedText) {
                                     locInput.value = combinedText;
                                     return;
                                 }
                             }
-                            throw new Error('Regeo Parse Failed');
+                            // 若高德Key超限或解析失败，立刻降级搜狐API
+                            fetchSohuIP();
                         } catch (err) {
-                            console.warn('GPS高精度反查受阻:', err);
-                            fetchIpLocation(); 
+                            // 若断网或超时，立刻降级搜狐API
+                            fetchSohuIP();
                         }
                     }, (error) => {
-                        console.warn('GPS权限受限或硬件超时:', error);
-                        fetchIpLocation(); 
+                        // 若骑手没开GPS定位权限，立刻降级搜狐API
+                        fetchSohuIP();
                     }, { 
                         enableHighAccuracy: true, 
-                        timeout: 8000 
+                        timeout: 5000 
                     });
                 } else {
-                    fetchIpLocation();
+                    fetchSohuIP();
                 }
             }
 
