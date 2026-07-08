@@ -728,6 +728,19 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // ===================================================================================
+        // 🔍 修复核心 1：注册全局 viewImage 放大图片功能
+        // ===================================================================================
+        window.viewImage = function(srcUrl) {
+            const modalImg = document.getElementById('modalImg');
+            const modalElement = document.getElementById('imageModal');
+            if (modalImg && modalElement) {
+                modalImg.src = srcUrl;
+                const bsModal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                bsModal.show();
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             const sections = document.querySelectorAll('section');
             const sentinel = document.getElementById('scroll-sentinel');
@@ -849,23 +862,10 @@
             });
 
             // ===================================================================================
-            // 🚨 终极解决方案：完全接入腾讯地图官方前端 SDK（国内 H5/微信内核唯一不报错解法）
+            // 📍 保持上一版的腾讯官方定位方案，不动如山
             // ===================================================================================
-            const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
-            const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
-            const BUCKET_NAME = 'weather-proofs'; 
-
-            const fileInput = document.getElementById('weather-upload');
-            const uploadZone = document.getElementById('uploadZone');
-            const previewContainer = document.getElementById('upload-preview-container');
-            const previewGallery = document.getElementById('preview-gallery');
             const locInput = document.getElementById('watermark-location');
-
-            const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-            // 📍 启动腾讯地图融合定位（彻底解决高德 Key 不匹配和安卓微信定位被拒死机问题）
             if (locInput) {
-                // 如果骑手等不及手动打字了，立刻加锁，防止稍后定位成功时覆盖掉骑手手打的字
                 let userHasTyped = false;
                 locInput.addEventListener('input', () => { userHasTyped = true; });
 
@@ -880,16 +880,11 @@
                     }
                 };
 
-                // 调用腾讯地图前端 SDK（此 SDK 在 <head> 中已引入，完美兼容微信和国内所有浏览器）
                 if (window.qq && qq.maps && qq.maps.Geolocation) {
-                    // 使用腾讯官方的高额度通用 Demo Key，永不超限，且免验证 Security Code
                     const geolocation = new qq.maps.Geolocation("OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77", "wuliu_helper");
-                    
-                    // 设置 6 秒硬超时，不行立马放手让骑手打字
                     const options = { timeout: 6000 };
 
                     geolocation.getLocation(
-                        // 成功拿到带详细街道的 GPS 级定位
                         function(position) {
                             if (position && position.addr) {
                                 updateLocation(position.addr);
@@ -899,7 +894,6 @@
                                 fallbackToManual();
                             }
                         },
-                        // GPS 失败或被拒，立刻触发自动降级：腾讯 SDK 自带根据网络 IP 推算粗略城市的功能
                         function() {
                             geolocation.getIpLocation(
                                 function(ipPosition) {
@@ -911,7 +905,6 @@
                                     }
                                 },
                                 function() {
-                                    // 连网都没连上，彻底降级为手动输入
                                     fallbackToManual();
                                 }
                             );
@@ -919,12 +912,26 @@
                         options
                     );
                 } else {
-                    // 如果因为网络原因连腾讯的脚本都没加载出来，直接让用户打字
                     fallbackToManual();
                 }
             }
 
-            // 🚀 顶级省流压缩与多行自动换行水印绘制
+
+            // ===================================================================================
+            // ☁️ 云端同步与上传核心：防闪烁重构 + 强制刷新触发
+            // ===================================================================================
+            const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
+            const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
+            const BUCKET_NAME = 'weather-proofs'; 
+
+            const fileInput = document.getElementById('weather-upload');
+            const uploadZone = document.getElementById('uploadZone');
+            const previewContainer = document.getElementById('upload-preview-container');
+            const previewGallery = document.getElementById('preview-gallery');
+
+            const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            // 压缩和盖水印工具函数
             function compressAndWatermark(file, locationText, maxWidth = 1024, quality = 0.7) {
                 return new Promise((resolve) => {
                     if (!file.type.startsWith('image/')) {
@@ -1031,13 +1038,16 @@
 
             if (fileInput && uploadZone && previewContainer && previewGallery && supabaseClient) {
                 
+                // ⚡ 修复核心 2：使用 Hash Diff 技术，对比云端文件列表。只有别人真正传了新图，才会更新 DOM，彻底杜绝8秒闪烁一次！
+                let currentCloudFilesHash = ''; 
+
                 async function syncLatestCloudImage(isSilent = false) {
                     try {
-                        if (!isSilent) {
+                        if (!isSilent && currentCloudFilesHash === '') {
                             previewContainer.classList.remove('d-none');
                             previewGallery.innerHTML = `
                                 <div id="gallery-loading-status" class="col-12 text-center text-secondary small py-4">
-                                    <i class="fas fa-spinner fa-spin me-2"></i>正在同步全网所有人的上报照片，请稍候...
+                                    <i class="fas fa-spinner fa-spin me-2"></i>正在拉取云端照片数据...
                                 </div>
                             `;
                         }
@@ -1054,6 +1064,16 @@
 
                         const imageFiles = data ? data.filter(file => file.name !== '.emptyFolderPlaceholder') : [];
                         
+                        // 生成本次拉取的摘要哈希
+                        const newHash = imageFiles.map(f => f.name).join(',');
+                        
+                        // 如果静默轮询时发现云端图片和当前屏幕上的一模一样，直接跳过，防止瞎闪烁
+                        if (isSilent && newHash === currentCloudFilesHash) {
+                            return; 
+                        }
+                        // 更新最新哈希记录
+                        currentCloudFilesHash = newHash;
+
                         if (imageFiles.length > 0) {
                             const tempFragment = document.createDocumentFragment();
                             
@@ -1066,6 +1086,7 @@
 
                                 const col = document.createElement('div');
                                 col.className = 'col-6 col-md-4 position-relative';
+                                // 这里注入了 viewImage 函数，点击即可调用全局的方法
                                 col.innerHTML = `
                                     <div class="position-relative overflow-hidden rounded-4 shadow-sm" style="aspect-ratio: 4/3; background: var(--bg-body);">
                                         <img src="${imgUrl}" class="w-100 h-100" style="object-fit: cover; cursor: pointer;" alt="报备照片" onclick="viewImage('${imgUrl}')">
@@ -1081,9 +1102,10 @@
                             previewGallery.appendChild(tempFragment);
                             previewContainer.classList.remove('d-none');
 
+                            // 绑定删除按钮
                             previewGallery.querySelectorAll('.delete-cloud-btn').forEach(btn => {
                                 btn.addEventListener('click', async function(e) {
-                                    e.stopPropagation(); 
+                                    e.stopPropagation(); // 阻止点击删除时误触发放大图片
                                     const pathToDelete = this.getAttribute('data-path');
                                     this.disabled = true;
                                     this.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 0.7rem;"></i>';
@@ -1091,9 +1113,10 @@
                                     try {
                                         const { error } = await supabaseClient.storage.from(BUCKET_NAME).remove([pathToDelete]);
                                         if (error) throw error;
+                                        // 删除成功后强制刷新，立刻从屏幕消失
                                         await syncLatestCloudImage(true); 
                                     } catch (err) {
-                                        alert('因国内骨干网短暂闪断，删除未能同步到云网盘，请重试：' + err.message);
+                                        alert('删除未同步到云端，请重试：' + err.message);
                                         this.disabled = false;
                                         this.innerHTML = '<i class="fas fa-times" style="font-size: 0.75rem;"></i>';
                                     }
@@ -1107,10 +1130,10 @@
                         if (!isSilent) {
                             previewGallery.innerHTML = `
                                 <div class="col-12 text-center text-danger small py-3 fw-medium">
-                                    <i class="fas fa-wifi me-2"></i>国内网络连接较慢，照片墙加载失败。<br>
-                                    <span class="text-xs text-secondary opacity-75 d-block mt-1">具体网网异常：${err.message}</span>
+                                    <i class="fas fa-wifi me-2"></i>照片墙加载失败。<br>
+                                    <span class="text-xs text-secondary opacity-75 d-block mt-1">云端异常：${err.message}</span>
                                     <button type="button" class="btn btn-sm btn-primary mt-2 px-3" onclick="window.retryFetchGallery()" style="border-radius:8px; font-size:12px;">
-                                        <i class="fas fa-sync-alt me-1"></i> 点这里重新加载照片
+                                        <i class="fas fa-sync-alt me-1"></i> 点这里重新加载
                                     </button>
                                 </div>
                             `;
@@ -1119,15 +1142,19 @@
                 }
 
                 window.retryFetchGallery = function() {
+                    currentCloudFilesHash = ''; // 清除缓存，强迫重刷
                     syncLatestCloudImage(false);
                 };
 
+                // 首次硬载入
                 syncLatestCloudImage(false);
 
+                // 🌟 无感低功耗轮询（防闪烁版）
                 setInterval(() => {
                     syncLatestCloudImage(true);
                 }, 8000);
 
+                // 图片上传事件
                 fileInput.addEventListener('change', async function(e) {
                     const files = Array.from(e.target.files);
                     if (files.length === 0) return;
@@ -1159,7 +1186,7 @@
 
                             if (error) throw error;
                         } catch (err) {
-                            alert(`照片 [${file.name}] 传往云端失败，请检查连网状态：` + err.message);
+                            alert(`照片 [${file.name}] 传往云端失败，请确保 Supabase 配置正确：` + err.message);
                             console.error(err);
                         }
                     }
@@ -1169,6 +1196,8 @@
                     uploadZone.style.pointerEvents = 'auto';
                     fileInput.value = ''; 
                     
+                    // ⚡ 修复核心 3：传完后强迫重刷列表，让你的新图瞬间上墙！
+                    currentCloudFilesHash = '';
                     await syncLatestCloudImage(true); 
                 });
             }
