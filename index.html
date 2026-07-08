@@ -726,23 +726,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 修复：定义全局图片预览函数，挂载 Bootstrap Modal
-        window.viewImage = function(imgSrc) {
-            const modalImg = document.getElementById('modalImg');
-            const modalElement = document.getElementById('imageModal');
-            
-            if (modalImg && modalElement) {
-                modalImg.src = imgSrc;
-                let bsModal = bootstrap.Modal.getInstance(modalElement);
-                if (!bsModal) {
-                    bsModal = new bootstrap.Modal(modalElement);
-                }
-                bsModal.show();
-            } else {
-                console.error('未找到模态框 DOM 元素');
-            }
-        };
-
         document.addEventListener('DOMContentLoaded', () => {
             const sections = document.querySelectorAll('section');
             const sentinel = document.getElementById('scroll-sentinel');
@@ -864,7 +847,7 @@
             });
 
             // ===================================================================================
-            // ☁️ 国内网络专项提速加固：秒级国内开放IP反查引擎 + GPS重构方案
+            // ☁️ 国内网络专项提速加固：秒级国内开放IP反查引擎 + 2.5秒高精准GPS中断控制熔断器
             // ===================================================================================
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
@@ -883,6 +866,7 @@
                 // 1. 率先插入全开放国内无任何跨域限制的太平洋网络位置解析 (JSONP模式)
                 window.amap_local_callback = function(data) {
                     if (data && data.pro && data.city && data.region) {
+                        // 100ms内闪电回显区县，让界面瞬间动起来
                         locInput.value = `${data.pro}${data.city}${data.region} (定位不准，你可以点进来改)`;
                     }
                 };
@@ -891,47 +875,46 @@
                 script.src = 'https://whois.pconline.com.cn/ipJson.jsp?callback=amap_local_callback';
                 document.body.appendChild(script);
 
-                // 2. 并发提权唤醒手机物理GPS传感器，抓取高精准位置（已修复国内防阻断）
+                // 2. 与此同时，并发提权唤醒手机物理GPS传感器，抓取高精准位置
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(async (position) => {
                         const lat = position.coords.latitude;
                         const lon = position.coords.longitude;
                         
-                        // ⏱️ 将熔断器放宽至 4.5 秒，国内首次网络握手通常需要 1-2 秒
+                        // ⏱️ 核心加固：装配 2.5 秒强切拔线熔断器，国内遇到跨境网络延迟直接阻断，防止转圈挂死
                         const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 4500);
+                        const timeoutId = setTimeout(() => controller.abort(), 2500);
                         
                         try {
-                            // 🚀 替换为对国内网络更友好的免 Key 逆向地理编码 API
-                            const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=zh`, {
+                            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=zh-CN`, {
+                                headers: { 'User-Agent': 'LogisticsGuideApp/1.0' },
                                 signal: controller.signal
                             });
-                            
-                            clearTimeout(timeoutId); // 顺利返回则撤销熔断
-                            if (!response.ok) throw new Error('地理编码服务通信受阻');
-                            
+                            clearTimeout(timeoutId); // 顺利返回则撤销爆线限制
+                            if (!response.ok) throw new Error('通信受阻');
                             const geoData = await response.json();
                             
-                            if (geoData) {
-                                // 提取省、市、区及具体街道信息
-                                const prov = geoData.principalSubdivision || '';
-                                const city = geoData.city || geoData.locality || '';
-                                const district = geoData.localityInfo?.administrative?.find(adm => adm.adminLevel === 6)?.name || '';
+                            if (geoData && geoData.address) {
+                                const addr = geoData.address;
+                                const suburb = addr.suburb || addr.town || addr.district || ''; 
+                                const neighborhood = addr.residential || addr.neighbourhood || addr.village || addr.community || addr.industrial || '';
+                                const road = addr.road || '';
+                                const number = addr.house_number ? `${addr.house_number}号` : '';
                                 
-                                const combinedText = `${prov}${city}${district}`;
-                                if (combinedText && locInput) {
-                                    locInput.value = combinedText; // 填入更精准的位置
+                                const combinedText = `${suburb}${neighborhood}${road}${number}`;
+                                if (combinedText) {
+                                    // 完美升级为具体小区与街道
+                                    locInput.value = combinedText;
                                 }
                             }
                         } catch (err) {
-                            console.warn('GPS高精度反查受限于网络延迟，已安全降级至IP位置：', err.message);
+                            console.warn('GPS反查受限于跨境延迟，已安全降级至国内边缘IP缓存：', err.message);
                         }
                     }, (error) => {
-                        console.error('GPS追踪阻断 (用户拒绝或硬件超时):', error);
+                        console.error('GPS追踪阻断:', error);
                     }, { 
-                        enableHighAccuracy: true,
-                        timeout: 10000, 
-                        maximumAge: 0
+                        enableHighAccuracy: true, // 强制请求高精度物理硬件层
+                        timeout: 4000 
                     });
                 }
             }
@@ -1091,7 +1074,7 @@
                                     previewGallery.appendChild(col);
                                 });
 
-                                // 云端物理通道动作
+                                // 完全销毁云端物理通道动作
                                 previewGallery.querySelectorAll('.delete-cloud-btn').forEach(btn => {
                                     btn.addEventListener('click', async function(e) {
                                         e.stopPropagation(); 
