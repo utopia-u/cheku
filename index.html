@@ -726,16 +726,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 🚨 修复 3: 定义全局的 viewImage 函数，调用 Bootstrap Modal 解决控制台未定义报错
-        window.viewImage = function(imageUrl) {
-            const modalImg = document.getElementById('modalImg');
-            if (modalImg) {
-                modalImg.src = imageUrl;
-                const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
-                imageModal.show();
-            }
-        };
-
         document.addEventListener('DOMContentLoaded', () => {
             const sections = document.querySelectorAll('section');
             const sentinel = document.getElementById('scroll-sentinel');
@@ -877,23 +867,14 @@
                 fetch('https://restapi.amap.com/v3/ip?key=b058a5e82b75a109594f8b22a0f8bfdf')
                     .then(res => res.json())
                     .then(ipData => {
-                        // 修复点：移除了原本会导致崩溃的未定义变量，改用正确的高德API属性
-                        if (ipData && ipData.status === '1') {
-                            const prov = typeof ipData.province === 'string' ? ipData.province : '';
-                            const city = typeof ipData.city === 'string' ? ipData.city : '';
-                            
-                            // 质量提升：如果GPS还没抢先出结果，才用IP定位兜底替换加载文案
-                            if (locInput.value.includes('正在自动定位')) {
-                                locInput.value = `${prov}${city} (请点进来自己加上具体小区街道)`;
-                            }
+                        if (ipData &&自动位置检测 && ipData.status === '1') {
+                            locInput.value = `${addrComp.province || ''}${addrComp.city || ''} (请点进来自己加上具体小区街道)`;
                         }
                     })
                     .catch(() => {
                         // 降级使用高稳的本地备用定位描述
-                        if (locInput.value.includes('正在自动定位')) {
-                            locInput.value = '';
-                            locInput.placeholder = '自动定位慢，请在这里直接打字输入小区街道';
-                        }
+                        locInput.value = '';
+                        locInput.placeholder = '自动定位慢，请在这里直接打字输入小区街道';
                     });
 
                 // 2. 同时并发唤醒硬件级 GPS 传感器，获取小区级精细反查
@@ -912,7 +893,6 @@
                                 signal: controller.signal
                             });
                             clearTimeout(timeoutId); // 顺利返回则撤销爆线限制
-                            
                             if (!response.ok) throw new Error('通信受限');
                             const geoData = await response.json();
                             
@@ -925,23 +905,14 @@
                                 
                                 const combinedText = `${suburb}${neighborhood}${road}${number}`;
                                 if (combinedText) {
-                                    // GPS 定位最精准，直接强行覆盖现有的值
                                     locInput.value = combinedText;
                                 }
                             }
                         } catch (err) {
                             console.warn('高精度反查受到跨境延迟干扰，已强制自动切换为骑手打字修改状态。');
-                            if (locInput.value.includes('正在自动定位')) {
-                                locInput.value = '';
-                                locInput.placeholder = '自动定位慢，请在这里直接打字输入小区街道';
-                            }
                         }
                     }, (error) => {
                         console.error('GPS底层追踪遇阻:', error);
-                        if (locInput.value.includes('正在自动定位')) {
-                            locInput.value = '';
-                            locInput.placeholder = '定位获取失败，请打字输入小区街道';
-                        }
                     }, { 
                         enableHighAccuracy: true, 
                         timeout: 3000 
