@@ -4,13 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>物流责任防范指南</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="text/javascript" src="https://apis.map.qq.com/tools/geolocation/min?key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=wuliu"></script>
+
     <script>
         (function() {
             const savedTheme = localStorage.getItem('theme');
             const currentHour = new Date().getHours();
-            const isNight = currentHour >= 19 || currentHour < 6;
-            if (savedTheme === 'dark' || (!savedTheme && isNight)) {
+            const isNightTime = currentHour >= 19 || currentHour < 6;
+            if (savedTheme === 'dark' || (!savedTheme && isNightTime)) {
                 document.documentElement.setAttribute('data-theme', 'dark');
             } else {
                 document.documentElement.setAttribute('data-theme', 'light');
@@ -18,16 +24,9 @@
         })();
     </script>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script async defer src="https://apis.map.qq.com/tools/geolocation/min?key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=wuliu"></script>
-
     <style>
         /* ==============================
-           全局变量与基础样式
+           1. 全局与移动端基础样式
            ============================== */
         :root {
             --bg-body: #F2F4F7;
@@ -90,113 +89,300 @@
             line-height: 1.6;
         }
 
-        /* Header */
         .app-header {
             padding: calc(12px + var(--safe-top)) 24px 12px;
             background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface-rgb), 0.8) 100%);
-            position: sticky; top: 0; z-index: 50;
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(0,0,0,0.03);
-            min-height: var(--header-height); box-sizing: border-box;
+            min-height: var(--header-height);
+            box-sizing: border-box;
             box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
-        [data-theme="dark"] .app-header { border-bottom: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-        .header-title span {
-            font-size: 1.25rem; font-weight: 800;
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+
+        [data-theme="dark"] .app-header {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
+
+        .header-title span {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         .desktop-nav { display: none; }
 
-        /* 卡片基础组件 */
         .section-card {
-            background: var(--bg-surface); margin: 20px; padding: 24px;
-            border-radius: var(--border-radius); box-shadow: var(--card-shadow);
-            border: 1px solid rgba(255,255,255,0.5); transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: var(--bg-surface);
+            margin: 20px;
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        [data-theme="dark"] .section-card { border: 1px solid rgba(255,255,255,0.05); }
-        .section-title {
-            font-size: 1.1rem; font-weight: 800; margin-bottom: 20px;
-            display: flex; align-items: center; gap: 12px;
-            letter-spacing: -0.01em; color: var(--text-primary);
-        }
-        .icon-box {
-            width: 38px; height: 38px; background: var(--accent-light); color: var(--accent-color);
-            border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1rem;
+        
+        [data-theme="dark"] .section-card {
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* 票据样式 */
-        .ticket-wrapper { margin: 24px 20px; position: relative; z-index: 1; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(220, 38, 38, 0.3)); transform: translateZ(0); }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+        }
+
+        .icon-box {
+            width: 38px;
+            height: 38px;
+            background: var(--accent-light);
+            color: var(--accent-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .alert {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        [data-theme="dark"] .alert {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* 票据罚款卡片 */
+        .ticket-wrapper {
+            margin: 24px 20px;
+            position: relative;
+            z-index: 1;
+            -webkit-filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(220, 38, 38, 0.3));
+            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(220, 38, 38, 0.3));
+            transform: translateZ(0);
+        }
+
         .ticket-card {
-            --notch-size: 14px; --bottom-height: 100px;
-            width: 100%; display: block; border-radius: var(--border-radius);
-            background: radial-gradient(circle at 100% 0%, rgba(255,255,255,0.2) 0%, transparent 50%), linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 100%), linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-            color: white; position: relative;
-            mask-image: radial-gradient(circle at 0 calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)), radial-gradient(circle at 100% calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px));
-            mask-size: 51% 100%; mask-position: left, right; mask-repeat: no-repeat;
-            -webkit-mask-image: radial-gradient(circle at 0 calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)), radial-gradient(circle at 100% calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px));
-            -webkit-mask-size: 51% 100%; -webkit-mask-position: left, right; -webkit-mask-repeat: no-repeat;
+            --notch-size: 14px; 
+            --bottom-height: 100px;
+            width: 100%;
+            display: block;
+            border-radius: var(--border-radius);
+            background: 
+                radial-gradient(circle at 100% 0%, rgba(255,255,255,0.2) 0%, transparent 50%),
+                linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 100%),
+                linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            color: white;
+            position: relative;
+            -webkit-mask-image: 
+                radial-gradient(circle at 0 calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)),
+                radial-gradient(circle at 100% calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px));
+            -webkit-mask-size: 51% 100%;
+            -webkit-mask-position: left, right;
+            -webkit-mask-repeat: no-repeat;
+            mask-image: 
+                radial-gradient(circle at 0 calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)),
+                radial-gradient(circle at 100% calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px));
+            mask-size: 51% 100%;
+            mask-position: left, right;
+            mask-repeat: no-repeat;
             box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15); 
         }
-        .ticket-content { position: relative; z-index: 3; padding: 28px 24px var(--bottom-height); display: flex; flex-direction: column; height: 100%; }
-        .ticket-dashed-line { position: absolute; bottom: var(--bottom-height); left: 0; right: 0; border-top: 2px dashed rgba(255,255,255,0.3); height: 0; opacity: 0.6; margin: 0; }
-        .fine-amount-wrapper { display: flex; align-items: baseline; margin-top: 4px; }
+
+        .ticket-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: repeating-linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.03) 0px,
+                rgba(255, 255, 255, 0.03) 10px,
+                transparent 10px,
+                transparent 20px
+            );
+            pointer-events: none;
+        }
+
+        .ticket-content { 
+            position: relative; 
+            z-index: 3; 
+            padding: 28px 24px var(--bottom-height);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .ticket-dashed-line { 
+            position: absolute;
+            bottom: var(--bottom-height); 
+            left: 0; right: 0;
+            border-top: 2px dashed rgba(255,255,255,0.3); 
+            height: 0;
+            opacity: 0.6;
+            margin: 0;
+        }
+
+        .fine-amount-wrapper {
+            display: flex;
+            align-items: baseline;
+            margin-top: 4px;
+        }
         .fine-symbol { font-size: 1.5rem; font-weight: 600; margin-right: 4px; opacity: 0.9; }
-        .fine-amount { font-size: 3.8rem; font-weight: 800; letter-spacing: -3px; line-height: 0.9; font-family: 'Plus Jakarta Sans', sans-serif; text-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+        .fine-amount { 
+            font-size: 3.8rem; font-weight: 800; letter-spacing: -3px; 
+            line-height: 0.9; font-family: 'Plus Jakarta Sans', sans-serif; 
+            text-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
         .fine-unit { font-size: 1rem; opacity: 0.8; font-weight: 600; margin-left: 8px; }
-        .info-pill-container { position: absolute; bottom: 0; left: 0; right: 0; height: var(--bottom-height); background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.2)); padding: 0 24px; backdrop-filter: blur(5px); display: flex; align-items: center; }
-        .icon-warning-glow { width: 44px; height: 44px; background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3); border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+        .info-pill-container {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: var(--bottom-height);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.2)); 
+            padding: 0 24px; backdrop-filter: blur(5px);
+            display: flex; align-items: center;
+        }
+        
+        .icon-warning-glow {
+            width: 44px; height: 44px; 
+            background: rgba(255,255,255,0.2); 
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 14px; display: flex; 
+            align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
 
         /* 步骤横向滚动 */
-        .steps-scroller { display: flex; gap: 16px; overflow-x: auto; padding: 4px 4px 20px 4px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+        .steps-scroller {
+            display: flex; gap: 16px; overflow-x: auto;
+            padding: 4px 4px 20px 4px; scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
         .steps-scroller::-webkit-scrollbar { display: none; }
-        .step-item { min-width: 130px; width: 130px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: transform 0.2s ease; }
+
+        .step-item {
+            min-width: 130px; width: 130px; flex-shrink: 0;
+            display: flex; flex-direction: column; gap: 8px;
+            cursor: pointer; transition: transform 0.2s ease;
+        }
         .step-item:active { transform: scale(0.95); }
-        .step-img-wrapper { position: relative; width: 100%; aspect-ratio: 1/1; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 15px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.05); background-color: #cbd5e1; transition: box-shadow 0.3s ease; }
+
+        .step-img-wrapper {
+            position: relative; width: 100%; aspect-ratio: 1/1; 
+            border-radius: 16px; overflow: hidden;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.08); 
+            border: 1px solid rgba(0,0,0,0.05); background-color: #cbd5e1;
+            transition: box-shadow 0.3s ease;
+        }
         [data-theme="dark"] .step-img-wrapper { box-shadow: 0 8px 15px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); background-color: #334155; }
         .step-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
         .step-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; }
         .step-caption { font-size: 0.85rem; text-align: center; font-weight: 600; color: var(--text-primary); }
 
-        /* 紧急应对网格 */
+        /* 紧急应对模块 */
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .action-btn { background: var(--bg-body); padding: 20px; border-radius: 20px; border: 0; box-shadow: var(--inner-card-shadow); text-align: left; transition: all 0.2s; position: relative; overflow: hidden; touch-action: manipulation; }
+        .action-btn {
+            background: var(--bg-body); padding: 20px; border-radius: 20px;
+            border: 0; box-shadow: var(--inner-card-shadow); text-align: left;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; overflow: hidden; touch-action: manipulation; font-family: inherit;
+        }
         .action-btn:active { transform: scale(0.96); }
         .action-icon { font-size: 1.6rem; margin-bottom: 12px; display: inline-block; }
 
         /* 底部导航 */
-        .bottom-nav-container { position: fixed; bottom: calc(20px + var(--safe-bottom)); left: 0; right: 0; display: flex; justify-content: center; z-index: 1000; pointer-events: none; }
-        .bottom-nav { pointer-events: auto; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 32px; padding: 8px 12px; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.3); }
+        .bottom-nav-container {
+            position: fixed; bottom: calc(20px + var(--safe-bottom)); left: 0; right: 0;
+            display: flex; justify-content: center; z-index: 1000; pointer-events: none;
+        }
+        .bottom-nav {
+            pointer-events: auto; background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px; padding: 8px 12px; display: flex; align-items: center;
+            gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.3);
+        }
         [data-theme="dark"] .bottom-nav { background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-        .nav-item { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 1.2rem; transition: all 0.3s; text-decoration: none; touch-action: manipulation; }
+        .nav-item { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 1.2rem; transition: all 0.3s; text-decoration: none; position: relative; touch-action: manipulation; }
         .nav-item.active { color: #fff; background: var(--text-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         [data-theme="dark"] .nav-item.active { background: var(--accent-color); color: #fff; }
 
-        /* 新增：进度条样式 */
-        .progress-wrapper { width: 100%; background-color: var(--bg-body); border-radius: 12px; overflow: hidden; height: 8px; margin-top: 12px; display: none; }
-        .progress-bar-fill { height: 100%; background-color: var(--accent-color); width: 0%; transition: width 0.3s ease; }
-
-        /* 照片墙与其他组件 */
+        /* 天气模块 */
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .weather-card { background: #64748B; border-radius: 16px; aspect-ratio: 16/9; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; position: relative; overflow: hidden; box-shadow: var(--inner-card-shadow); }
+        .weather-card { 
+            background: #64748B; border-radius: 16px; aspect-ratio: 16/9; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            color: white; position: relative; overflow: hidden; box-shadow: var(--inner-card-shadow);
+        }
+        .weather-card i { margin-bottom: 6px; font-size: 1.5rem; opacity: 0.9; }
+
+        /* 原子类 */
         .btn-close-custom { background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; backdrop-filter: blur(4px); transition: background 0.2s; }
         .btn-close-custom:active { background: rgba(0,0,0,0.8); }
-        .opacity-75 { opacity: 0.75; } .fw-800 { font-weight: 800; } .text-xs { font-size: 0.75rem; }
-        .delete-cloud-btn { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border-radius: 50%; background: rgba(239, 68, 68, 0.85); backdrop-filter: blur(8px); color: white; border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); z-index: 10; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-        .delete-cloud-btn:active { transform: scale(0.85); background: rgba(220, 38, 38, 0.95); }
+        .opacity-75 { opacity: 0.75; }
+        .fw-800 { font-weight: 800; }
+        .fw-900 { font-weight: 900; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .desktop-hint { display: none; }
 
-        /* 桌面端适配 */
+        .delete-cloud-btn {
+            position: absolute; top: 10px; right: 10px; width: 34px; height: 34px;
+            border-radius: 50%; background: rgba(239, 68, 68, 0.85);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            color: white; border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); z-index: 10;
+            display: flex; justify-content: center; align-items: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); padding: 0; cursor: pointer;
+        }
+        .delete-cloud-btn:active { transform: scale(0.85); background: rgba(220, 38, 38, 0.95); }
+        .delete-cloud-btn i { font-size: 0.85rem; pointer-events: none; }
+
         @media (min-width: 992px) {
             body { padding-bottom: 40px; }
-            .main-layout-wrapper { max-width: 1200px; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: 360px 1fr; grid-template-areas: "fines process" "weather actions"; gap: 24px; align-items: start; }
+            .main-layout-wrapper {
+                max-width: 1200px; margin: 0 auto; padding: 24px;
+                display: grid; grid-template-columns: 360px 1fr; 
+                grid-template-areas: "fines process" "weather actions";
+                gap: 24px; align-items: start;
+            }
             .section-card, .ticket-wrapper { margin: 0 !important; height: 100%; }
-            #risk { grid-area: fines; } #prevention { grid-area: process; } #actions { grid-area: actions; } #weather { grid-area: weather; }
+            .ticket-card { height: 100%; }
+            .ticket-content { justify-content: space-between; }
+            #risk { grid-area: fines; } #prevention { grid-area: process; }
+            #actions { grid-area: actions; } #weather { grid-area: weather; }
             .bottom-nav-container { display: none !important; }
             .desktop-nav { display: flex; gap: 12px; margin-right: 24px; }
-            .desktop-nav-link { text-decoration: none; color: var(--text-secondary); font-weight: 600; font-size: 0.95rem; padding: 8px 16px; border-radius: 12px; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+            .desktop-nav-link {
+                text-decoration: none; color: var(--text-secondary); font-weight: 600;
+                font-size: 0.95rem; padding: 8px 16px; border-radius: 12px;
+                transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+            }
             .desktop-nav-link:hover { background: rgba(0,0,0,0.03); color: var(--text-primary); }
             [data-theme="dark"] .desktop-nav-link:hover { background: rgba(255,255,255,0.05); }
             .desktop-nav-link.active { background: var(--accent-light); color: var(--accent-text); }
+            .steps-scroller { flex-wrap: wrap; overflow: visible; justify-content: space-between; padding-bottom: 0; }
+            .step-item { width: 18%; min-width: unset; }
+            .step-item:hover .step-img-wrapper { box-shadow: 0 15px 30px rgba(0,0,0,0.12); transform: translateY(-4px); }
+            .step-item:hover .step-img { transform: scale(1.08); }
+            .mobile-hint { display: none !important; }
+            .desktop-hint { display: block !important; }
+            .action-grid { grid-template-columns: repeat(3, 1fr); }
+            .action-btn.w-100 { grid-column: span 1 !important; }
+            .action-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
+            [data-theme="dark"] .action-btn:hover { box-shadow: 0 12px 24px rgba(0,0,0,0.3); }
         }
     </style>
 </head>
@@ -215,7 +401,7 @@
                 <a href="#weather" class="desktop-nav-link"><i class="fas fa-camera"></i> 天气</a>
             </nav>
             <button id="themeToggle" class="btn border-0 rounded-circle d-flex align-items-center justify-content-center" 
-                    style="width: 44px; height: 44px; background-color: var(--bg-surface); color: var(--text-primary); box-shadow: var(--card-shadow);" aria-label="切换主题">
+                    style="width: 44px; height: 44px; background-color: var(--bg-surface); color: var(--text-primary); box-shadow: var(--card-shadow);" aria-label="切换深浅主题">
                 <i class="fas fa-moon" style="transition: transform 0.2s ease;"></i>
             </button>
         </div>
@@ -236,8 +422,12 @@
                         <div class="icon-warning-glow"><i class="fas fa-exclamation-triangle fs-5 text-white"></i></div>
                     </div>
                     <div class="mt-3 mb-4">
-                        <div class="fine-amount-wrapper"><span class="fine-symbol">¥</span><span class="fine-amount">500</span><span class="fine-unit">/ 单</span></div>
-                        <div class="text-white text-opacity-75 text-xs fw-medium mt-1"><i class="fas fa-arrow-up me-1"></i> 单笔最高扣款金额</div>
+                        <div class="fine-amount-wrapper">
+                            <span class="fine-symbol">¥</span><span class="fine-amount">500</span><span class="fine-unit">/ 单</span>
+                        </div>
+                        <div class="text-white text-opacity-75 text-xs fw-medium mt-1">
+                            <i class="fas fa-arrow-up me-1"></i> 单笔最高扣款金额
+                        </div>
                     </div>
                     <div class="ticket-dashed-line"></div>
                     <div class="info-pill-container">
@@ -254,46 +444,71 @@
         </section>
 
         <section id="prevention" class="section-card">
-            <div class="section-title"><div class="icon-box"><i class="fas fa-shield-alt"></i></div><span>免责核心：强制报备</span></div>
-            <div class="alert border-0 p-3 mb-4 rounded-4" style="background-color: var(--warning-bg); color: var(--warning-text);">
-                <div class="d-flex align-items-center mb-2"><i class="fas fa-bell me-2"></i><span class="fw-bold">提前报备商家出餐慢</span></div>
-                <small class="d-block opacity-75">高峰期需优先识别超时隐患的订单。若距离商家较远，可直接强制报备。无论是否虚假，只要完成流程，订单取消均不计入物流责任。</small>
+            <div class="section-title">
+                <div class="icon-box"><i class="fas fa-shield-alt"></i></div>
+                <span>免责核心：正常报备/强制报备</span>
             </div>
-            <div class="mb-2 ps-1"><small class="fw-800 text-danger"><i class="fas fa-angle-down me-1"></i> 以下步骤图为强制报备</small></div>
+            <div class="alert border-0 p-3 mb-4 rounded-4" style="background-color: var(--warning-bg); color: var(--warning-text);">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-bell me-2"></i><span class="fw-bold">提前报备商家出餐慢</span>
+                </div>
+                <small class="d-block opacity-75" style="line-height: 1.5;">
+                    高峰期需优先识别超时隐患的订单。若距离商家较远，可直接强制报备。无论是否虚假，只要完成流程，订单取消均不计入物流责任。
+                </small>
+            </div>
+            <div class="mb-2 ps-1">
+                <small class="fw-800 text-danger"><i class="fas fa-angle-down me-1"></i> 以下步骤图为强制报备</small>
+            </div>
             <div class="steps-scroller">
                 <div class="step-item" onclick="viewImage('https://i.ibb.co/ycpwLz53/IMG-5760.png')">
-                    <div class="step-img-wrapper"><span class="step-badge">1. 到店</span><img src="https://i.ibb.co/ycpwLz53/IMG-5760.png" class="step-img" alt="举证到店"></div>
+                    <div class="step-img-wrapper"><span class="step-badge">步骤 1</span><img src="https://i.ibb.co/ycpwLz53/IMG-5760.png" class="step-img" alt="举证到店"></div>
+                    <div class="step-caption">举证到店</div>
                 </div>
                 <div class="step-item" onclick="viewImage('https://i.ibb.co/mF5twXL8/IMG-5774.jpg')">
-                    <div class="step-img-wrapper"><span class="step-badge">2. 拍照</span><img src="https://i.ibb.co/mF5twXL8/IMG-5774.jpg" class="step-img" alt="照片留证"></div>
+                    <div class="step-img-wrapper"><span class="step-badge">步骤 2</span><img src="https://i.ibb.co/mF5twXL8/IMG-5774.jpg" class="step-img" alt="照片留证"></div>
+                    <div class="step-caption">随便拍一张照片</div>
                 </div>
                 <div class="step-item" onclick="viewImage('https://i.ibb.co/zHn96kLf/IMG-5775.jpg')">
-                    <div class="step-img-wrapper"><span class="step-badge">3. 提交</span><img src="https://i.ibb.co/zHn96kLf/IMG-5775.jpg" class="step-img" alt="提交举证"></div>
+                    <div class="step-img-wrapper"><span class="step-badge">步骤 3</span><img src="https://i.ibb.co/zHn96kLf/IMG-5775.jpg" class="step-img" alt="提交举证"></div>
+                    <div class="step-caption">提交举证</div>
                 </div>
                 <div class="step-item" onclick="viewImage('https://i.ibb.co/67PnNnBz/IMG-5777.jpg')">
-                    <div class="step-img-wrapper"><span class="step-badge">4. 确认</span><img src="https://i.ibb.co/67PnNnBz/IMG-5777.jpg" class="step-img" alt="确认提交"></div>
+                    <div class="step-img-wrapper"><span class="step-badge">步骤 4</span><img src="https://i.ibb.co/67PnNnBz/IMG-5777.jpg" class="step-img" alt="确认提交"></div>
+                    <div class="step-caption">确认提交</div>
                 </div>
                 <div class="step-item" onclick="viewImage('https://i.ibb.co/fGdg0KjG/IMG-5779.jpg')">
-                    <div class="step-img-wrapper"><span class="step-badge">5. 报备</span><img src="https://i.ibb.co/fGdg0KjG/IMG-5779.jpg" class="step-img" alt="点击报备"></div>
+                    <div class="step-img-wrapper"><span class="step-badge">步骤 5</span><img src="https://i.ibb.co/fGdg0KjG/IMG-5779.jpg" class="step-img" alt="点击报备"></div>
+                    <div class="step-caption">点击报备</div>
                 </div>
             </div>
+            <small class="text-secondary opacity-75 d-block text-center mt-3 text-xs fw-bold tracking-wider mobile-hint">
+                <i class="fas fa-exchange-alt me-1"></i> 左右滑动查看 <span class="mx-2 opacity-50">|</span> <i class="fas fa-expand me-1"></i> 图片可点击放大
+            </small>
+            <small class="text-secondary opacity-75 text-center mt-3 text-xs fw-bold tracking-wider desktop-hint">
+                <i class="fas fa-mouse-pointer me-1"></i> 点击图片可放大查看详情
+            </small>
         </section>
 
         <section id="actions" class="section-card">
-            <div class="section-title"><div class="icon-box"><i class="fas fa-first-aid"></i></div><span>订单快取消了怎么办？</span></div>
+            <div class="section-title">
+                <div class="icon-box"><i class="fas fa-first-aid"></i></div>
+                <span>订单快取消了怎么办？</span>
+            </div>
             <div class="action-grid">
                 <button type="button" class="action-btn" style="background: var(--danger-bg); color: var(--danger-text);">
                     <i class="fas fa-phone action-icon"></i>
-                    <span class="d-block fw-bold mb-1">联系商家拦截</span>
-                    <span class="d-block text-xs opacity-75">让商家操作拒绝退款</span>
+                    <span class="d-block fw-bold mb-1">先给商家打电话</span>
+                    <span class="d-block text-xs opacity-75 lh-sm">让商家操作拒绝退款，拦截取消</span>
                 </button>
                 <button type="button" class="action-btn" style="background: var(--success-bg); color: var(--success-text);">
                     <i class="fas fa-comments-dollar action-icon"></i>
                     <span class="d-block fw-bold mb-1">安抚顾客情绪</span>
-                    <span class="d-block text-xs opacity-75">引导顾客私下转账，避免罚款</span>
+                    <span class="d-block text-xs opacity-75 lh-sm">可以和顾客卖惨，引导顾客私下转账，避免罚款</span>
                 </button>
                 <button type="button" class="action-btn w-100 d-flex align-items-center gap-3" style="grid-column: span 2; background: var(--accent-light); color: var(--accent-text);">
-                    <span class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; background: rgba(255,255,255,0.5); border-radius: 12px;"><i class="fas fa-check-circle fs-4"></i></span>
+                    <span class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; background: rgba(255,255,255,0.5); border-radius: 12px;">
+                        <i class="fas fa-check-circle fs-4"></i>
+                    </span>
                     <span class="text-start">
                         <span class="d-block fw-bold">及时去点送达</span>
                         <span class="d-block text-xs opacity-75">如果离顾客位置不远，先去及时点送达</span>
@@ -303,26 +518,40 @@
         </section>
 
         <section id="weather" class="section-card mb-5">
-            <div class="section-title"><div class="icon-box"><i class="fas fa-cloud-showers-heavy"></i></div><span>恶劣天气报备</span></div>
-            <div class="alert border-0 p-3 mb-4 rounded-4" style="background: var(--accent-light); color: var(--accent-text);">
-                <div class="d-flex"><i class="fas fa-bullhorn mt-1 me-3"></i><div class="small fw-bold">遇到积水或结冰时，直接点击下方上传，系统会自动为您印上时间和定位防伪水印。</div></div>
+            <div class="section-title">
+                <div class="icon-box"><i class="fas fa-cloud-showers-heavy"></i></div>
+                <span>恶劣天气需拍照报备</span>
             </div>
-            
-            <div class="mb-3">
-                <label class="form-label small fw-bold text-secondary mb-1">📍 自动定位（若有偏差可点击修改）：</label>
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-body border-end-0 text-secondary" style="border-radius: 12px 0 0 12px;"><i class="fas fa-map-marker-alt"></i></span>
-                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 py-2 small" value="正在请求定位授权..." style="border-radius: 0 12px 12px 0; font-weight: 600;">
+            <div class="alert border-0 p-3 mb-4 rounded-4" style="background: var(--accent-light); color: var(--accent-text);">
+                <div class="d-flex">
+                    <i class="fas fa-bullhorn mt-1 me-3"></i>
+                    <div class="small fw-bold" style="line-height: 1.5;">
+                        提示：路上遇到积水或结冰时，直接用手机普通相机拍下来传到这里就行。系统会自动在照片上印出当前时间和具体位置！
+                    </div>
                 </div>
             </div>
-
+            <div class="bg-body p-3 rounded-4 mb-3 border border-opacity-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="small fw-bold text-secondary">水印照片发送对象</span>
+                    <span class="badge bg-primary rounded-pill px-3 py-2">站长：朱振伟</span>
+                </div>
+            </div>
+            <div class="weather-grid mb-4">
+                <div class="weather-card"><i class="fas fa-water"></i><div class="small fw-bold">积水拍摄</div></div>
+                <div class="weather-card"><i class="fas fa-snowflake"></i><div class="small fw-bold">冰雪拍摄</div></div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-secondary mb-1">📍 自动定位位置（可手动修改）：</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-body border-end-0 text-secondary" style="border-radius: 12px 0 0 12px;"><i class="fas fa-map-marker-alt"></i></span>
+                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 py-2 small" value="正在调用底层定位..." style="border-radius: 0 12px 12px 0; font-size: 0.85rem; color: var(--text-primary); font-weight: 600;">
+                </div>
+            </div>
             <div class="weather-upload-container mt-4">
                 <label for="weather-upload" id="uploadZone" class="w-100 p-4 border rounded-4 d-flex flex-column align-items-center justify-content-center text-center position-relative" style="border-style: dashed !important; border-width: 2px !important; border-color: var(--text-secondary) !important; background: rgba(var(--bg-surface-rgb), 0.3); cursor: pointer; transition: background 0.2s;">
                     <i class="fas fa-camera fs-2 mb-2" style="color: var(--accent-color);"></i>
-                    <span id="uploadText" class="fw-bold small d-block" style="color: var(--text-primary);">点击拍照或者选择照片（可多选）</span>
-                    <div class="progress-wrapper" id="uploadProgressBox">
-                        <div class="progress-bar-fill" id="uploadProgressBar"></div>
-                    </div>
+                    <span class="fw-bold small d-block" style="color: var(--text-primary);">点击拍照或者选择照片上传（可多选）</span>
+                    <span class="text-xs opacity-75 d-block mt-1" style="color: var(--text-secondary);">图片会自动压缩，刷新页面照片不丢失</span>
                 </label>
                 <input type="file" id="weather-upload" accept="image/*" class="d-none" multiple>
                 
@@ -341,12 +570,15 @@
             <a href="#weather" class="nav-item"><i class="fas fa-camera"></i></a>
         </div>
     </nav>
+
     <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content bg-transparent border-0 shadow-none">
                 <div class="modal-body-wrapper text-center position-relative">
-                    <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center" data-bs-dismiss="modal"><i class="fas fa-times"></i></button>
-                    <img src="" id="modalImg" class="img-fluid rounded-4 shadow-lg" alt="全屏查看" style="max-height: 85vh; width: auto;">
+                    <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <img src="" id="modalImg" class="img-fluid rounded-4 shadow-lg dynamic-modal-preview" alt="全屏查看" style="max-height: 85vh; width: auto;">
                 </div>
             </div>
         </div>
@@ -355,172 +587,242 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 1. 全局方法与导航逻辑
+        // 挂载全局方法
         window.viewImage = function(srcUrl) {
-            const mImg = document.getElementById('modalImg');
-            const mEl = document.getElementById('imageModal');
-            if (mImg && mEl) { mImg.src = srcUrl; (bootstrap.Modal.getInstance(mEl) || new bootstrap.Modal(mEl)).show(); }
+            const modalImg = document.getElementById('modalImg');
+            const modalElement = document.getElementById('imageModal');
+            if (modalImg && modalElement) {
+                modalImg.src = srcUrl;
+                const bsModal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                bsModal.show();
+            }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
+            // UI交互逻辑
             const sections = document.querySelectorAll('section');
+            const sentinel = document.getElementById('scroll-sentinel');
             const navItems = document.querySelectorAll('.nav-item, .desktop-nav-link');
-            let isProgScroll = false, scrollTimeout = null;
+            let isProgrammaticScrolling = false;
+            let scrollTimeout = null;
+            const visibilityMap = {};
+
+            function clearScrollLock() { isProgrammaticScrolling = false; }
+            if ('onscrollend' in window) window.addEventListener('scrollend', clearScrollLock);
 
             const observer = new IntersectionObserver((entries) => {
-                if (isProgScroll) return;
-                entries.forEach(e => {
-                    if(e.isIntersecting) {
-                        const id = e.target.getAttribute('id');
-                        navItems.forEach(link => link.classList.toggle('active', link.getAttribute('href').includes(id)));
-                    }
+                entries.forEach(entry => {
+                    const id = entry.target.getAttribute('id');
+                    if (entry.isIntersecting) visibilityMap[id] = entry.intersectionRect.height;
+                    else delete visibilityMap[id];
                 });
-            }, { threshold: 0.5 });
+                if (isProgrammaticScrolling) return;
+                let activeId = null, maxHeight = -1;
+                for (const id in visibilityMap) {
+                    if (id === 'scroll-sentinel') continue;
+                    if (visibilityMap[id] > maxHeight) { maxHeight = visibilityMap[id]; activeId = id; }
+                }
+                if (visibilityMap['scroll-sentinel'] > 0) activeId = sections[sections.length - 1].getAttribute('id');
+                if (activeId) navItems.forEach(link => link.classList.toggle('active', link.getAttribute('href').includes(activeId)));
+            }, { threshold: [0, 0.2, 0.5, 0.8, 1.0] });
+
             sections.forEach(sec => observer.observe(sec));
+            if (sentinel) observer.observe(sentinel);
 
             navItems.forEach(link => link.addEventListener('click', function(e) {
                 e.preventDefault();
                 const targetId = this.getAttribute('href');
                 const targetSection = document.querySelector(targetId);
                 if (targetSection) {
-                    isProgScroll = true;
+                    isProgrammaticScrolling = true;
                     navItems.forEach(l => l.classList.toggle('active', l.getAttribute('href') === targetId));
-                    window.scrollTo({ top: targetSection.getBoundingClientRect().top + window.scrollY - 90, behavior: 'smooth' });
+                    const isMobile = window.innerWidth < 992;
+                    window.scrollTo({ top: targetSection.getBoundingClientRect().top + window.scrollY - (isMobile ? 80 : 90) - 10, behavior: 'smooth' });
                     clearTimeout(scrollTimeout);
-                    scrollTimeout = setTimeout(() => isProgScroll = false, 600);
+                    scrollTimeout = setTimeout(clearScrollLock, 600);
                 }
             }));
 
-            // 2. 主题切换
-            const tToggle = document.getElementById('themeToggle');
-            const tIcon = tToggle.querySelector('i');
-            if (document.documentElement.getAttribute('data-theme') === 'dark') tIcon.classList.replace('fa-moon', 'fa-sun');
-            tToggle.addEventListener('click', () => {
-                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-                localStorage.setItem('theme', isDark ? 'light' : 'dark');
-                tIcon.style.transform = 'scale(0) rotate(180deg)';
-                setTimeout(() => { tIcon.className = isDark ? 'fas fa-moon' : 'fas fa-sun'; tIcon.style.transform = 'scale(1)'; }, 150);
+            // 主题切换
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('i');
+            if (document.documentElement.getAttribute('data-theme') === 'dark') themeIcon.classList.replace('fa-moon', 'fa-sun');
+            themeToggle.addEventListener('click', () => {
+                const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                themeIcon.style.transform = 'scale(0) rotate(180deg)';
+                setTimeout(() => {
+                    themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                    themeIcon.style.transform = 'scale(1) rotate(0deg)';
+                }, 150);
             });
 
-            // 3. 防御性定位系统
+            // 腾讯地图定位兜底处理
             const locInput = document.getElementById('watermark-location');
             if (locInput) {
-                let manuallyEdited = false;
-                locInput.addEventListener('input', () => manuallyEdited = true);
-                const setLoc = (str) => { if(!manuallyEdited) locInput.value = str; };
-                const fallback = () => setLoc('');
-                
-                try {
-                    if (typeof qq !== 'undefined' && qq.maps && qq.maps.Geolocation) {
-                        const geo = new qq.maps.Geolocation("OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77", "wuliu");
-                        geo.getLocation(
-                            p => setLoc(p.addr || (p.province + p.city + ' (请补全信息)')),
-                            () => geo.getIpLocation(p => setLoc((p.province||'') + p.city + ' (定位精度低)'), fallback),
-                            { timeout: 5000 }
-                        );
-                    } else { throw new Error('地图API被拦截'); }
-                } catch(e) { 
-                    fallback(); 
-                    locInput.placeholder = "🚫 定位受阻，请直接手动输入具体位置"; 
-                }
+                let userHasTyped = false;
+                locInput.addEventListener('input', () => userHasTyped = true);
+                const updateLoc = (text) => { if (!userHasTyped) locInput.value = text; };
+                const fallback = () => { if (!userHasTyped) { locInput.value = ''; locInput.placeholder = '定位失败，请手动输入位置'; } };
+
+                if (window.qq && qq.maps && qq.maps.Geolocation) {
+                    const geo = new qq.maps.Geolocation("OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77", "wuliu_helper");
+                    geo.getLocation(
+                        pos => updateLoc(pos.addr || (pos.province + pos.city + ' (请补充小区)')),
+                        () => geo.getIpLocation(
+                            ipPos => updateLoc((ipPos.province || '') + ipPos.city + ' (请补充街道)'), 
+                            fallback
+                        ),
+                        { timeout: 6000 }
+                    );
+                } else fallback();
             }
 
-            // 4. Supabase 云端与异步处理
-            const SUPA_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
-            const SUPA_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
-            const BUCKET = 'weather-proofs'; 
+            // Supabase 核心逻辑
+            const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
+            const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
+            const BUCKET_NAME = 'weather-proofs'; 
 
             const fileInput = document.getElementById('weather-upload');
             const uploadZone = document.getElementById('uploadZone');
-            const uploadTxt = document.getElementById('uploadText');
-            const progBox = document.getElementById('uploadProgressBox');
-            const progBar = document.getElementById('uploadProgressBar');
-            const pGallery = document.getElementById('preview-gallery');
-            let isSyncing = false, currentHash = '';
+            const previewContainer = document.getElementById('upload-preview-container');
+            const previewGallery = document.getElementById('preview-gallery');
+            let isSyncing = false;
 
-            if (fileInput && window.supabase) {
-                const supabaseClient = supabase.createClient(SUPA_URL, SUPA_KEY);
+            if (fileInput && uploadZone && previewContainer && window.supabase) {
+                const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                let currentHash = ''; 
 
+                // 核心修复1：采用DOM API避免XSS，彻底告别 innerHTML 拼接不受信数据
                 async function syncGallery(isSilent = false) {
                     if (isSyncing) return;
                     isSyncing = true;
                     try {
-                        const { data, error } = await supabaseClient.storage.from(BUCKET).list('weather-photos', { limit: 30, sortBy: { column: 'name', order: 'desc' } });
+                        if (!isSilent && !currentHash) {
+                            previewContainer.classList.remove('d-none');
+                            previewGallery.innerHTML = '<div class="col-12 text-center text-secondary small py-4"><i class="fas fa-spinner fa-spin me-2"></i>正在拉取数据...</div>';
+                        }
+
+                        const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list('weather-photos', { limit: 50, sortBy: { column: 'name', order: 'desc' } });
                         if (error) throw error;
 
-                        const files = (data||[]).filter(f => f.name !== '.emptyFolderPlaceholder');
-                        const newHash = files.map(f=>f.name).join(',');
-                        if (isSilent && newHash === currentHash) return;
+                        const files = (data || []).filter(f => f.name !== '.emptyFolderPlaceholder');
+                        const newHash = files.map(f => f.name).join(',');
+                        
+                        if (isSilent && newHash === currentHash) {
+                            isSyncing = false; return; 
+                        }
                         currentHash = newHash;
 
-                        document.getElementById('upload-preview-container').classList.remove('d-none');
-                        const frag = document.createDocumentFragment();
-                        
-                        if(!files.length) {
-                            pGallery.innerHTML = '<div class="col-12 text-center text-secondary small py-2">暂无上传记录</div>';
-                        } else {
-                            files.forEach(f => {
-                                const path = `weather-photos/${f.name}`;
-                                const url = supabaseClient.storage.from(BUCKET).getPublicUrl(path).data?.publicUrl;
-                                if(!url) return;
-
-                                const col = document.createElement('div');
-                                col.className = 'col-6 col-md-4 position-relative';
-                                col.innerHTML = `<div class="position-relative overflow-hidden rounded-4 shadow-sm" style="aspect-ratio: 4/3; background: #e2e8f0;">
-                                    <img src="${url}" class="w-100 h-100" style="object-fit:cover;cursor:pointer" onclick="viewImage('${url}')">
-                                    <button class="delete-cloud-btn" data-path="${path}"><i class="fas fa-trash-alt"></i></button></div>`;
-                                
-                                col.querySelector('button').onclick = async function(e) {
-                                    e.stopPropagation();
-                                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                                    try { await supabaseClient.storage.from(BUCKET).remove([this.dataset.path]); syncGallery(true); } 
-                                    catch(err) { alert('删除失败'); this.innerHTML = '<i class="fas fa-trash-alt"></i>'; }
-                                };
-                                frag.appendChild(col);
-                            });
-                            pGallery.innerHTML = ''; pGallery.appendChild(frag);
+                        if (files.length === 0) {
+                            previewGallery.innerHTML = '<div class="col-12 text-center text-secondary small py-3">暂时没有照片</div>';
+                            isSyncing = false; return;
                         }
-                    } finally { isSyncing = false; }
+
+                        const fragment = document.createDocumentFragment();
+                        files.forEach(file => {
+                            const path = `weather-photos/${file.name}`;
+                            const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(path);
+                            if (!urlData?.publicUrl) return;
+
+                            // 严谨的DOM创建机制
+                            const col = document.createElement('div');
+                            col.className = 'col-6 col-md-4 position-relative';
+                            
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'position-relative overflow-hidden rounded-4 shadow-sm';
+                            wrapper.style.cssText = 'aspect-ratio: 4/3; background: var(--bg-body);';
+                            
+                            const img = document.createElement('img');
+                            img.src = urlData.publicUrl;
+                            img.className = 'w-100 h-100';
+                            img.style.cssText = 'object-fit: cover; cursor: pointer;';
+                            img.alt = '报备照片';
+                            img.onclick = () => window.viewImage(urlData.publicUrl);
+                            
+                            const btn = document.createElement('button');
+                            btn.type = 'button';
+                            btn.className = 'delete-cloud-btn';
+                            btn.setAttribute('data-path', path);
+                            btn.setAttribute('aria-label', '删除照片');
+                            btn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                            
+                            btn.onclick = async function(e) {
+                                e.stopPropagation();
+                                const targetPath = this.getAttribute('data-path');
+                                this.disabled = true;
+                                this.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 0.7rem;"></i>';
+                                try {
+                                    const { error: delErr } = await supabaseClient.storage.from(BUCKET_NAME).remove([targetPath]);
+                                    if (delErr) throw delErr;
+                                    await syncGallery(true); 
+                                } catch (err) {
+                                    alert('删除失败，请重试：' + err.message);
+                                    this.disabled = false;
+                                    this.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                                }
+                            };
+
+                            wrapper.appendChild(img);
+                            wrapper.appendChild(btn);
+                            col.appendChild(wrapper);
+                            fragment.appendChild(col);
+                        });
+
+                        previewGallery.innerHTML = ''; 
+                        previewGallery.appendChild(fragment);
+                        previewContainer.classList.remove('d-none');
+                    } catch (err) {
+                        console.error('相册加载失败:', err);
+                        if (!isSilent) previewGallery.innerHTML = `<div class="col-12 text-center text-danger small py-3"><i class="fas fa-wifi me-2"></i>加载失败，请刷新。</div>`;
+                    } finally {
+                        isSyncing = false;
+                    }
                 }
 
-                syncGallery();
-                setInterval(() => { if (document.visibilityState === 'visible') syncGallery(true); }, 15000);
+                syncGallery(false);
+                // 核心修复2：只在页面可见时轮询，避免后台消耗免费 API 额度
+                setInterval(() => {
+                    if (document.visibilityState === 'visible') syncGallery(true);
+                }, 15000);
 
-                // 核心：防卡死图片压缩 (Yielding to main thread)
-                function processImageAsync(file, locText) {
-                    return new Promise((resolve, reject) => {
-                        // 拦截不支持的 HEIC 等格式
-                        if (!file.type.match(/image\/(jpeg|png|webp|gif)/i)) {
-                            return reject(new Error('格式不支持，请使用系统相机重新拍摄JPG格式'));
-                        }
-                        
+                // 图片压缩和水印处理
+                function processImage(file, locText) {
+                    return new Promise(resolve => {
+                        if (!file.type.startsWith('image/')) return resolve(file);
                         const reader = new FileReader();
                         reader.onload = e => {
                             const img = new Image();
                             img.onload = () => {
-                                // 使用 requestAnimationFrame 释放当前帧给 UI 更新
-                                requestAnimationFrame(() => {
-                                    const cvs = document.createElement('canvas');
-                                    const maxW = 1024;
-                                    let w = img.width, h = img.height;
-                                    if(w > maxW || h > maxW) { w>h ? (h=Math.round(h*maxW/w), w=maxW) : (w=Math.round(w*maxW/h), h=maxW); }
-                                    cvs.width = w; cvs.height = h;
-                                    const ctx = cvs.getContext('2d');
-                                    ctx.drawImage(img, 0, 0, w, h);
-                                    
-                                    const fSize = Math.max(14, Math.round(w * 0.026));
-                                    ctx.font = `bold ${fSize}px sans-serif`; ctx.textBaseline = 'top';
-                                    const d = new Date(), dStr = `⏰ 时间：${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-                                    const lStr = `📍 位置：${locText || '无位置信息'}`;
-                                    
-                                    ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0, h-(fSize*3+20), w, fSize*3+20);
-                                    ctx.fillStyle = '#fff'; ctx.fillText(dStr, 10, h-(fSize*2.5+10)); ctx.fillText(lStr, 10, h-(fSize*1.2+10));
-                                    
-                                    cvs.toBlob(blob => resolve(blob ? new File([blob], file.name.replace(/\.[^/.]+$/, "")+"_proof.jpg", {type:'image/jpeg'}) : file), 'image/jpeg', 0.7);
-                                });
+                                const canvas = document.createElement('canvas');
+                                const maxW = 1024;
+                                let w = img.width, h = img.height;
+                                if (w > maxW || h > maxW) {
+                                    if (w > h) { h = Math.round(h * maxW / w); w = maxW; }
+                                    else { w = Math.round(w * maxW / h); h = maxW; }
+                                }
+                                canvas.width = w; canvas.height = h;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, w, h);
+
+                                const fSize = Math.max(14, Math.round(w * 0.026));
+                                ctx.font = `bold ${fSize}px sans-serif`;
+                                ctx.textBaseline = 'top';
+
+                                const now = new Date();
+                                const timeStr = `⏰ 时间：${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                                const locStr = `📍 位置：${locText || '未获取到位置'}`;
+                                
+                                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                                ctx.fillRect(0, h - (fSize * 3 + 20), w, fSize * 3 + 20);
+                                ctx.fillStyle = '#fff';
+                                ctx.fillText(timeStr, 10, h - (fSize * 2.5 + 10));
+                                ctx.fillText(locStr, 10, h - (fSize * 1.2 + 10));
+
+                                canvas.toBlob(blob => resolve(blob ? new File([blob], file.name.replace(/\.[^/.]+$/, "") + "_proof.jpg", { type: 'image/jpeg' }) : file), 'image/jpeg', 0.7);
                             };
-                            img.onerror = () => reject(new Error('图片读取损坏'));
+                            img.onerror = () => resolve(file);
                             img.src = e.target.result;
                         };
                         reader.readAsDataURL(file);
@@ -531,39 +833,33 @@
                     const files = Array.from(e.target.files);
                     if (!files.length) return;
 
-                    const originalText = uploadTxt.innerText;
+                    const txtNode = uploadZone.querySelector('.fw-bold');
+                    const ogTxt = txtNode.innerText;
+                    uploadZone.style.opacity = '0.6';
                     uploadZone.style.pointerEvents = 'none';
-                    progBox.style.display = 'block';
-                    progBar.style.width = '0%';
-                    
+
                     const loc = locInput ? locInput.value.trim() : '';
-                    let successCount = 0;
 
                     for (let i = 0; i < files.length; i++) {
-                        uploadTxt.innerText = `处理并上传 (${i + 1}/${files.length})...`;
-                        // 预留 UI 更新时间
-                        await new Promise(r => setTimeout(r, 50)); 
-                        
+                        txtNode.innerText = `处理中 (${i + 1}/${files.length})...`;
+                        const processed = await processImage(files[i], loc);
+                        const fileName = `weather-photos/${Date.now()}-${Math.random().toString(36).substring(2,7)}.jpg`;
+
                         try {
-                            const processed = await processImageAsync(files[i], loc);
-                            const name = `weather-photos/${Date.now()}-${Math.random().toString(36).substring(2,7)}.jpg`;
-                            const { error } = await supabaseClient.storage.from(BUCKET).upload(name, processed, { upsert: false });
+                            const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(fileName, processed, { cacheControl: '604800', upsert: false });
                             if (error) throw error;
-                            successCount++;
                         } catch (err) {
-                            alert(`图片 [${files[i].name}] 跳过: ${err.message}`);
+                            alert(`照片 [${files[i].name}] 上传失败: ${err.message}`);
                         }
-                        
-                        progBar.style.width = `${((i + 1) / files.length) * 100}%`;
                     }
 
-                    setTimeout(() => {
-                        uploadTxt.innerText = originalText;
-                        progBox.style.display = 'none';
-                        uploadZone.style.pointerEvents = 'auto';
-                        fileInput.value = '';
-                        syncGallery(true);
-                    }, 500);
+                    txtNode.innerText = ogTxt;
+                    uploadZone.style.opacity = '1';
+                    uploadZone.style.pointerEvents = 'auto';
+                    fileInput.value = ''; 
+                    
+                    currentHash = '';
+                    syncGallery(true);
                 });
             }
         });
