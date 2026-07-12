@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>物流责任防范指南</title>
+    <title>物流责任防范指南与结算助手</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2 family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="text/javascript" src="https://apis.map.qq.com/tools/geolocation/min?key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=wuliu"></script>
@@ -124,7 +124,7 @@
             padding: 24px;
             border-radius: var(--border-radius);
             box-shadow: var(--card-shadow);
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         
@@ -328,7 +328,91 @@
         }
         .weather-card i { margin-bottom: 6px; font-size: 1.5rem; opacity: 0.9; }
 
-        /* 原子类 */
+        /* ==============================
+           2. 计算器集成专有样式表（已极限压缩与UI深度重构）
+           ============================== */
+        .calc-sub-card {
+            background: var(--bg-body); border-radius: 14px; padding: 12px; margin-bottom: 12px;
+            border: 1px solid rgba(0,0,0,0.03); transition: background 0.3s, border 0.3s;
+        }
+        [data-theme="dark"] .calc-sub-card {
+            background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.04);
+        }
+        .calc-input-group { display: flex; align-items: center; position: relative; }
+        .calc-input-group input {
+            width: 100%; padding: 8px 45px 8px 12px; border: 1.5px solid rgba(0,0,0,0.06);
+            border-radius: 10px; font-size: 0.95rem; font-weight: 600; color: var(--text-primary);
+            background-color: var(--bg-surface); transition: all 0.2s ease;
+        }
+        [data-theme="dark"] .calc-input-group input {
+            border-color: rgba(255, 255, 255, 0.08); background-color: rgba(0, 0, 0, 0.2);
+        }
+        .calc-input-group input:focus {
+            outline: none; border-color: var(--accent-color); background-color: var(--bg-surface);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+        .calc-input-group .input-suffix {
+            position: absolute; right: 12px; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); pointer-events: none;
+        }
+        .tier-row {
+            display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center;
+            margin-bottom: 8px; padding: 6px 10px; background: rgba(var(--bg-surface-rgb), 0.5); border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.03); transition: background 0.3s;
+        }
+        [data-theme="dark"] .tier-row {
+            background: rgba(0, 0, 0, 0.15); border-color: rgba(255,255,255,0.03);
+        }
+        .grand-total-box {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white;
+            padding: 14px; border-radius: 12px; text-align: center;
+            box-shadow: 0 6px 15px -3px rgba(16, 185, 129, 0.2);
+        }
+        .grand-total-box .result-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .detail-box {
+            background: var(--bg-body); border: 1px solid rgba(0,0,0,0.02); padding: 8px; border-radius: 10px; text-align: center;
+        }
+        [data-theme="dark"] .detail-box {
+            background: rgba(0,0,0,0.1); border-color: rgba(255,255,255,0.02);
+        }
+        .detail-box .result-value { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-top: 1px; }
+        .error-msg {
+            color: var(--danger-text); background: var(--danger-bg); border: 1px solid rgba(239, 68, 68, 0.1);
+            padding: 10px; border-radius: 10px; margin-bottom: 12px; font-size: 0.8rem; font-weight: 600; display: none;
+        }
+        .save-tip {
+            text-align: right; font-size: 0.72rem; color: var(--success-color); margin-top: -4px; margin-bottom: 10px; font-weight: 700; display: none;
+        }
+        
+        /* 独立紧凑型物理按键盘 */
+        .calculator-wrapper {
+            background: var(--bg-body); border: 1px solid rgba(0,0,0,0.03); border-radius: 14px; padding: 12px; width: 100%; max-width: 270px; margin: 0 auto;
+        }
+        [data-theme="dark"] .calculator-wrapper {
+            background: rgba(0, 0, 0, 0.1); border-color: rgba(255, 255, 255, 0.03);
+        }
+        #calcDisplay {
+            width: 100%; height: 42px; margin-bottom: 10px; text-align: right; font-size: 1.3rem;
+            padding: 6px 12px; border: 1.5px solid rgba(0,0,0,0.05); border-radius: 8px;
+            background: var(--bg-surface); color: var(--text-primary); font-weight: 700; letter-spacing: 0.5px;
+        }
+        [data-theme="dark"] #calcDisplay {
+            border-color: rgba(255,255,255,0.06); background: rgba(0,0,0,0.15);
+        }
+        .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .calc-btn {
+            padding: 10px 0; font-size: 1.05rem; border: 1px solid rgba(0,0,0,0.02); border-radius: 8px;
+            background: var(--bg-surface); cursor: pointer; font-weight: 700; color: var(--text-primary); transition: all 0.1s ease;
+        }
+        [data-theme="dark"] .calc-btn { background: rgba(255,255,255,0.04); border: none; }
+        .calc-btn:hover { background: rgba(0,0,0,0.04); }
+        [data-theme="dark"] .calc-btn:hover { background: rgba(255,255,255,0.08); }
+        .calc-btn:active { transform: scale(0.94); }
+        .calc-op { background: var(--accent-light); color: var(--accent-color); }
+        .calc-clear { background: var(--danger-bg); color: var(--danger-text); }
+        .calc-equal { background: var(--accent-color); color: #fff; }
+
+        /* 原子类与覆盖 */
         .btn-close-custom { background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; backdrop-filter: blur(4px); transition: background 0.2s; }
         .btn-close-custom:active { background: rgba(0,0,0,0.8); }
         .opacity-75 { opacity: 0.75; }
@@ -350,12 +434,18 @@
         .delete-cloud-btn:active { transform: scale(0.85); background: rgba(220, 38, 38, 0.95); }
         .delete-cloud-btn i { font-size: 0.85rem; pointer-events: none; }
 
+        /* ==============================
+           3. PC端响应式自适应网格
+           ============================== */
         @media (min-width: 992px) {
             body { padding-bottom: 40px; }
             .main-layout-wrapper {
                 max-width: 1200px; margin: 0 auto; padding: 24px;
                 display: grid; grid-template-columns: 360px 1fr; 
-                grid-template-areas: "fines process" "weather actions";
+                grid-template-areas: 
+                    "fines process" 
+                    "weather actions"
+                    "calculator calculator";
                 gap: 24px; align-items: start;
             }
             .section-card, .ticket-wrapper { margin: 0 !important; height: 100%; }
@@ -363,6 +453,8 @@
             .ticket-content { justify-content: space-between; }
             #risk { grid-area: fines; } #prevention { grid-area: process; }
             #actions { grid-area: actions; } #weather { grid-area: weather; }
+            #calculator { grid-area: calculator; }
+            
             .bottom-nav-container { display: none !important; }
             .desktop-nav { display: flex; gap: 12px; margin-right: 24px; }
             .desktop-nav-link {
@@ -391,7 +483,7 @@
     <header class="app-header d-flex justify-content-between align-items-center">
         <div>
             <div class="header-title"><span>物流责任防范指南</span></div>
-            <p class="text-secondary small mb-0 fw-medium opacity-75">物流责避险手册</p>
+            <p class="text-secondary small mb-0 fw-medium opacity-75">物流责任避险手册与核算工具</p>
         </div>
         <div class="d-flex align-items-center">
             <nav class="desktop-nav">
@@ -399,6 +491,7 @@
                 <a href="#prevention" class="desktop-nav-link"><i class="fas fa-list-ol"></i> 流程</a>
                 <a href="#actions" class="desktop-nav-link"><i class="fas fa-bolt"></i> 紧急</a>
                 <a href="#weather" class="desktop-nav-link"><i class="fas fa-camera"></i> 天气</a>
+                <a href="#calculator" class="desktop-nav-link"><i class="fas fa-calculator"></i> 计算器</a>
             </nav>
             <button id="themeToggle" class="btn border-0 rounded-circle d-flex align-items-center justify-content-center" 
                     style="width: 44px; height: 44px; background-color: var(--bg-surface); color: var(--text-primary); box-shadow: var(--card-shadow);" aria-label="切换深浅主题">
@@ -453,7 +546,7 @@
                     <i class="fas fa-bell me-2"></i><span class="fw-bold">提前报备商家出餐慢</span>
                 </div>
                 <small class="d-block opacity-75" style="line-height: 1.5;">
-                    高峰期需优先识别超时隐患的订单。若距离商家较远，可直接强制报备。无论是否虚假，只要完成流程，订单取消均不计入物流责任。
+                    高峰期需优先识别超时隐痕的订单。若距离商家较远，可直接强制报备。无论是否虚假，只要完成流程，订单取消均不计入物流责任。
                 </small>
             </div>
             <div class="mb-2 ps-1">
@@ -517,7 +610,7 @@
             </div>
         </section>
 
-        <section id="weather" class="section-card mb-5">
+        <section id="weather" class="section-card">
             <div class="section-title">
                 <div class="icon-box"><i class="fas fa-cloud-showers-heavy"></i></div>
                 <span>恶劣天气需拍照报备</span>
@@ -560,6 +653,124 @@
                 </div>
             </div>
         </section>
+
+        <section id="calculator" class="section-card">
+            <div class="section-title">
+                <div class="icon-box"><i class="fas fa-calculator"></i></div>
+                <span>阶梯单量单价计算器</span>
+            </div>
+
+            <div id="errorBox" class="error-msg"></div>
+            <div id="saveTip" class="save-tip">✓ 数据已自动同步到本地存储</div>
+
+            <div class="row g-3">
+                <div class="col-12 col-lg-8">
+                    <div class="calc-sub-card style-res-box p-3" style="background: var(--bg-surface); box-shadow: var(--inner-card-shadow); border-radius: 16px;">
+                        <div class="result-panel">
+                            <div class="grand-total-box">
+                                <div class="result-label opacity-75 text-xs fw-bold mb-1">统一汇总结算总额</div>
+                                <div id="resTotal" class="result-value">￥0.00</div>
+                            </div>
+                            <div class="detail-grid mt-2">
+                                <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
+                                    <div class="text-xs fw-bold text-secondary">常规匹配档位</div>
+                                    <div id="resTier" class="result-value text-xs text-truncate">-</div>
+                                </div>
+                                <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
+                                    <div class="text-xs fw-bold text-secondary">常规小计</div>
+                                    <div id="resRegularTotal" class="result-value text-xs">￥0.00</div>
+                                </div>
+                                <div class="detail-box" style="border-top: 2.5px solid var(--warning-color);">
+                                    <div class="text-xs fw-bold text-secondary">拼团明细</div>
+                                    <div id="resGroupInfo" class="result-value text-xs text-truncate">0单 × ￥0.00</div>
+                                </div>
+                                <div class="detail-box" style="border-top: 2.5px solid var(--warning-color);">
+                                    <div class="text-xs fw-bold text-secondary">拼团小计</div>
+                                    <div id="resGroupTotal" class="result-value text-xs">￥0.00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-12 col-md-4">
+                            <div class="calc-sub-card h-100 m-0 p-2 px-3">
+                                <label class="text-xs fw-bold text-secondary mb-1">常规完成总单量</label>
+                                <div class="calc-input-group">
+                                    <input type="number" id="totalOrders" placeholder="完成单数" min="0" step="1">
+                                    <span class="input-suffix text-xs">单</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="calc-sub-card h-100 m-0 p-2 px-3">
+                                <label class="text-xs fw-bold text-secondary mb-1">拼团完成总单量</label>
+                                <div class="calc-input-group">
+                                    <input type="number" id="groupOrders" placeholder="无则填0" min="0" step="1">
+                                    <span class="input-suffix text-xs">单</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="calc-sub-card h-100 m-0 p-2 px-3">
+                                <label class="text-xs fw-bold text-secondary mb-1">拼团固定单价</label>
+                                <div class="calc-input-group">
+                                    <input type="number" id="groupPrice" placeholder="0.00" min="0" step="0.01">
+                                    <span class="input-suffix text-xs">元/单</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="calc-sub-card mt-2 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-xs fw-bold text-secondary"><i class="fas fa-sliders-h me-1"></i> 常规阶梯档位配置表</span>
+                            <button class="btn btn-sm px-2 py-1 text-white text-xs fw-bold" id="btnAddTier" style="background-color: var(--accent-color); border-radius: 6px;">+ 新增档位</button>
+                        </div>
+                        
+                        <div id="tierContainer" style="max-height: 180px; overflow-y: auto; padding-right: 2px;"></div>
+
+                        <div class="d-flex justify-content-between gap-2 mt-2 pt-1 border-top border-opacity-10">
+                            <button class="btn btn-light btn-sm text-secondary fw-bold text-xs py-1" id="btnReset" style="border-radius: 6px;"><i class="fas fa-undo me-1"></i> 重置默认</button>
+                            <button class="btn btn-light btn-sm text-danger fw-bold text-xs py-1" id="btnClear" style="border-radius: 6px;"><i class="fas fa-trash me-1"></i> 清空</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-4 d-flex align-items-center justify-content-center">
+                    <div class="w-100 py-2" style="max-width: 280px;">
+                        <div class="text-center mb-2"><span class="text-xs fw-bold text-secondary"><i class="fas fa-calculator me-1"></i> 便捷快速核算辅助盘</span></div>
+                        <div class="calculator-wrapper shadow-sm">
+                            <input type="text" id="calcDisplay" readonly placeholder="0">
+                            <div class="calc-buttons">
+                                <button class="calc-btn calc-clear">C</button>
+                                <button class="calc-btn calc-clear">⌫</button>
+                                <button class="calc-btn calc-op">/</button>
+                                <button class="calc-btn calc-op">*</button>
+                                
+                                <button class="calc-btn">7</button>
+                                <button class="calc-btn">8</button>
+                                <button class="calc-btn">9</button>
+                                <button class="calc-btn calc-op">-</button>
+                                
+                                <button class="calc-btn">4</button>
+                                <button class="calc-btn">5</button>
+                                <button class="calc-btn">6</button>
+                                <button class="calc-btn calc-op">+</button>
+                                
+                                <button class="calc-btn">1</button>
+                                <button class="calc-btn">2</button>
+                                <button class="calc-btn">3</button>
+                                <button class="calc-btn calc-equal" style="grid-row: span 2; height: 100%;">=</button>
+                                
+                                <button class="calc-btn" style="grid-column: span 2;">0</button>
+                                <button class="calc-btn">.</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <nav class="bottom-nav-container">
@@ -568,6 +779,7 @@
             <a href="#prevention" class="nav-item"><i class="fas fa-list-ol"></i></a>
             <a href="#actions" class="nav-item"><i class="fas fa-bolt"></i></a>
             <a href="#weather" class="nav-item"><i class="fas fa-camera"></i></a>
+            <a href="#calculator" class="nav-item"><i class="fas fa-calculator"></i></a>
         </div>
     </nav>
 
@@ -587,7 +799,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 挂载全局方法
+        // 挂载全局查看图片方法
         window.viewImage = function(srcUrl) {
             const modalImg = document.getElementById('modalImg');
             const modalElement = document.getElementById('imageModal');
@@ -599,7 +811,7 @@
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            // UI交互逻辑
+            // UI交互逻辑：视口锚点联动高亮追踪
             const sections = document.querySelectorAll('section');
             const sentinel = document.getElementById('scroll-sentinel');
             const navItems = document.querySelectorAll('.nav-item, .desktop-nav-link');
@@ -643,7 +855,7 @@
                 }
             }));
 
-            // 主题切换
+            // 全局日夜主题控制切换
             const themeToggle = document.getElementById('themeToggle');
             const themeIcon = themeToggle.querySelector('i');
             if (document.documentElement.getAttribute('data-theme') === 'dark') themeIcon.classList.replace('fa-moon', 'fa-sun');
@@ -658,7 +870,7 @@
                 }, 150);
             });
 
-            // 腾讯地图定位兜底处理
+            // 腾讯地图定位API接口实现
             const locInput = document.getElementById('watermark-location');
             if (locInput) {
                 let userHasTyped = false;
@@ -679,7 +891,7 @@
                 } else fallback();
             }
 
-            // Supabase 核心逻辑
+            // Supabase 远端图片存储链路
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
             const BUCKET_NAME = 'weather-proofs'; 
@@ -694,7 +906,6 @@
                 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 let currentHash = ''; 
 
-                // 核心修复1：采用DOM API避免XSS，彻底告别 innerHTML 拼接不受信数据
                 async function syncGallery(isSilent = false) {
                     if (isSyncing) return;
                     isSyncing = true;
@@ -726,7 +937,6 @@
                             const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(path);
                             if (!urlData?.publicUrl) return;
 
-                            // 严谨的DOM创建机制
                             const col = document.createElement('div');
                             col.className = 'col-6 col-md-4 position-relative';
                             
@@ -782,12 +992,10 @@
                 }
 
                 syncGallery(false);
-                // 核心修复2：只在页面可见时轮询，避免后台消耗免费 API 额度
                 setInterval(() => {
                     if (document.visibilityState === 'visible') syncGallery(true);
                 }, 15000);
 
-                // 图片压缩和水印处理
                 function processImage(file, locText) {
                     return new Promise(resolve => {
                         if (!file.type.startsWith('image/')) return resolve(file);
@@ -862,6 +1070,276 @@
                     syncGallery(true);
                 });
             }
+
+            // ==============================
+            // 5. 阶梯计算器底层逻辑控制核（数据流联动）
+            // ==============================
+            const imageTiers = [
+                { minOrder: 1, price: 3.0 },
+                { minOrder: 600, price: 4.5 },
+                { minOrder: 1000, price: 5.0 },
+                { minOrder: 1200, price: 5.5 },
+                { minOrder: 1500, price: 6.0 }
+            ];
+
+            const totalOrdersInput = document.getElementById('totalOrders');
+            const groupOrdersInput = document.getElementById('groupOrders');
+            const groupPriceInput = document.getElementById('groupPrice');
+            
+            const tierContainer = document.getElementById('tierContainer');
+            const btnAddTier = document.getElementById('btnAddTier');
+            const btnReset = document.getElementById('btnReset');
+            const btnClear = document.getElementById('btnClear');
+            const errorBox = document.getElementById('errorBox');
+            const saveTip = document.getElementById('saveTip');
+
+            const resTier = document.getElementById('resTier');
+            const resRegularTotal = document.getElementById('resRegularTotal');
+            const resGroupInfo = document.getElementById('resGroupInfo');
+            const resGroupTotal = document.getElementById('resGroupTotal');
+            const resTotal = document.getElementById('resTotal');
+
+            let saveTimeout = null;
+
+            function initCalculatorData() {
+                let localData = null;
+                try {
+                    if (window.localStorage) {
+                        localData = localStorage.getItem('tier_calculator_storage_v2');
+                    }
+                } catch (e) {
+                    console.warn("沙盒环境限制限制，转换纯内存模式预览", e);
+                }
+
+                if (localData) {
+                    try {
+                        const parsed = JSON.parse(localData);
+                        totalOrdersInput.value = parsed.totalOrders || '';
+                        groupOrdersInput.value = parsed.groupOrders || '';
+                        groupPriceInput.value = parsed.groupPrice || '';
+                        tierContainer.innerHTML = '';
+                        if(parsed.tiers && parsed.tiers.length > 0) {
+                            parsed.tiers.forEach(tier => addTierRow(tier.minOrder, tier.price));
+                        }
+                        calculate(false); 
+                        return;
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+                loadDefaultImageTiers();
+            }
+
+            function loadDefaultImageTiers() {
+                tierContainer.innerHTML = '';
+                imageTiers.forEach(tier => addTierRow(tier.minOrder, tier.price));
+                totalOrdersInput.value = 650; 
+                groupOrdersInput.value = 200; 
+                groupPriceInput.value = 3.5;  
+                calculate(true);
+            }
+
+            function addTierRow(minOrder = '', price = '') {
+                const row = document.createElement('div');
+                row.className = 'tier-row';
+                row.innerHTML = `
+                    <div class="calc-input-group">
+                        <input type="number" class="input-min px-2 py-1 form-control text-center" placeholder="起算单" value="${minOrder}" min="0" step="1" style="font-size:0.85rem; height:32px;">
+                        <span class="input-suffix text-xs opacity-50" style="right:8px;">单起</span>
+                    </div>
+                    <div class="calc-input-group">
+                        <input type="number" class="input-price px-2 py-1 form-control text-center" placeholder="单价" value="${price}" min="0" step="0.01" style="font-size:0.85rem; height:32px;">
+                        <span class="input-suffix text-xs opacity-50" style="right:8px;">元</span>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-danger px-2 py-0 btn-del" style="border-radius:6px; font-size:0.75rem; height:32px; line-height:32px; padding-top:0!important; padding-bottom:0!important;">✕</button>
+                    </div>
+                `;
+
+                row.querySelector('.btn-del').addEventListener('click', () => {
+                    row.remove();
+                    calculate(true);
+                });
+
+                row.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('input', () => calculate(true));
+                });
+
+                tierContainer.appendChild(row);
+            }
+
+            function calculate(shouldSave = true) {
+                showError("");
+                
+                const totalOrdersStr = totalOrdersInput.value.trim();
+                const groupOrdersStr = groupOrdersInput.value.trim();
+                const groupPriceStr = groupPriceInput.value.trim();
+                
+                const rows = tierContainer.querySelectorAll('.tier-row');
+                const currentTiersForSave = [];
+                rows.forEach(row => {
+                    currentTiersForSave.push({
+                        minOrder: row.querySelector('.input-min').value,
+                        price: row.querySelector('.input-price').value
+                    });
+                });
+
+                if (shouldSave) {
+                    triggerAutoSave(totalOrdersStr, groupOrdersStr, groupPriceStr, currentTiersForSave);
+                }
+
+                let regularSubtotal = 0;
+                let regularTierText = "-";
+                
+                if (totalOrdersStr !== "") {
+                    const totalOrders = parseFloat(totalOrdersStr);
+                    if (totalOrders < 0 || !Number.isInteger(totalOrders)) {
+                        showError("常规总单量需要输入一个正整数！");
+                        resetResultDisplay();
+                        return;
+                    }
+
+                    const validTiersList = [];
+                    let hasTierError = false;
+
+                    currentTiersForSave.forEach(tier => {
+                        if (tier.minOrder === "" || tier.price === "") { hasTierError = true; return; }
+                        const minOrder = parseFloat(tier.minOrder);
+                        const price = parseFloat(tier.price);
+                        if (minOrder < 0 || price < 0 || !Number.isInteger(minOrder)) { hasTierError = true; return; }
+                        validTiersList.push({ minOrder, price });
+                    });
+
+                    if (hasTierError) {
+                        showError("规则配置栏中有不合法的单量或单价负数！");
+                        resetResultDisplay();
+                        return;
+                    }
+
+                    if (validTiersList.length === 0) {
+                        showError("提示：请先添加一组常规阶梯计价规则。");
+                        resetResultDisplay();
+                        return;
+                    }
+
+                    validTiersList.sort((a, b) => a.minOrder - b.minOrder);
+                    let matchedIndex = -1;
+                    for (let i = 0; i < validTiersList.length; i++) {
+                        if (totalOrders >= validTiersList[i].minOrder) { matchedIndex = i; }
+                    }
+
+                    if (matchedIndex !== -1) {
+                        const matchedTier = validTiersList[matchedIndex];
+                        regularSubtotal = totalOrders * matchedTier.price;
+                        
+                        if (matchedIndex === validTiersList.length - 1) {
+                            regularTierText = `${matchedTier.minOrder}单+ (￥${matchedTier.price.toFixed(2)})`;
+                        } else {
+                            const nextTier = validTiersList[matchedIndex + 1];
+                            regularTierText = `${matchedTier.minOrder}-${nextTier.minOrder - 1}单 (￥${matchedTier.price.toFixed(2)})`;
+                        }
+                    } else {
+                        regularTierText = "未达门槛";
+                        regularSubtotal = 0;
+                    }
+                }
+
+                let groupSubtotal = 0;
+                let groupCount = 0;
+                let groupUnitPrice = 0;
+
+                if (groupOrdersStr !== "" || groupPriceStr !== "") {
+                    groupCount = groupOrdersStr === "" ? 0 : parseFloat(groupOrdersStr);
+                    groupUnitPrice = groupPriceStr === "" ? 0 : parseFloat(groupPriceStr);
+
+                    if (groupCount < 0 || !Number.isInteger(groupCount)) {
+                        showError("拼团单量需要输入一个正整数！");
+                        resetResultDisplay();
+                        return;
+                    }
+                    if (groupUnitPrice < 0) {
+                        showError("拼团固定单价不能为负数！");
+                        resetResultDisplay();
+                        return;
+                    }
+                    groupSubtotal = groupCount * groupUnitPrice;
+                }
+
+                const grandTotal = regularSubtotal + groupSubtotal;
+                
+                resTier.textContent = regularTierText;
+                resRegularTotal.textContent = `￥${regularSubtotal.toFixed(2)}`;
+                resGroupInfo.textContent = `${groupCount}单×￥${groupUnitPrice.toFixed(2)}`;
+                resGroupTotal.textContent = `￥${groupSubtotal.toFixed(2)}`;
+                resTotal.textContent = `￥${grandTotal.toFixed(2)}`;
+            }
+
+            function resetResultDisplay() {
+                resTier.textContent = "数据错误"; resRegularTotal.textContent = "￥0.00";
+                resGroupInfo.textContent = "0单 × ￥0.00"; resGroupTotal.textContent = "￥0.00"; resTotal.textContent = "￥0.00";
+            }
+
+            function triggerAutoSave(totalOrders, groupOrders, groupPrice, tiers) {
+                try {
+                    if (window.localStorage) {
+                        const dataToSave = { totalOrders, groupOrders, groupPrice, tiers };
+                        localStorage.setItem('tier_calculator_storage_v2', JSON.stringify(dataToSave));
+                        saveTip.style.display = 'block';
+                        if (saveTimeout) clearTimeout(saveTimeout);
+                        saveTimeout = setTimeout(() => { saveTip.style.display = 'none'; }, 1200);
+                    }
+                } catch (e) {}
+            }
+
+            function showError(msg) {
+                if (msg) { errorBox.textContent = msg; errorBox.style.display = 'block'; } 
+                else { errorBox.style.display = 'none'; }
+            }
+
+            totalOrdersInput.addEventListener('input', () => calculate(true));
+            groupOrdersInput.addEventListener('input', () => calculate(true));
+            groupPriceInput.addEventListener('input', () => calculate(true));
+            
+            btnAddTier.addEventListener('click', () => { addTierRow(); calculate(true); });
+            btnReset.addEventListener('click', () => { loadDefaultImageTiers(); });
+            btnClear.addEventListener('click', () => {
+                tierContainer.innerHTML = ''; totalOrdersInput.value = ''; groupOrdersInput.value = ''; groupPriceInput.value = '';
+                calculate(true);
+            });
+
+            initCalculatorData();
+
+            // ==============================
+            // 6. 便携按键小键盘算盘面板逻辑
+            // ==============================
+            const calcDisplay = document.getElementById('calcDisplay');
+            const calcButtons = document.querySelectorAll('.calc-buttons .calc-btn');
+            let calcValue = '';
+
+            calcButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const action = btn.textContent;
+                    
+                    if (action === 'C') {
+                        calcValue = '';
+                    } else if (action === '⌫') {
+                        calcValue = calcValue.slice(0, -1);
+                    } else if (action === '=') {
+                        try {
+                            if(calcValue.trim() !== '') {
+                                let result = new Function('return ' + calcValue)();
+                                calcValue = String(Math.round(result * 1000000) / 1000000); 
+                            }
+                        } catch (e) {
+                            calcValue = '错误';
+                        }
+                    } else {
+                        if (calcValue === '错误') calcValue = '';
+                        calcValue += action;
+                    }
+                    calcDisplay.value = calcValue;
+                });
+            });
         });
     </script>
 </body>
