@@ -329,7 +329,7 @@
         .weather-card i { margin-bottom: 6px; font-size: 1.5rem; opacity: 0.9; }
 
         /* ==============================
-           2. 计算器集成专有样式表（已极限压缩与UI深度重构）
+           2. 计算器集成专有样式表（已极限压缩与UI防错位加固）
            ============================== */
         .calc-sub-card {
             background: var(--bg-body); border-radius: 14px; padding: 12px; margin-bottom: 12px;
@@ -355,7 +355,7 @@
             position: absolute; right: 12px; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); pointer-events: none;
         }
 
-        /* 纯静态展示阶梯行：完美双列等分，锁定只读，无任何删除按钮 */
+        /* 纯静态展示阶梯行：双列等分，剔除任何删除与交互按键，完全只读平铺 */
         .tier-row {
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center;
             margin-bottom: 10px; padding: 10px 12px; background: rgba(var(--bg-surface-rgb), 0.5); border-radius: 12px;
@@ -382,18 +382,18 @@
         }
         .grand-total-box .result-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
         
-        /* 核心反溢出加固：防止数字超长挤压容器 */
+        /* 核心反溢出加固：防止极端多位数把大容器横向挤破 */
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .detail-box {
             background: var(--bg-body); border: 1px solid rgba(0,0,0,0.02); padding: 8px; border-radius: 10px; text-align: center;
-            min-width: 0; overflow: hidden; /* 核心防护：子项弹性收缩，拒绝撑爆 Grid */
+            min-width: 0; overflow: hidden; /* 核心安全保护：子元素弹性伸缩 */
         }
         [data-theme="dark"] .detail-box {
             background: rgba(0,0,0,0.1); border-color: rgba(255,255,255,0.02);
         }
         .detail-grid .detail-box .result-value { 
             font-size: 0.95rem !important; font-weight: 800; color: var(--text-primary); margin-top: 4px; 
-            display: block; width: 100%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;
+            display: block; width: 100%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; /* 极长数据自动省略，完美对齐不撕裂 */
         }
 
         .error-msg {
@@ -694,19 +694,19 @@
                             <div class="detail-grid mt-2">
                                 <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
                                     <div class="text-xs fw-bold text-secondary">常规匹配档位</div>
-                                    <div id="resTier" class="result-value text-xs text-truncate">-</div>
+                                    <div id="resTier" class="result-value">-</div>
                                 </div>
                                 <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
                                     <div class="text-xs fw-bold text-secondary">常规小计</div>
-                                    <div id="resRegularTotal" class="result-value text-xs">￥0.00</div>
+                                    <div id="resRegularTotal" class="result-value">￥0.00</div>
                                 </div>
                                 <div class="detail-box" style="border-top: 2.5px solid var(--warning-color);">
                                     <div class="text-xs fw-bold text-secondary">拼团明细</div>
-                                    <div id="resGroupInfo" class="result-value text-xs text-truncate">0单 × ￥0.00</div>
+                                    <div id="resGroupInfo" class="result-value">0单 × ￥0.00</div>
                                 </div>
                                 <div class="detail-box" style="border-top: 2.5px solid var(--warning-color);">
                                     <div class="text-xs fw-bold text-secondary">拼团小计</div>
-                                    <div id="resGroupTotal" class="result-value text-xs">￥0.00</div>
+                                    <div id="resGroupTotal" class="result-value">￥0.00</div>
                                 </div>
                             </div>
                         </div>
@@ -744,7 +744,7 @@
 
                     <div class="calc-sub-card mt-2 p-3">
                         <div class="mb-2">
-                            <span class="text-xs fw-bold text-secondary"><i class="fas fa-sliders-h me-1"></i> 常规阶梯档位标准表（固定标准）</span>
+                            <span class="text-xs fw-bold text-secondary"><i class="fas fa-sliders-h me-1"></i> 常规阶梯档位标准表（固定不可改）</span>
                         </div>
                         <div id="tierContainer" style="padding-right: 0;"></div>
                     </div>
@@ -1080,7 +1080,7 @@
             }
 
             // ==============================
-            // 5. 阶梯展现与核算控制核心代码 (根据 IMG_9060 定制固定参数)
+            // 5. 阶梯展现与核算控制核心代码 (根据图片精准配置参数)
             // ==============================
             const imageTiers = [
                 { minOrder: 1, price: 4.0 },
@@ -1133,7 +1133,7 @@
                 loadDefaultImageTiers();
             }
 
-            // 初始化重置数据为 0 
+            // 完美加载初始化数据：全部重置归零为 0 
             function loadDefaultImageTiers() {
                 totalOrdersInput.value = '0'; 
                 groupOrdersInput.value = '0'; 
@@ -1141,7 +1141,7 @@
                 calculate(true);
             }
 
-            // 平铺纯展示，彻底锁定只读
+            // 平铺纯静态只读行渲染
             function addTierRow(minOrder = '', price = '') {
                 const row = document.createElement('div');
                 row.className = 'tier-row';
@@ -1151,7 +1151,7 @@
                         <span class="input-suffix opacity-75">单起</span>
                     </div>
                     <div class="calc-input-group">
-                        <input type="text" class="form-control text-center fw-bold" value="${price}" readonly style="background: var(--bg-surface); color: var(--text-primary);">
+                        <input type="text" class="form-control text-center fw-bold" value="${parseFloat(price).toFixed(1)}" readonly style="background: var(--bg-surface); color: var(--text-primary);">
                         <span class="input-suffix opacity-75">元</span>
                     </div>
                 `;
