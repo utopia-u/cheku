@@ -6,7 +6,7 @@
     <title>物流责任防范指南与结算助手</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2 family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="text/javascript" src="https://apis.map.qq.com/tools/geolocation/min?key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=wuliu"></script>
@@ -314,7 +314,7 @@
             border-radius: 32px; padding: 8px 12px; display: flex; align-items: center;
             gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.3);
         }
-        [data-theme="dark"] .bottom-nav { background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        [data-theme="dark"] .bottom-nav { background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .nav-item { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 1.2rem; transition: all 0.3s; text-decoration: none; position: relative; touch-action: manipulation; }
         .nav-item.active { color: #fff; background: var(--text-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         [data-theme="dark"] .nav-item.active { background: var(--accent-color); color: #fff; }
@@ -338,7 +338,7 @@
         [data-theme="dark"] .calc-sub-card {
             background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.04);
         }
-        .calc-input-group { display: flex; align-items: center; position: relative; }
+        .calc-input-group { display: flex; align-items: center; position: relative; width: 100%; }
         .calc-input-group input {
             width: 100%; padding: 8px 45px 8px 12px; border: 1.5px solid rgba(0,0,0,0.06);
             border-radius: 10px; font-size: 0.95rem; font-weight: 600; color: var(--text-primary);
@@ -354,28 +354,48 @@
         .calc-input-group .input-suffix {
             position: absolute; right: 12px; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); pointer-events: none;
         }
+
+        /* 纯静态展示阶梯行：完美双列等分，锁定只读，无任何删除按钮 */
         .tier-row {
-            display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center;
-            margin-bottom: 8px; padding: 6px 10px; background: rgba(var(--bg-surface-rgb), 0.5); border-radius: 10px;
-            border: 1px solid rgba(0,0,0,0.03); transition: background 0.3s;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center;
+            margin-bottom: 10px; padding: 10px 12px; background: rgba(var(--bg-surface-rgb), 0.5); border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.04); transition: background 0.3s;
         }
         [data-theme="dark"] .tier-row {
             background: rgba(0, 0, 0, 0.15); border-color: rgba(255,255,255,0.03);
         }
+        .tier-row .calc-input-group input {
+            background: var(--bg-surface) !important; border: 1.5px solid rgba(0,0,0,0.06) !important; cursor: default;
+            font-size: 0.9rem; height: 40px; padding: 6px 45px 6px 12px; box-shadow: none !important;
+        }
+        [data-theme="dark"] .tier-row .calc-input-group input {
+            border-color: rgba(255, 255, 255, 0.08) !important; background-color: rgba(0, 0, 0, 0.2) !important;
+        }
+        .tier-row .calc-input-group input:focus { border-color: rgba(0,0,0,0.06) !important; box-shadow: none !important; }
+        [data-theme="dark"] .tier-row .calc-input-group input:focus { border-color: rgba(255, 255, 255, 0.08) !important; }
+        .tier-row .calc-input-group .input-suffix { right: 14px; font-size: 0.8rem; }
+
         .grand-total-box {
             background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white;
             padding: 14px; border-radius: 12px; text-align: center;
             box-shadow: 0 6px 15px -3px rgba(16, 185, 129, 0.2);
         }
         .grand-total-box .result-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
+        
+        /* 核心反溢出加固：防止数字超长挤压容器 */
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .detail-box {
             background: var(--bg-body); border: 1px solid rgba(0,0,0,0.02); padding: 8px; border-radius: 10px; text-align: center;
+            min-width: 0; overflow: hidden; /* 核心防护：子项弹性收缩，拒绝撑爆 Grid */
         }
         [data-theme="dark"] .detail-box {
             background: rgba(0,0,0,0.1); border-color: rgba(255,255,255,0.02);
         }
-        .detail-box .result-value { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-top: 1px; }
+        .detail-grid .detail-box .result-value { 
+            font-size: 0.95rem !important; font-weight: 800; color: var(--text-primary); margin-top: 4px; 
+            display: block; width: 100%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;
+        }
+
         .error-msg {
             color: var(--danger-text); background: var(--danger-bg); border: 1px solid rgba(239, 68, 68, 0.1);
             padding: 10px; border-radius: 10px; margin-bottom: 12px; font-size: 0.8rem; font-weight: 600; display: none;
@@ -697,7 +717,7 @@
                             <div class="calc-sub-card h-100 m-0 p-2 px-3">
                                 <label class="text-xs fw-bold text-secondary mb-1">常规完成总单量</label>
                                 <div class="calc-input-group">
-                                    <input type="number" id="totalOrders" placeholder="完成单数" min="0" step="1">
+                                    <input type="number" id="totalOrders" placeholder="0" min="0" step="1">
                                     <span class="input-suffix text-xs">单</span>
                                 </div>
                             </div>
@@ -706,7 +726,7 @@
                             <div class="calc-sub-card h-100 m-0 p-2 px-3">
                                 <label class="text-xs fw-bold text-secondary mb-1">拼团完成总单量</label>
                                 <div class="calc-input-group">
-                                    <input type="number" id="groupOrders" placeholder="无则填0" min="0" step="1">
+                                    <input type="number" id="groupOrders" placeholder="0" min="0" step="1">
                                     <span class="input-suffix text-xs">单</span>
                                 </div>
                             </div>
@@ -723,21 +743,14 @@
                     </div>
 
                     <div class="calc-sub-card mt-2 p-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-xs fw-bold text-secondary"><i class="fas fa-sliders-h me-1"></i> 常规阶梯档位配置表</span>
-                            <button class="btn btn-sm px-2 py-1 text-white text-xs fw-bold" id="btnAddTier" style="background-color: var(--accent-color); border-radius: 6px;">+ 新增档位</button>
+                        <div class="mb-2">
+                            <span class="text-xs fw-bold text-secondary"><i class="fas fa-sliders-h me-1"></i> 常规阶梯档位标准表（固定标准）</span>
                         </div>
-                        
-                        <div id="tierContainer" style="max-height: 180px; overflow-y: auto; padding-right: 2px;"></div>
-
-                        <div class="d-flex justify-content-between gap-2 mt-2 pt-1 border-top border-opacity-10">
-                            <button class="btn btn-light btn-sm text-secondary fw-bold text-xs py-1" id="btnReset" style="border-radius: 6px;"><i class="fas fa-undo me-1"></i> 重置默认</button>
-                            <button class="btn btn-light btn-sm text-danger fw-bold text-xs py-1" id="btnClear" style="border-radius: 6px;"><i class="fas fa-trash me-1"></i> 清空</button>
-                        </div>
+                        <div id="tierContainer" style="padding-right: 0;"></div>
                     </div>
                 </div>
 
-                <div class="col-12 col-lg-4 d-flex align-items-center justify-content-center">
+                <div class="col-12 col-lg-4 d-flex align-items-start justify-content-center">
                     <div class="w-100 py-2" style="max-width: 280px;">
                         <div class="text-center mb-2"><span class="text-xs fw-bold text-secondary"><i class="fas fa-calculator me-1"></i> 便捷快速核算辅助盘</span></div>
                         <div class="calculator-wrapper shadow-sm">
@@ -799,7 +812,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 挂载全局查看图片方法
         window.viewImage = function(srcUrl) {
             const modalImg = document.getElementById('modalImg');
             const modalElement = document.getElementById('imageModal');
@@ -811,7 +823,6 @@
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            // UI交互逻辑：视口锚点联动高亮追踪
             const sections = document.querySelectorAll('section');
             const sentinel = document.getElementById('scroll-sentinel');
             const navItems = document.querySelectorAll('.nav-item, .desktop-nav-link');
@@ -855,7 +866,6 @@
                 }
             }));
 
-            // 全局日夜主题控制切换
             const themeToggle = document.getElementById('themeToggle');
             const themeIcon = themeToggle.querySelector('i');
             if (document.documentElement.getAttribute('data-theme') === 'dark') themeIcon.classList.replace('fa-moon', 'fa-sun');
@@ -870,7 +880,6 @@
                 }, 150);
             });
 
-            // 腾讯地图定位API接口实现
             const locInput = document.getElementById('watermark-location');
             if (locInput) {
                 let userHasTyped = false;
@@ -891,7 +900,6 @@
                 } else fallback();
             }
 
-            // Supabase 远端图片存储链路
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
             const BUCKET_NAME = 'weather-proofs'; 
@@ -1072,14 +1080,13 @@
             }
 
             // ==============================
-            // 5. 阶梯计算器底层逻辑控制核（数据流联动）
+            // 5. 阶梯展现与核算控制核心代码 (根据 IMG_9060 定制固定参数)
             // ==============================
             const imageTiers = [
-                { minOrder: 1, price: 3.0 },
-                { minOrder: 600, price: 4.5 },
-                { minOrder: 1000, price: 5.0 },
-                { minOrder: 1200, price: 5.5 },
-                { minOrder: 1500, price: 6.0 }
+                { minOrder: 1, price: 4.0 },
+                { minOrder: 600, price: 5.0 },
+                { minOrder: 1000, price: 5.5 },
+                { minOrder: 1300, price: 6.5 }
             ];
 
             const totalOrdersInput = document.getElementById('totalOrders');
@@ -1087,9 +1094,6 @@
             const groupPriceInput = document.getElementById('groupPrice');
             
             const tierContainer = document.getElementById('tierContainer');
-            const btnAddTier = document.getElementById('btnAddTier');
-            const btnReset = document.getElementById('btnReset');
-            const btnClear = document.getElementById('btnClear');
             const errorBox = document.getElementById('errorBox');
             const saveTip = document.getElementById('saveTip');
 
@@ -1108,19 +1112,18 @@
                         localData = localStorage.getItem('tier_calculator_storage_v2');
                     }
                 } catch (e) {
-                    console.warn("沙盒环境限制限制，转换纯内存模式预览", e);
+                    console.warn("本地存储访问受阻，转内存模式预览", e);
                 }
+
+                tierContainer.innerHTML = '';
+                imageTiers.forEach(tier => addTierRow(tier.minOrder, tier.price));
 
                 if (localData) {
                     try {
                         const parsed = JSON.parse(localData);
-                        totalOrdersInput.value = parsed.totalOrders || '';
-                        groupOrdersInput.value = parsed.groupOrders || '';
-                        groupPriceInput.value = parsed.groupPrice || '';
-                        tierContainer.innerHTML = '';
-                        if(parsed.tiers && parsed.tiers.length > 0) {
-                            parsed.tiers.forEach(tier => addTierRow(tier.minOrder, tier.price));
-                        }
+                        totalOrdersInput.value = parsed.totalOrders !== undefined ? parsed.totalOrders : '0';
+                        groupOrdersInput.value = parsed.groupOrders !== undefined ? parsed.groupOrders : '0';
+                        groupPriceInput.value = parsed.groupPrice !== undefined ? parsed.groupPrice : '0';
                         calculate(false); 
                         return;
                     } catch (e) {
@@ -1130,41 +1133,28 @@
                 loadDefaultImageTiers();
             }
 
+            // 初始化重置数据为 0 
             function loadDefaultImageTiers() {
-                tierContainer.innerHTML = '';
-                imageTiers.forEach(tier => addTierRow(tier.minOrder, tier.price));
-                totalOrdersInput.value = 650; 
-                groupOrdersInput.value = 200; 
-                groupPriceInput.value = 3.5;  
+                totalOrdersInput.value = '0'; 
+                groupOrdersInput.value = '0'; 
+                groupPriceInput.value = '0';  
                 calculate(true);
             }
 
+            // 平铺纯展示，彻底锁定只读
             function addTierRow(minOrder = '', price = '') {
                 const row = document.createElement('div');
                 row.className = 'tier-row';
                 row.innerHTML = `
                     <div class="calc-input-group">
-                        <input type="number" class="input-min px-2 py-1 form-control text-center" placeholder="起算单" value="${minOrder}" min="0" step="1" style="font-size:0.85rem; height:32px;">
-                        <span class="input-suffix text-xs opacity-50" style="right:8px;">单起</span>
+                        <input type="text" class="form-control text-center fw-bold" value="${minOrder}" readonly style="background: var(--bg-surface); color: var(--text-primary);">
+                        <span class="input-suffix opacity-75">单起</span>
                     </div>
                     <div class="calc-input-group">
-                        <input type="number" class="input-price px-2 py-1 form-control text-center" placeholder="单价" value="${price}" min="0" step="0.01" style="font-size:0.85rem; height:32px;">
-                        <span class="input-suffix text-xs opacity-50" style="right:8px;">元</span>
-                    </div>
-                    <div>
-                        <button class="btn btn-sm btn-danger px-2 py-0 btn-del" style="border-radius:6px; font-size:0.75rem; height:32px; line-height:32px; padding-top:0!important; padding-bottom:0!important;">✕</button>
+                        <input type="text" class="form-control text-center fw-bold" value="${price}" readonly style="background: var(--bg-surface); color: var(--text-primary);">
+                        <span class="input-suffix opacity-75">元</span>
                     </div>
                 `;
-
-                row.querySelector('.btn-del').addEventListener('click', () => {
-                    row.remove();
-                    calculate(true);
-                });
-
-                row.querySelectorAll('input').forEach(input => {
-                    input.addEventListener('input', () => calculate(true));
-                });
-
                 tierContainer.appendChild(row);
             }
 
@@ -1175,17 +1165,16 @@
                 const groupOrdersStr = groupOrdersInput.value.trim();
                 const groupPriceStr = groupPriceInput.value.trim();
                 
-                const rows = tierContainer.querySelectorAll('.tier-row');
-                const currentTiersForSave = [];
-                rows.forEach(row => {
-                    currentTiersForSave.push({
-                        minOrder: row.querySelector('.input-min').value,
-                        price: row.querySelector('.input-price').value
-                    });
-                });
-
                 if (shouldSave) {
-                    triggerAutoSave(totalOrdersStr, groupOrdersStr, groupPriceStr, currentTiersForSave);
+                    try {
+                        if (window.localStorage) {
+                            const dataToSave = { totalOrders: totalOrdersStr, groupOrders: groupOrdersStr, groupPrice: groupPriceStr };
+                            localStorage.setItem('tier_calculator_storage_v2', JSON.stringify(dataToSave));
+                            saveTip.style.display = 'block';
+                            if (saveTimeout) clearTimeout(saveTimeout);
+                            saveTimeout = setTimeout(() => { saveTip.style.display = 'none'; }, 1200);
+                        }
+                    } catch (e) {}
                 }
 
                 let regularSubtotal = 0;
@@ -1199,43 +1188,19 @@
                         return;
                     }
 
-                    const validTiersList = [];
-                    let hasTierError = false;
-
-                    currentTiersForSave.forEach(tier => {
-                        if (tier.minOrder === "" || tier.price === "") { hasTierError = true; return; }
-                        const minOrder = parseFloat(tier.minOrder);
-                        const price = parseFloat(tier.price);
-                        if (minOrder < 0 || price < 0 || !Number.isInteger(minOrder)) { hasTierError = true; return; }
-                        validTiersList.push({ minOrder, price });
-                    });
-
-                    if (hasTierError) {
-                        showError("规则配置栏中有不合法的单量或单价负数！");
-                        resetResultDisplay();
-                        return;
-                    }
-
-                    if (validTiersList.length === 0) {
-                        showError("提示：请先添加一组常规阶梯计价规则。");
-                        resetResultDisplay();
-                        return;
-                    }
-
-                    validTiersList.sort((a, b) => a.minOrder - b.minOrder);
                     let matchedIndex = -1;
-                    for (let i = 0; i < validTiersList.length; i++) {
-                        if (totalOrders >= validTiersList[i].minOrder) { matchedIndex = i; }
+                    for (let i = 0; i < imageTiers.length; i++) {
+                        if (totalOrders >= imageTiers[i].minOrder) { matchedIndex = i; }
                     }
 
                     if (matchedIndex !== -1) {
-                        const matchedTier = validTiersList[matchedIndex];
+                        const matchedTier = imageTiers[matchedIndex];
                         regularSubtotal = totalOrders * matchedTier.price;
                         
-                        if (matchedIndex === validTiersList.length - 1) {
+                        if (matchedIndex === imageTiers.length - 1) {
                             regularTierText = `${matchedTier.minOrder}单+ (￥${matchedTier.price.toFixed(2)})`;
                         } else {
-                            const nextTier = validTiersList[matchedIndex + 1];
+                            const nextTier = imageTiers[matchedIndex + 1];
                             regularTierText = `${matchedTier.minOrder}-${nextTier.minOrder - 1}单 (￥${matchedTier.price.toFixed(2)})`;
                         }
                     } else {
@@ -1279,18 +1244,6 @@
                 resGroupInfo.textContent = "0单 × ￥0.00"; resGroupTotal.textContent = "￥0.00"; resTotal.textContent = "￥0.00";
             }
 
-            function triggerAutoSave(totalOrders, groupOrders, groupPrice, tiers) {
-                try {
-                    if (window.localStorage) {
-                        const dataToSave = { totalOrders, groupOrders, groupPrice, tiers };
-                        localStorage.setItem('tier_calculator_storage_v2', JSON.stringify(dataToSave));
-                        saveTip.style.display = 'block';
-                        if (saveTimeout) clearTimeout(saveTimeout);
-                        saveTimeout = setTimeout(() => { saveTip.style.display = 'none'; }, 1200);
-                    }
-                } catch (e) {}
-            }
-
             function showError(msg) {
                 if (msg) { errorBox.textContent = msg; errorBox.style.display = 'block'; } 
                 else { errorBox.style.display = 'none'; }
@@ -1299,19 +1252,9 @@
             totalOrdersInput.addEventListener('input', () => calculate(true));
             groupOrdersInput.addEventListener('input', () => calculate(true));
             groupPriceInput.addEventListener('input', () => calculate(true));
-            
-            btnAddTier.addEventListener('click', () => { addTierRow(); calculate(true); });
-            btnReset.addEventListener('click', () => { loadDefaultImageTiers(); });
-            btnClear.addEventListener('click', () => {
-                tierContainer.innerHTML = ''; totalOrdersInput.value = ''; groupOrdersInput.value = ''; groupPriceInput.value = '';
-                calculate(true);
-            });
 
             initCalculatorData();
 
-            // ==============================
-            // 6. 便携按键小键盘算盘面板逻辑
-            // ==============================
             const calcDisplay = document.getElementById('calcDisplay');
             const calcButtons = document.querySelectorAll('.calc-buttons .calc-btn');
             let calcValue = '';
