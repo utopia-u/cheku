@@ -657,7 +657,10 @@
                 <label class="form-label small fw-bold text-secondary mb-1">📍 自动定位位置（可手动修改）：</label>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-body border-end-0 text-secondary" style="border-radius: 12px 0 0 12px;"><i class="fas fa-map-marker-alt"></i></span>
-                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 py-2 small" value="正在调用底层定位..." style="border-radius: 0 12px 12px 0; font-size: 0.85rem; color: var(--text-primary); font-weight: 600;">
+                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 border-end-0 py-2 small" value="正在调用底层定位..." style="font-size: 0.85rem; color: var(--text-primary); font-weight: 600; border-radius: 0;">
+                    <button class="btn btn-sm bg-body border border-start-0 text-secondary d-flex align-items-center px-3" type="button" id="refresh-location-btn" style="border-radius: 0 12px 12px 0; border-color: rgba(0,0,0,0.1) !important;" aria-label="刷新位置">
+                        <i class="fas fa-sync-alt" id="refresh-icon"></i>
+                    </button>
                 </div>
             </div>
             <div class="weather-upload-container mt-4">
@@ -695,7 +698,7 @@
                                 <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
                                     <div class="text-xs fw-bold text-secondary">常规匹配档位</div>
                                     <div id="resTier" class="result-value">-</div>
-                                </div>
+                                end-col-div
                                 <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
                                     <div class="text-xs fw-bold text-secondary">常规小计</div>
                                     <div id="resRegularTotal" class="result-value">￥0.00</div>
@@ -880,24 +883,70 @@
                 }, 150);
             });
 
+            // ==============================
+            // 腾讯地图定位及刷新逻辑
+            // ==============================
             const locInput = document.getElementById('watermark-location');
+            const refreshBtn = document.getElementById('refresh-location-btn');
+            const refreshIcon = document.getElementById('refresh-icon');
+
             if (locInput) {
                 let userHasTyped = false;
                 locInput.addEventListener('input', () => userHasTyped = true);
-                const updateLoc = (text) => { if (!userHasTyped) locInput.value = text; };
-                const fallback = () => { if (!userHasTyped) { locInput.value = ''; locInput.placeholder = '定位失败，请手动输入位置'; } };
 
-                if (window.qq && qq.maps && qq.maps.Geolocation) {
-                    const geo = new qq.maps.Geolocation("OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77", "wuliu_helper");
-                    geo.getLocation(
-                        pos => updateLoc(pos.addr || (pos.province + pos.city + ' (请补充小区)')),
-                        () => geo.getIpLocation(
-                            ipPos => updateLoc((ipPos.province || '') + ipPos.city + ' (请补充街道)'), 
-                            fallback
-                        ),
-                        { timeout: 6000 }
-                    );
-                } else fallback();
+                const updateLoc = (text) => { 
+                    if (!userHasTyped) locInput.value = text; 
+                    stopSpinning();
+                };
+
+                const fallback = () => { 
+                    if (!userHasTyped) { 
+                        locInput.value = ''; 
+                        locInput.placeholder = '定位失败，请手动输入位置'; 
+                    } 
+                    stopSpinning();
+                };
+
+                const startSpinning = () => {
+                    if (refreshIcon) refreshIcon.classList.add('fa-spin');
+                    if (refreshBtn) refreshBtn.disabled = true;
+                };
+
+                const stopSpinning = () => {
+                    if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+                    if (refreshBtn) refreshBtn.disabled = false;
+                };
+
+                const triggerGeolocation = () => {
+                    startSpinning();
+                    if (!userHasTyped) {
+                        locInput.value = "正在调用底层定位...";
+                    }
+                    if (window.qq && qq.maps && qq.maps.Geolocation) {
+                        const geo = new qq.maps.Geolocation("OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77", "wuliu_helper");
+                        geo.getLocation(
+                            pos => updateLoc(pos.addr || (pos.province + pos.city + ' (请补充小区)')),
+                            () => geo.getIpLocation(
+                                ipPos => updateLoc((ipPos.province || '') + ipPos.city + ' (请补充街道)'), 
+                                fallback
+                            ),
+                            { timeout: 6000 }
+                        );
+                    } else {
+                        fallback();
+                    }
+                };
+
+                // 页面初始化时触发定位
+                triggerGeolocation();
+
+                // 点击刷新按钮逻辑
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', () => {
+                        userHasTyped = false; // 重置用户修改状态，允许刷新覆盖
+                        triggerGeolocation();
+                    });
+                }
             }
 
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
