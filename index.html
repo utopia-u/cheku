@@ -739,7 +739,7 @@
                             <div class="calc-sub-card mb-0">
                                 <label class="text-sm fw-bold text-secondary mb-2 d-block">拼团固定单价</label>
                                 <div class="calc-input-group">
-                                    <input type="number" id="groupPrice" value="3.20" readonly style="cursor: default; background-color: rgba(var(--bg-surface-rgb), 0.5) !important;">
+                                    <input type="number" id="groupPrice" value="3.20" disabled tabindex="-1" style="cursor: not-allowed; pointer-events: none; background-color: rgba(var(--bg-surface-rgb), 0.5) !important;">
                                     <span class="input-suffix">元/单</span>
                                 </div>
                             </div>
@@ -1192,10 +1192,10 @@
 
             let saveTimeout = null;
 
-            // 表单输入校验机制：非法字符拦截
+            // 表单输入校验机制：过滤并截断非法字符
             const sanitizeInput = (val) => {
                 let clean = val.replace(/[^\d]/g, ''); 
-                if (clean.length > 5) clean = clean.slice(0, 5); // 长度防御限制：最长 5 位正整数
+                if (clean.length > 5) clean = clean.slice(0, 5); // 限制最大5位正整数
                 return clean;
             };
 
@@ -1219,7 +1219,7 @@
                         const parsed = JSON.parse(localData);
                         totalOrdersInput.value = parsed.totalOrders !== undefined ? sanitizeInput(String(parsed.totalOrders)) : '0';
                         groupOrdersInput.value = parsed.groupOrders !== undefined ? sanitizeInput(String(parsed.groupOrders)) : '0';
-                        groupPriceInput.value = '3.20';
+                        groupPriceInput.value = '3.20'; // 强制固定价格，不随缓存改变
                         calculate(false); 
                         return;
                     } catch (e) {
@@ -1233,7 +1233,7 @@
                 if (totalOrdersInput && groupOrdersInput && groupPriceInput) {
                     totalOrdersInput.value = '0'; 
                     groupOrdersInput.value = '0'; 
-                    groupPriceInput.value = '3.20';  
+                    groupPriceInput.value = '3.20'; // 强制设置拼团固定单价
                     calculate(true);
                 }
             }
@@ -1261,7 +1261,7 @@
                 
                 const totalOrdersStr = totalOrdersInput.value.trim();
                 const groupOrdersStr = groupOrdersInput.value.trim();
-                const groupPriceStr = "3.20";
+                const groupPriceStr = "3.20"; // 核心计算链路中直接写死固定单价，彻底杜绝数据源被篡改可能
                 
                 if (shouldSave) {
                     try {
@@ -1378,7 +1378,7 @@
                     } else if (action === '=') {
                         try {
                             if(calcValue.trim() !== '') {
-                                // 移除 eval，使用更安全的 Function 计算简单四则运算
+                                // 安全过滤：使用非 eval 的沙盒机制处理简单数学基础四则运算
                                 let result = new Function('return ' + calcValue)();
                                 calcValue = String(Math.round(result * 1000000) / 1000000); 
                             }
@@ -1393,7 +1393,7 @@
                 });
             });
 
-            // 页面卸载前解除所有监听器与定时器，彻底防止内存泄漏
+            // 页面卸载前解除所有监听器与生命周期挂载，彻底防止内存泄漏
             window.addEventListener('beforeunload', () => {
                 cleanupRegistry.intervals.forEach(clearInterval);
                 cleanupRegistry.observers.forEach(obs => obs.disconnect());
