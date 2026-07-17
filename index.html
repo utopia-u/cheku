@@ -657,7 +657,8 @@
                 <label class="form-label small fw-bold text-secondary mb-1">📍 自动定位位置（可手动修改）：</label>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-body border-end-0 text-secondary" style="border-radius: 12px 0 0 12px;"><i class="fas fa-map-marker-alt"></i></span>
-                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 py-2 small" value="正在调用底层定位..." style="border-radius: 0 12px 12px 0; font-size: 0.85rem; color: var(--text-primary); font-weight: 600;">
+                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 border-end-0 py-2 small" value="正在调用底层定位..." style="font-size: 0.85rem; color: var(--text-primary); font-weight: 600; border-radius: 0;">
+                    <button class="btn bg-body border-start-0 text-secondary d-flex align-items-center justify-content-center" type="button" id="btnRefreshLocation" style="border-radius: 0 12px 12px 0; padding-left: 10px; padding-right: 14px;"><i class="fas fa-sync-alt" id="refreshLocIcon"></i></button>
                 </div>
             </div>
             <div class="weather-upload-container mt-4">
@@ -691,22 +692,22 @@
                                 <div class="result-label opacity-75 text-xs fw-bold mb-1">统一汇总结算总额</div>
                                 <div id="resTotal" class="result-value">￥0.00</div>
                             </div>
-                            <div class="detail-grid mt-3">
+                            <div class="detail-grid mt-2">
                                 <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
                                     <div class="text-xs fw-bold text-secondary">常规匹配档位</div>
-                                    <div id="resTier" class="result-value">-</div>
+                                    <div id="resTier" class="result-value text-xs text-truncate">-</div>
                                 </div>
                                 <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
                                     <div class="text-xs fw-bold text-secondary">常规小计</div>
-                                    <div id="resRegularTotal" class="result-value">￥0.00</div>
+                                    <div id="resRegularTotal" class="result-value text-xs">￥0.00</div>
                                 </div>
                                 <div class="detail-box" style="border-top: 2.5px solid var(--warning-color);">
                                     <div class="text-xs fw-bold text-secondary">拼团明细</div>
-                                    <div id="resGroupInfo" class="result-value">0单 × ￥0.00</div>
+                                    <div id="resGroupInfo" class="result-value text-xs text-truncate">0单 × ￥0.00</div>
                                 </div>
                                 <div class="detail-box" style="border-top: 2.5px solid var(--warning-color);">
                                     <div class="text-xs fw-bold text-secondary">拼团小计</div>
-                                    <div id="resGroupTotal" class="result-value">￥0.00</div>
+                                    <div id="resGroupTotal" class="result-value text-xs">￥0.00</div>
                                 </div>
                             </div>
                         </div>
@@ -742,8 +743,8 @@
                         </div>
                     </div>
 
-                    <div class="calc-sub-card mt-3 p-3">
-                        <div class="mb-3">
+                    <div class="calc-sub-card mt-2 p-3">
+                        <div class="mb-2">
                             <span class="text-xs fw-bold text-secondary"><i class="fas fa-sliders-h me-1"></i> 常规阶梯档位标准表（固定不可改）</span>
                         </div>
                         <div id="tierContainer" style="padding-right: 0;"></div>
@@ -751,7 +752,7 @@
                 </div>
 
                 <div class="col-12 col-lg-4 d-flex align-items-start justify-content-center">
-                    <div class="w-100 py-2" style="max-width: 320px;">
+                    <div class="w-100 py-2" style="max-width: 280px;">
                         <div class="text-center mb-2"><span class="text-xs fw-bold text-secondary"><i class="fas fa-calculator me-1"></i> 便捷快速核算辅助盘</span></div>
                         <div class="calculator-wrapper shadow-sm">
                             <input type="text" id="calcDisplay" readonly placeholder="0">
@@ -880,24 +881,50 @@
                 }, 150);
             });
 
+            // 深度重构腾讯定位核：支持独立封装运行及一键刷新重绑机制
             const locInput = document.getElementById('watermark-location');
+            const btnRefreshLocation = document.getElementById('btnRefreshLocation');
+            const refreshLocIcon = document.getElementById('refreshLocIcon');
             if (locInput) {
                 let userHasTyped = false;
                 locInput.addEventListener('input', () => userHasTyped = true);
-                const updateLoc = (text) => { if (!userHasTyped) locInput.value = text; };
-                const fallback = () => { if (!userHasTyped) { locInput.value = ''; locInput.placeholder = '定位失败，请手动输入位置'; } };
+                
+                const updateLoc = (text) => { 
+                    if (!userHasTyped) locInput.value = text; 
+                    if (refreshLocIcon) refreshLocIcon.classList.remove('fa-spin');
+                };
+                const fallback = () => { 
+                    if (!userHasTyped) { locInput.value = ''; locInput.placeholder = '定位失败，请手动输入位置'; } 
+                    if (refreshLocIcon) refreshLocIcon.classList.remove('fa-spin');
+                };
 
-                if (window.qq && qq.maps && qq.maps.Geolocation) {
-                    const geo = new qq.maps.Geolocation("OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77", "wuliu_helper");
-                    geo.getLocation(
-                        pos => updateLoc(pos.addr || (pos.province + pos.city + ' (请补充小区)')),
-                        () => geo.getIpLocation(
-                            ipPos => updateLoc((ipPos.province || '') + ipPos.city + ' (请补充街道)'), 
-                            fallback
-                        ),
-                        { timeout: 6000 }
-                    );
-                } else fallback();
+                const doGeolocation = () => {
+                    if (refreshLocIcon) refreshLocIcon.classList.add('fa-spin');
+                    if (!userHasTyped) locInput.value = "正在调用底层定位...";
+                    
+                    if (window.qq && qq.maps && qq.maps.Geolocation) {
+                        const geo = new qq.maps.Geolocation("OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77", "wuliu_helper");
+                        geo.getLocation(
+                            pos => updateLoc(pos.addr || (pos.province + pos.city + ' (请补充小区)')),
+                            () => geo.getIpLocation(
+                                ipPos => updateLoc((ipPos.province || '') + ipPos.city + ' (请补充街道)'), 
+                                fallback
+                            ),
+                            { timeout: 6000 }
+                        );
+                    } else fallback();
+                };
+
+                // 执行初始生命周期定位
+                doGeolocation();
+
+                // 显式挂载一键重新扫描定位交互侦听器
+                if (btnRefreshLocation) {
+                    btnRefreshLocation.addEventListener('click', () => {
+                        userHasTyped = false; // 充许强制冲刷重构
+                        doGeolocation();
+                    });
+                }
             }
 
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
@@ -1080,7 +1107,7 @@
             }
 
             // ==============================
-            // 5. 阶梯展现与核算控制核心代码 (精准配置 IMG_9060 所指参数)
+            // 5. 阶梯展现与核算控制核心代码 (根据图片精准订制固定参数)
             // ==============================
             const imageTiers = [
                 { minOrder: 1, price: 4.0 },
@@ -1112,7 +1139,7 @@
                         localData = localStorage.getItem('tier_calculator_storage_v2');
                     }
                 } catch (e) {
-                    console.warn("本地存储访问受阻，转内存模式局域预览", e);
+                    console.warn("本地存储访问受阻，转内存模式预览", e);
                 }
 
                 tierContainer.innerHTML = '';
@@ -1123,6 +1150,7 @@
                         const parsed = JSON.parse(localData);
                         totalOrdersInput.value = parsed.totalOrders !== undefined ? parsed.totalOrders : '0';
                         groupOrdersInput.value = parsed.groupOrders !== undefined ? parsed.groupOrders : '0';
+                        // 强制覆盖拼团固定单价默认为 3.2 
                         groupPriceInput.value = parsed.groupPrice !== undefined ? parsed.groupPrice : '3.2';
                         calculate(false); 
                         return;
@@ -1133,7 +1161,7 @@
                 loadDefaultImageTiers();
             }
 
-            // 完全重置归零，且拼团单价初始化锁定为固定 3.2 
+            // 完美加载初始化数据：全部重置归零，且拼团单价默认为 3.2 固定基准
             function loadDefaultImageTiers() {
                 totalOrdersInput.value = '0'; 
                 groupOrdersInput.value = '0'; 
@@ -1141,7 +1169,7 @@
                 calculate(true);
             }
 
-            // 平铺静态只读行排版
+            // 平铺纯静态只读行视图装配
             function addTierRow(minOrder = '', price = '') {
                 const row = document.createElement('div');
                 row.className = 'tier-row';
@@ -1151,7 +1179,7 @@
                         <span class="input-suffix opacity-75">单起</span>
                     </div>
                     <div class="calc-input-group">
-                        <input type="text" class="form-control text-center fw-bold" value="${price}" readonly style="background: var(--bg-surface); color: var(--text-primary);">
+                        <input type="text" class="form-control text-center fw-bold" value="${parseFloat(price).toFixed(1)}" readonly style="background: var(--bg-surface); color: var(--text-primary);">
                         <span class="input-suffix opacity-75">元</span>
                     </div>
                 `;
