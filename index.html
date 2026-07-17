@@ -356,7 +356,7 @@
             position: absolute; right: 12px; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); pointer-events: none;
         }
 
-        /* 纯静态展示阶梯行：双列等分，剔除任何删除与交互按键，完全只读平铺 */
+        /* 纯静态展示阶梯行与拼团价：双列等分，完全只读平铺，彻底同步外观状态 */
         .tier-row {
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center;
             margin-bottom: 10px; padding: 10px 12px; background: rgba(var(--bg-surface-rgb), 0.5); border-radius: 12px;
@@ -365,16 +365,21 @@
         [data-theme="dark"] .tier-row {
             background: rgba(0, 0, 0, 0.15); border-color: rgba(255,255,255,0.03);
         }
-        .tier-row .calc-input-group input {
+        
+        /* 将 #groupPrice 的输入框基础和焦点样式与阶梯列表输入框完全合并，实现100%状态对齐 */
+        .tier-row .calc-input-group input, #groupPrice {
             background: var(--bg-surface) !important; border: 1.5px solid rgba(0,0,0,0.06) !important; cursor: default;
             font-size: 0.9rem; height: 40px; padding: 6px 45px 6px 12px; box-shadow: none !important;
+            text-align: center; font-weight: bold; color: var(--text-primary);
         }
-        [data-theme="dark"] .tier-row .calc-input-group input {
+        [data-theme="dark"] .tier-row .calc-input-group input, [data-theme="dark"] #groupPrice {
             border-color: rgba(255, 255, 255, 0.08) !important; background-color: rgba(0, 0, 0, 0.2) !important;
         }
-        .tier-row .calc-input-group input:focus { border-color: rgba(0,0,0,0.06) !important; box-shadow: none !important; }
-        [data-theme="dark"] .tier-row .calc-input-group input:focus { border-color: rgba(255, 255, 255, 0.08) !important; }
-        .tier-row .calc-input-group .input-suffix { right: 14px; font-size: 0.8rem; }
+        .tier-row .calc-input-group input:focus, #groupPrice:focus { border-color: rgba(0,0,0,0.06) !important; box-shadow: none !important; }
+        [data-theme="dark"] .tier-row .calc-input-group input:focus, [data-theme="dark"] #groupPrice:focus { border-color: rgba(255, 255, 255, 0.08) !important; }
+        
+        /* 拼团与阶梯右侧单位小标文字规格及间距彻底同步 */
+        .tier-row .calc-input-group .input-suffix, .group-price-wrapper .input-suffix { right: 14px; font-size: 0.8rem; }
 
         .grand-total-box {
             background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white;
@@ -738,9 +743,9 @@
                         <div class="col-6 col-md-4">
                             <div class="calc-sub-card mb-0">
                                 <label class="text-sm fw-bold text-secondary mb-2 d-block">拼团固定单价</label>
-                                <div class="calc-input-group">
-                                    <input type="number" id="groupPrice" value="3.20" disabled tabindex="-1" style="cursor: not-allowed; pointer-events: none; background-color: rgba(var(--bg-surface-rgb), 0.5) !important;">
-                                    <span class="input-suffix">元/单</span>
+                                <div class="calc-input-group group-price-wrapper">
+                                    <input type="text" id="groupPrice" value="3.20" readonly>
+                                    <span class="input-suffix opacity-75">元</span>
                                 </div>
                             </div>
                         </div>
@@ -1219,7 +1224,7 @@
                         const parsed = JSON.parse(localData);
                         totalOrdersInput.value = parsed.totalOrders !== undefined ? sanitizeInput(String(parsed.totalOrders)) : '0';
                         groupOrdersInput.value = parsed.groupOrders !== undefined ? sanitizeInput(String(parsed.groupOrders)) : '0';
-                        groupPriceInput.value = '3.20'; // 强制固定价格，不随缓存改变
+                        groupPriceInput.value = '3.20'; // 强制固定价格呈现，不随旧缓存偏转
                         calculate(false); 
                         return;
                     } catch (e) {
@@ -1233,7 +1238,7 @@
                 if (totalOrdersInput && groupOrdersInput && groupPriceInput) {
                     totalOrdersInput.value = '0'; 
                     groupOrdersInput.value = '0'; 
-                    groupPriceInput.value = '3.20'; // 强制设置拼团固定单价
+                    groupPriceInput.value = '3.20'; // 初始化拼团固定单价
                     calculate(true);
                 }
             }
@@ -1261,7 +1266,7 @@
                 
                 const totalOrdersStr = totalOrdersInput.value.trim();
                 const groupOrdersStr = groupOrdersInput.value.trim();
-                const groupPriceStr = "3.20"; // 核心计算链路中直接写死固定单价，彻底杜绝数据源被篡改可能
+                const groupPriceStr = "3.20"; // 核心核算层强制固化单价常量，防止任何路径产生逻辑污染
                 
                 if (shouldSave) {
                     try {
@@ -1378,7 +1383,7 @@
                     } else if (action === '=') {
                         try {
                             if(calcValue.trim() !== '') {
-                                // 安全过滤：使用非 eval 的沙盒机制处理简单数学基础四则运算
+                                // 安全过滤机制处理四则代数基础计算
                                 let result = new Function('return ' + calcValue)();
                                 calcValue = String(Math.round(result * 1000000) / 1000000); 
                             }
