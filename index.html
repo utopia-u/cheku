@@ -735,7 +735,7 @@
                             <div class="calc-sub-card mb-0">
                                 <label class="text-sm fw-bold text-secondary mb-2 d-block">拼团固定单价</label>
                                 <div class="calc-input-group">
-                                    <input type="number" id="groupPrice" placeholder="3.20" min="0" step="0.01">
+                                    <input type="number" id="groupPrice" value="3.20" readonly style="cursor: default; background-color: rgba(var(--bg-surface-rgb), 0.5) !important;">
                                     <span class="input-suffix">元/单</span>
                                 </div>
                             </div>
@@ -1123,7 +1123,7 @@
                         const parsed = JSON.parse(localData);
                         totalOrdersInput.value = parsed.totalOrders !== undefined ? parsed.totalOrders : '0';
                         groupOrdersInput.value = parsed.groupOrders !== undefined ? parsed.groupOrders : '0';
-                        groupPriceInput.value = parsed.groupPrice !== undefined ? parsed.groupPrice : '3.2';
+                        groupPriceInput.value = '3.20';
                         calculate(false); 
                         return;
                     } catch (e) {
@@ -1137,7 +1137,7 @@
             function loadDefaultImageTiers() {
                 totalOrdersInput.value = '0'; 
                 groupOrdersInput.value = '0'; 
-                groupPriceInput.value = '3.2';  
+                groupPriceInput.value = '3.20';  
                 calculate(true);
             }
 
@@ -1163,7 +1163,7 @@
                 
                 const totalOrdersStr = totalOrdersInput.value.trim();
                 const groupOrdersStr = groupOrdersInput.value.trim();
-                const groupPriceStr = groupPriceInput.value.trim();
+                const groupPriceStr = "3.20";
                 
                 if (shouldSave) {
                     try {
@@ -1211,19 +1211,13 @@
 
                 let groupSubtotal = 0;
                 let groupCount = 0;
-                let groupUnitPrice = 0;
+                let groupUnitPrice = 3.20;
 
-                if (groupOrdersStr !== "" || groupPriceStr !== "") {
+                if (groupOrdersStr !== "") {
                     groupCount = groupOrdersStr === "" ? 0 : parseFloat(groupOrdersStr);
-                    groupUnitPrice = groupPriceStr === "" ? 0 : parseFloat(groupPriceStr);
 
                     if (groupCount < 0 || !Number.isInteger(groupCount)) {
                         showError("拼团单量需要输入一个正整数！");
-                        resetResultDisplay();
-                        return;
-                    }
-                    if (groupUnitPrice < 0) {
-                        showError("拼团固定单价不能为负数！");
                         resetResultDisplay();
                         return;
                     }
@@ -1251,7 +1245,6 @@
 
             totalOrdersInput.addEventListener('input', () => calculate(true));
             groupOrdersInput.addEventListener('input', () => calculate(true));
-            groupPriceInput.addEventListener('input', () => calculate(true));
 
             initCalculatorData();
 
