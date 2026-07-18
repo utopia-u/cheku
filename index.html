@@ -12,7 +12,7 @@
     <script type="text/javascript" src="https://apis.map.qq.com/tools/geolocation/min?key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=wuliu"></script>
 
     <script>
-        // 立即执行函数：根据时间或缓存初始化深色/浅色主题，防止页面闪烁
+        // 立即执行函数：防闪烁主题初始化
         (function() {
             const savedTheme = localStorage.getItem('theme');
             const currentHour = new Date().getHours();
@@ -356,7 +356,7 @@
             position: absolute; right: 12px; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); pointer-events: none;
         }
 
-        /* 纯静态展示阶梯行与拼团价：双列等分，完全只读平铺，彻底同步外观状态 */
+        /* 纯静态展示阶梯行：双列等分，完全只读平铺 */
         .tier-row {
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center;
             margin-bottom: 10px; padding: 10px 12px; background: rgba(var(--bg-surface-rgb), 0.5); border-radius: 12px;
@@ -366,7 +366,7 @@
             background: rgba(0, 0, 0, 0.15); border-color: rgba(255,255,255,0.03);
         }
         
-        /* 将 #groupPrice 的输入框基础和焦点样式与阶梯列表输入框完全合并，实现100%状态对齐 */
+        /* 阶梯价格只读文本框标准样式及拼团价对齐样式 */
         .tier-row .calc-input-group input, #groupPrice {
             background: var(--bg-surface) !important; border: 1.5px solid rgba(0,0,0,0.06) !important; cursor: default;
             font-size: 0.9rem; height: 40px; padding: 6px 45px 6px 12px; box-shadow: none !important;
@@ -377,8 +377,6 @@
         }
         .tier-row .calc-input-group input:focus, #groupPrice:focus { border-color: rgba(0,0,0,0.06) !important; box-shadow: none !important; }
         [data-theme="dark"] .tier-row .calc-input-group input:focus, [data-theme="dark"] #groupPrice:focus { border-color: rgba(255, 255, 255, 0.08) !important; }
-        
-        /* 拼团与阶梯右侧单位小标文字规格及间距彻底同步 */
         .tier-row .calc-input-group .input-suffix, .group-price-wrapper .input-suffix { right: 14px; font-size: 0.8rem; }
 
         .grand-total-box {
@@ -388,18 +386,18 @@
         }
         .grand-total-box .result-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
         
-        /* 核心反溢出加固：防止极端多位数把大容器横向挤破 */
+        /* 核心反溢出加固 */
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .detail-box {
             background: var(--bg-body); border: 1px solid rgba(0,0,0,0.02); padding: 8px; border-radius: 10px; text-align: center;
-            min-width: 0; overflow: hidden; /* 核心安全保护：子元素弹性伸缩 */
+            min-width: 0; overflow: hidden;
         }
         [data-theme="dark"] .detail-box {
             background: rgba(0,0,0,0.1); border-color: rgba(255,255,255,0.02);
         }
         .detail-grid .detail-box .result-value { 
             font-size: 0.95rem !important; font-weight: 800; color: var(--text-primary); margin-top: 4px; 
-            display: block; width: 100%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; /* 极长数据自动省略，完美对齐不撕裂 */
+            display: block; width: 100%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;
         }
 
         .error-msg {
@@ -410,7 +408,7 @@
             text-align: right; font-size: 0.72rem; color: var(--success-color); margin-top: -4px; margin-bottom: 10px; font-weight: 700; display: none;
         }
         
-        /* 独立紧凑型物理按键盘 - 尺寸已与左栏 sub-card 完全同步校准 */
+        /* 独立紧凑型物理按键盘 */
         .calculator-wrapper {
             background: var(--bg-body); border: 1px solid rgba(0,0,0,0.04); border-radius: 16px; padding: 16px; width: 100%; max-width: 320px; margin: 0 auto;
         }
@@ -572,7 +570,7 @@
                     <i class="fas fa-bell me-2"></i><span class="fw-bold">提前报备商家出餐慢</span>
                 </div>
                 <small class="d-block opacity-75" style="line-height: 1.5;">
-                    高峰期需优先识别超时隐痕的订单。若距离商家较远，可直接强制报备。无论是否虚假，只要完成流程，订单取消均不计入物流责任。
+                    高峰期需优先识别超时隐痕的订单。若距离商家较远，可直接<span class="fw-bold rounded" style="background-color: rgba(239, 68, 68, 0.18); color: #ef4444; padding: 2px 6px; display: inline-block; line-height: 1.2;">强制报备</span>。无论是否虚假，只要完成流程，订单取消均不计入物流责任。
                 </small>
             </div>
             <div class="mb-2 ps-1">
@@ -821,7 +819,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 全局挂载图片预览函数（安全防御：判断DOM节点是否存在）
+        // 全局图片预览方法挂载（节点安全保护）
         window.viewImage = function(srcUrl) {
             const modalImg = document.getElementById('modalImg');
             const modalElement = document.getElementById('imageModal');
@@ -833,7 +831,7 @@
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 资源与事件防溢出回收容器（内存泄漏规避）
+            // 定时器与观察者资源回收注册表（内存泄漏规避）
             const cleanupRegistry = {
                 intervals: [],
                 observers: []
@@ -849,7 +847,7 @@
             function clearScrollLock() { isProgrammaticScrolling = false; }
             if ('onscrollend' in window) window.addEventListener('scrollend', clearScrollLock);
 
-            // 滚动高亮 IntersectionObserver 初始化
+            // 联动高亮 IntersectionObserver 逻辑
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.target) {
@@ -877,7 +875,7 @@
             if (sentinel) observer.observe(sentinel);
             cleanupRegistry.observers.push(observer);
 
-            // 导航点击平滑滚动（含多端高度适配与空值安全校验）
+            // 平滑滚动点击事件
             navItems.forEach(link => link.addEventListener('click', function(e) {
                 e.preventDefault();
                 const targetId = this.getAttribute('href');
@@ -893,7 +891,7 @@
                 }
             }));
 
-            // 主题切换控制
+            // 主题色彩控制
             const themeToggle = document.getElementById('themeToggle');
             if (themeToggle) {
                 const themeIcon = themeToggle.querySelector('i');
@@ -915,7 +913,7 @@
             }
 
             // ==============================
-            // 腾讯地图定位及刷新逻辑（安全异步兜底）
+            // 腾讯地图定位及刷新逻辑（异常防白兜底）
             // ==============================
             const locInput = document.getElementById('watermark-location');
             const refreshBtn = document.getElementById('refresh-location-btn');
@@ -968,7 +966,6 @@
                     }
                 };
 
-                // 首次进入加载定位
                 triggerGeolocation();
 
                 if (refreshBtn) {
@@ -980,7 +977,7 @@
             }
 
             // ==============================
-            // Supabase 云相册逻辑（异常断网、空值多重兜底）
+            // Supabase 云图片上传展示逻辑（异常断网保护）
             // ==============================
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
@@ -997,7 +994,7 @@
                 try {
                     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 } catch (e) {
-                    console.error("Supabase 客户端初始化失败", e);
+                    console.error("Supabase 客户端建立异常", e);
                 }
 
                 let currentHash = ''; 
@@ -1080,8 +1077,8 @@
                         previewGallery.appendChild(fragment);
                         previewContainer.classList.remove('d-none');
                     } catch (err) {
-                        console.error('相册加载失败:', err);
-                        if (!isSilent) previewGallery.innerHTML = `<div class="col-12 text-center text-danger small py-3"><i class="fas fa-wifi me-2"></i>加载失败，请刷新。</div>`;
+                        console.error('相册同步异常:', err);
+                        if (!isSilent) previewGallery.innerHTML = `<div class="col-12 text-center text-danger small py-3"><i class="fas fa-wifi me-2"></i>加载失败，请重试。</div>`;
                     } finally {
                         isSyncing = false;
                     }
@@ -1089,13 +1086,12 @@
 
                 syncGallery(false);
                 
-                // 周期同步相册定时器（内存泄漏规避）
                 const syncInterval = setInterval(() => {
                     if (document.visibilityState === 'visible') syncGallery(true);
                 }, 15000);
                 cleanupRegistry.intervals.push(syncInterval);
 
-                // 画布合成时间与地理位置防伪水印
+                // 图片压缩与安全防伪水印添加
                 function processImage(file, locText) {
                     return new Promise(resolve => {
                         if (!file.type.startsWith('image/')) return resolve(file);
@@ -1172,7 +1168,7 @@
             }
 
             // ==============================
-            // 阶梯展现与结算核算控制核心代码
+            // 阶梯展现与核算控制核心引擎
             // ==============================
             const imageTiers = [
                 { minOrder: 1, price: 4.0 },
@@ -1197,10 +1193,10 @@
 
             let saveTimeout = null;
 
-            // 表单输入校验机制：过滤并截断非法字符
+            // 输入纯数字过滤校验机制
             const sanitizeInput = (val) => {
                 let clean = val.replace(/[^\d]/g, ''); 
-                if (clean.length > 5) clean = clean.slice(0, 5); // 限制最大5位正整数
+                if (clean.length > 5) clean = clean.slice(0, 5); // 限制单量最大5位数
                 return clean;
             };
 
@@ -1211,7 +1207,7 @@
                         localData = localStorage.getItem('tier_calculator_storage_v2');
                     }
                 } catch (e) {
-                    console.warn("本地存储访问受阻，转内存模式局域预览", e);
+                    console.warn("本地存储被浏览器安全规则拦截", e);
                 }
 
                 if (tierContainer) {
@@ -1224,11 +1220,11 @@
                         const parsed = JSON.parse(localData);
                         totalOrdersInput.value = parsed.totalOrders !== undefined ? sanitizeInput(String(parsed.totalOrders)) : '0';
                         groupOrdersInput.value = parsed.groupOrders !== undefined ? sanitizeInput(String(parsed.groupOrders)) : '0';
-                        groupPriceInput.value = '3.20'; // 强制固定价格呈现，不随旧缓存偏转
+                        groupPriceInput.value = '3.20'; // 强制常驻固定价格
                         calculate(false); 
                         return;
                     } catch (e) {
-                        console.error("缓存反序列化失败", e);
+                        console.error("缓存反序列化出错", e);
                     }
                 }
                 loadDefaultImageTiers();
@@ -1238,7 +1234,7 @@
                 if (totalOrdersInput && groupOrdersInput && groupPriceInput) {
                     totalOrdersInput.value = '0'; 
                     groupOrdersInput.value = '0'; 
-                    groupPriceInput.value = '3.20'; // 初始化拼团固定单价
+                    groupPriceInput.value = '3.20'; 
                     calculate(true);
                 }
             }
@@ -1266,7 +1262,7 @@
                 
                 const totalOrdersStr = totalOrdersInput.value.trim();
                 const groupOrdersStr = groupOrdersInput.value.trim();
-                const groupPriceStr = "3.20"; // 核心核算层强制固化单价常量，防止任何路径产生逻辑污染
+                const groupPriceStr = "3.20"; // 核心结算模型常量锁死
                 
                 if (shouldSave) {
                     try {
@@ -1365,7 +1361,7 @@
             initCalculatorData();
 
             // ==============================
-            // 底部独立物理计算器辅助键盘控制
+            // 右侧便捷快速物理盘算控制器
             // ==============================
             const calcDisplay = document.getElementById('calcDisplay');
             const calcButtons = document.querySelectorAll('.calc-buttons .calc-btn');
@@ -1383,7 +1379,6 @@
                     } else if (action === '=') {
                         try {
                             if(calcValue.trim() !== '') {
-                                // 安全过滤机制处理四则代数基础计算
                                 let result = new Function('return ' + calcValue)();
                                 calcValue = String(Math.round(result * 1000000) / 1000000); 
                             }
@@ -1398,7 +1393,7 @@
                 });
             });
 
-            // 页面卸载前解除所有监听器与生命周期挂载，彻底防止内存泄漏
+            // 页面生命周期终结前解绑资源
             window.addEventListener('beforeunload', () => {
                 cleanupRegistry.intervals.forEach(clearInterval);
                 cleanupRegistry.observers.forEach(obs => obs.disconnect());
