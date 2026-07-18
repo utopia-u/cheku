@@ -53,7 +53,7 @@
             --safe-top: env(safe-area-inset-top);
             --safe-bottom: env(safe-area-inset-bottom);
             --nav-height: 80px;
-            --header-height: auto; /* 由固定值改为弹性自适应，容纳放大后的主题标志 */
+            --header-height: auto; 
         }
 
         [data-theme="dark"] {
@@ -91,7 +91,7 @@
         }
 
         .app-header {
-            padding: calc(16px + var(--safe-top)) 20px 16px;
+            padding: calc(14px + var(--safe-top)) 24px 14px;
             background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface-rgb), 0.8) 100%);
             position: sticky;
             top: 0;
@@ -109,30 +109,34 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        /* 主题图片外层比例隔离容器 */
         .header-logo-container {
             flex: 1;
             min-width: 0;
-            padding-right: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         .header-title {
             width: 100%;
-            display: block;
-            margin-bottom: 2px;
+            max-width: 145px; /* 显式等比缩小外层包围盒，恢复原本小巧精致的移动端状态栏比例 */
+            margin-bottom: 4px;
         }
 
-        /* 极致放大且防止文本发生任何拉伸、压扁等变形的强力控制层（无需修改源SVG内联属性） */
         .header-title svg {
             width: 100% !important;
             height: auto !important;
-            max-width: 480px; /* 移动端极致大比例尺寸呈现 */
-            display: block !important;
+            display: block;
         }
 
-        /* 深色模式下智能过滤与路径边缘发光增强，提高极端色境下的精美辨识度 */
+        /* 结构伪类样式：控制下排“物流责任防范”整体左移11.73%，与第一排“淘宝闪购”实现左对齐 */
+        .header-title svg path:nth-child(n+18) {
+            transform-box: view-box;
+            transform: translateX(-11.73%);
+        }
+
         [data-theme="dark"] .header-title svg g {
-            filter: drop-shadow(0px 2px 8px rgba(235, 100, 44, 0.45));
+            filter: brightness(1.2) contrast(1.1) drop-shadow(0px 1px 4px rgba(235, 100, 44, 0.2));
         }
 
         .desktop-nav { display: none; }
@@ -364,7 +368,7 @@
             background-color: var(--bg-surface); transition: all 0.2s ease;
         }
         [data-theme="dark"] .calc-input-group input {
-            border-color: rgba(255, 255, 255, 0.08) !important; background-color: rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.08); background-color: rgba(0, 0, 0, 0.2);
         }
         .calc-input-group input:focus {
             outline: none; border-color: var(--accent-color); background-color: var(--bg-surface);
@@ -450,27 +454,6 @@
         .calc-clear { background: var(--danger-bg); color: var(--danger-text); }
         .calc-equal { background: var(--accent-color); color: #fff; }
 
-        .btn-close-custom { background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; backdrop-filter: blur(4px); transition: background 0.2s; }
-        .btn-close-custom:active { background: rgba(0,0,0,0.8); }
-        .opacity-75 { opacity: 0.75; }
-        .fw-800 { font-weight: 800; }
-        .fw-900 { font-weight: 900; }
-        .text-xs { font-size: 0.75rem; }
-        .text-sm { font-size: 0.875rem; }
-        .desktop-hint { display: none; }
-
-        .delete-cloud-btn {
-            position: absolute; top: 10px; right: 10px; width: 34px; height: 34px;
-            border-radius: 50%; background: rgba(239, 68, 68, 0.85);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            color: white; border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); z-index: 10;
-            display: flex; justify-content: center; align-items: center;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); padding: 0; cursor: pointer;
-        }
-        .delete-cloud-btn:active { transform: scale(0.85); background: rgba(220, 38, 38, 0.95); }
-        .delete-cloud-btn i { font-size: 0.85rem; pointer-events: none; }
-
         /* ==============================
            3. PC端响应式自适应网格
            ============================== */
@@ -513,9 +496,12 @@
             .action-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
             [data-theme="dark"] .action-btn:hover { box-shadow: 0 12px 24px rgba(0,0,0,0.3); }
 
-            /* 电脑端下让无损矢量主题图标呈现极具排版冲击感的大尺寸 */
-            .header-title svg {
-                max-width: 550px;
+            /* 电脑宽屏环境对收缩后的SVG适配更大气宽泛的容器宽度 */
+            .header-title {
+                max-width: 180px;
+            }
+            .header-title svg path:nth-child(n+18) {
+                transform: translateX(-11.73%);
             }
         }
     </style>
@@ -827,7 +813,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content bg-transparent border-0 shadow-none">
                 <div class="modal-body-wrapper text-center position-relative">
-                    <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center" data-bs-dismiss="modal">
+                    <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 m-2 z-3 d-flex justify-content-center align-items-center" data-bs-dismiss="modal">
                         <i class="fas fa-times"></i>
                     </button>
                     <img src="" id="modalImg" class="img-fluid rounded-4 shadow-lg dynamic-modal-preview" alt="全屏查看" style="max-height: 85vh; width: auto;">
@@ -1135,7 +1121,7 @@
                                 ctx.textBaseline = 'top';
 
                                 const now = new Date();
-                                const timeStr = `⏰ 时间：2026-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                                const timeStr = `⏰ 时间：${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
                                 const locStr = `📍 位置：${locText || '未获取到位置'}`;
                                 
                                 ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
