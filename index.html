@@ -27,17 +27,20 @@
 
     <style>
         /* ==============================
-           1. 全局与移动端基础样式
+           1. 全局与移动端基础样式（高圆润度版）
            ============================== */
         :root {
-            --bg-body: #F2F4F7;
+            --bg-body: #FDFBF9;
             --bg-surface-rgb: 255, 255, 255;
             --bg-surface: rgb(var(--bg-surface-rgb));
             --text-primary: #1A1C21;
-            --text-secondary: #64748B;
-            --accent-color: #3B82F6;
-            --accent-light: #EFF6FF;
-            --accent-text: #1D4ED8; 
+            --text-secondary: #7C6E67;
+            
+            /* 全局品牌橙色控制流 */
+            --accent-color: #eb642c;
+            --accent-light: #FFF2EB;
+            --accent-text: #B43E17; 
+            
             --danger-color: #EF4444;
             --danger-bg: #FEF2F2;
             --danger-text: #B91C1C;
@@ -47,34 +50,41 @@
             --warning-color: #F59E0B;
             --warning-bg: #FFFBEB;
             --warning-text: #B45309;
-            --border-radius: 24px;
-            --card-shadow: 0 10px 25px -5px rgba(0,0,0,0.06), 0 4px 10px -3px rgba(0,0,0,0.03);
-            --inner-card-shadow: 0 6px 16px rgba(0,0,0,0.06);
+
+            /* 工业级温润高圆角阶梯 Token 系统 */
+            --radius-xl: 38px;        /* 适用于最外层业务卡片、罚款票据围盒、全屏大模态 */
+            --radius-lg: 24px;        /* 适用于内部警示框、照片举证横向滚组、响应式交互大按钮 */
+            --radius-md: 16px;        /* 适用于核心表单输入框、阶梯行、数据小计块、盘算键盘按键 */
+            --radius-sm: 8px;         /* 适用于微型徽章状态标记、嵌入小微标 */
+            --radius-pill: 9999px;    /* 适用于胶囊式悬浮底栏、纯圆组件 */
+
+            --card-shadow: 0 12px 28px -5px rgba(235, 100, 44, 0.06), 0 4px 12px -3px rgba(0,0,0,0.02);
+            --inner-card-shadow: 0 6px 18px rgba(235, 100, 44, 0.04);
             --safe-top: env(safe-area-inset-top);
             --safe-bottom: env(safe-area-inset-bottom);
             --nav-height: 80px;
             --header-height: auto; 
-            --location-border: rgba(0, 0, 0, 0.08);
+            --location-border: rgba(235, 100, 44, 0.12);
         }
 
         [data-theme="dark"] {
-            --bg-body: #0F172A;
-            --bg-surface-rgb: 30, 41, 59;
+            --bg-body: #110F0E;
+            --bg-surface-rgb: 38, 34, 32;
             --bg-surface: rgb(var(--bg-surface-rgb));
-            --text-primary: #F8FAFC; 
-            --text-secondary: #CBD5E1; 
-            --accent-color: #60A5FA;
-            --accent-light: rgba(59, 130, 246, 0.15);
-            --accent-text: #93C5FD; 
+            --text-primary: #FDF8F5; 
+            --text-secondary: #AFA097; 
+            --accent-color: #FF844B;
+            --accent-light: rgba(235, 100, 44, 0.15);
+            --accent-text: #FFAC82; 
             --danger-bg: rgba(239, 68, 68, 0.15);
             --danger-text: #FCA5A5;
             --success-bg: rgba(16, 185, 129, 0.15);
             --success-text: #6EE7B7;
             --warning-bg: rgba(245, 158, 11, 0.15);
             --warning-text: #FCD34D;
-            --card-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            --inner-card-shadow: 0 6px 16px rgba(0,0,0,0.3);
-            --location-border: rgba(255, 255, 255, 0.08);
+            --card-shadow: 0 12px 32px rgba(0,0,0,0.5);
+            --inner-card-shadow: 0 6px 18px rgba(0,0,0,0.4);
+            --location-border: rgba(255, 132, 75, 0.15);
         }
 
         html, body {
@@ -92,7 +102,7 @@
             line-height: 1.6;
         }
 
-        /* 顶部导航：采用高精度 CSS Grid 架构，无视组件体积变大强力维系三栏平衡 */
+        /* 顶部导航：高平衡 Grid 架构 */
         .app-header {
             padding: calc(10px + var(--safe-top)) 20px 10px; 
             background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface-rgb), 0.8) 100%);
@@ -101,21 +111,20 @@
             z-index: 50;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0,0,0,0.03);
+            border-bottom: 1px solid rgba(235, 100, 44, 0.05);
             min-height: var(--header-height);
             box-sizing: border-box;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 20px rgba(235, 100, 44, 0.03);
             display: grid !important;
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
         }
 
         [data-theme="dark"] .app-header {
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255, 132, 75, 0.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        /* 锁死中央第二栏：无论左右体积如何变化，SVG 文字永远锁定中轴线 */
         .header-logo-container {
             grid-column: 2;
             display: flex;
@@ -126,7 +135,6 @@
             width: 100%;
         }
 
-        /* 子标题长文本安全截断防御线 */
         .header-logo-container p {
             white-space: nowrap;
             overflow: hidden;
@@ -134,34 +142,32 @@
             max-width: 220px; 
         }
 
-        /* 中央排版围盒：重塑为水平 Flex 布局，使图片和 SVG 紧贴 */
+        /* 水平 Flex 流，使图片和 SVG 紧贴 */
         .header-title {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px; /* 控制图片紧贴 SVG 左侧的间距 */
+            gap: 10px; 
             margin-bottom: 4px;
             width: 100%;
         }
 
-        /* 内联微标样式优化：支持大图高精度无缝渲染 */
         .header-inline-logo {
-            height: 60px; /* 移动端尺寸进一步平滑调大 */
+            height: 60px; 
             width: auto;
             object-fit: contain;
             display: block;
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             flex-shrink: 0;
         }
 
         .header-title svg {
-            width: 145px !important; /* 精准控制 SVG 独立物理缩放比 */
+            width: 145px !important; 
             height: auto !important;
             display: block;
             flex-shrink: 0;
         }
 
-        /* 高级路径向左平移 11.73%，维系视觉对齐 */
         .header-title svg path:nth-child(n+18) {
             transform-box: view-box;
             transform: translateX(-11.73%);
@@ -171,7 +177,12 @@
             filter: brightness(1.2) contrast(1.1) drop-shadow(0px 1px 4px rgba(235, 100, 44, 0.2));
         }
 
-        /* 右侧操作流：强制绑定在网格第三栏且靠右对齐 */
+        .badge.bg-primary {
+            background-color: var(--accent-color) !important;
+            color: #fff !important;
+            border-radius: var(--radius-sm);
+        }
+
         .header-right-controls {
             grid-column: 3;
             justify-self: end;
@@ -181,18 +192,19 @@
 
         .desktop-nav { display: none; }
 
+        /* 外壳主框架大卡片 */
         .section-card {
             background: var(--bg-surface);
             margin: 20px;
-            padding: 24px;
-            border-radius: var(--border-radius);
+            padding: 26px;
+            border-radius: var(--radius-xl); 
             box-shadow: var(--card-shadow);
             border: 1px solid rgba(255, 255, 255, 0.5);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         
         [data-theme="dark"] .section-card {
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.03);
         }
 
         .section-title {
@@ -211,7 +223,7 @@
             height: 38px;
             background: var(--accent-light);
             color: var(--accent-color);
-            border-radius: 12px;
+            border-radius: var(--radius-md); 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -221,19 +233,20 @@
         .alert {
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             border: 1px solid rgba(0,0,0,0.02);
+            border-radius: var(--radius-lg); 
         }
         [data-theme="dark"] .alert {
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* 票据罚款卡片 */
+        /* 票据罚款大卡片 */
         .ticket-wrapper {
             margin: 24px 20px;
             position: relative;
             z-index: 1;
-            -webkit-filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(220, 38, 38, 0.3));
-            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(220, 38, 38, 0.3));
+            -webkit-filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(235, 100, 44, 0.25));
+            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(235, 100, 44, 0.25));
             transform: translateZ(0);
         }
 
@@ -242,11 +255,11 @@
             --bottom-height: 100px;
             width: 100%;
             display: block;
-            border-radius: var(--border-radius);
+            border-radius: var(--radius-xl); 
             background: 
                 radial-gradient(circle at 100% 0%, rgba(255,255,255,0.2) 0%, transparent 50%),
                 linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 100%),
-                linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+                linear-gradient(135deg, #eb642c 0%, #a12b08 100%);
             color: white;
             position: relative;
             -webkit-mask-image: 
@@ -308,7 +321,7 @@
             line-height: 0.9; font-family: 'Plus Jakarta Sans', sans-serif; 
             text-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
-        .fine-unit { font-size: 1rem; opacity: 0.8; font-weight: 600; margin-left: 8px; }
+        .fine-amount-wrapper .fine-unit { font-size: 1rem; opacity: 0.8; font-weight: 600; margin-left: 8px; color: #fff; }
 
         .info-pill-container {
             position: absolute; bottom: 0; left: 0; right: 0;
@@ -323,12 +336,12 @@
             background: rgba(255,255,255,0.2); 
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 14px; display: flex; 
-            align-items: center; justify-content: center;
+            border-radius: var(--radius-md); 
+            display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        /* 步骤横向滚动 */
+        /* 步骤横向滚动图组 */
         .steps-scroller {
             display: flex; gap: 16px; overflow-x: auto;
             padding: 4px 4px 20px 4px; scroll-behavior: smooth;
@@ -345,28 +358,30 @@
 
         .step-img-wrapper {
             position: relative; width: 100%; aspect-ratio: 1/1; 
-            border-radius: 16px; overflow: hidden;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.08); 
-            border: 1px solid rgba(0,0,0,0.05); background-color: #cbd5e1;
+            border-radius: var(--radius-lg); 
+            overflow: hidden;
+            box-shadow: 0 8px 15px rgba(235, 100, 44, 0.05); 
+            border: 1px solid rgba(235, 100, 44, 0.08); background-color: #cbd5e1;
             transition: box-shadow 0.3s ease;
         }
-        [data-theme="dark"] .step-img-wrapper { box-shadow: 0 8px 15px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); background-color: #334155; }
+        [data-theme="dark"] .step-img-wrapper { box-shadow: 0 8px 15px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); background-color: #334155; }
         .step-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
-        .step-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; }
+        .step-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; padding: 4px 8px; border-radius: var(--radius-sm); font-size: 0.7rem; font-weight: 700; }
         .step-caption { font-size: 0.85rem; text-align: center; font-weight: 600; color: var(--text-primary); }
 
-        /* 紧急应对模块 */
+        /* 紧急应对模块主按钮 */
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .action-btn {
-            background: var(--bg-body); padding: 20px; border-radius: 20px;
+            background: var(--bg-body); padding: 20px; border-radius: var(--radius-lg); 
             border: 0; box-shadow: var(--inner-card-shadow); text-align: left;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative; overflow: hidden; touch-action: manipulation; font-family: inherit;
         }
         .action-btn:active { transform: scale(0.96); }
+        .action-btn:focus-visible { outline: 3px solid var(--accent-color); }
         .action-icon { font-size: 1.6rem; margin-bottom: 12px; display: inline-block; }
 
-        /* 底部导航 */
+        /* 底部导航栏 */
         .bottom-nav-container {
             position: fixed; bottom: calc(20px + var(--safe-bottom)); left: 0; right: 0;
             display: flex; justify-content: center; z-index: 1000; pointer-events: none;
@@ -374,38 +389,81 @@
         .bottom-nav {
             pointer-events: auto; background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 32px; padding: 8px 12px; display: flex; align-items: center;
-            gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.3);
+            border-radius: var(--radius-pill); 
+            padding: 8px 12px; display: flex; align-items: center;
+            gap: 8px; box-shadow: 0 10px 30px rgba(235, 100, 44, 0.08); border: 1px solid rgba(255,255,255,0.3);
         }
-        [data-theme="dark"] .bottom-nav { background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        [data-theme="dark"] .bottom-nav { background: rgba(38, 34, 32, 0.85); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .nav-item { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 1.2rem; transition: all 0.3s; text-decoration: none; position: relative; touch-action: manipulation; }
-        .nav-item.active { color: #fff; background: var(--text-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        [data-theme="dark"] .nav-item.active { background: var(--accent-color); color: #fff; }
+        .nav-item.active { color: #fff; background: var(--accent-color); box-shadow: 0 4px 12px rgba(235, 100, 44, 0.2); }
 
-        /* 天气模块 */
-        .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .weather-card { 
-            background: #64748B; border-radius: 16px; aspect-ratio: 16/9; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            color: white; position: relative; overflow: hidden; box-shadow: var(--inner-card-shadow);
-        }
-        .weather-card i { margin-bottom: 6px; font-size: 1.5rem; opacity: 0.9; }
-
-        /* 地理定位组件样式流 */
-        .location-wrapper {
+        /* ==============================
+           2. 恶劣天气去卡片化大图标流（深度重构线）
+           ============================== */
+        .weather-action-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
             width: 100%;
+        }
+        
+        .weather-action-trigger {
+            background: transparent !important;
+            border: none !important;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            position: relative;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            outline: none !important;
+            box-shadow: none !important;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .weather-action-trigger:active {
+            transform: scale(0.92);
+        }
+        
+        /* 纯透大图标圆形承载微盒 */
+        .weather-large-icon-box {
+            width: 80px;
+            height: 80px;
+            background-color: var(--accent-light);
+            color: var(--accent-color);
+            border-radius: var(--radius-pill); 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem; /* 工业级大图标规格 */
+            margin-bottom: 12px;
+            box-shadow: 0 8px 20px rgba(235, 100, 44, 0.05);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .weather-action-trigger:hover .weather-large-icon-box {
+            background-color: var(--accent-color);
+            color: #fff;
+            box-shadow: 0 10px 24px rgba(235, 100, 44, 0.2);
+        }
+        
+        .weather-action-text {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: 0.5px;
         }
 
+        /* 地理定位输入框容器 */
         .location-group {
             display: flex;
             align-items: center;
             width: 100%;
             background-color: var(--bg-body);
             border: 1.5px solid var(--location-border);
-            border-radius: 14px;
+            border-radius: var(--radius-lg); 
             overflow: hidden;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -439,10 +497,6 @@
             text-overflow: ellipsis;
         }
 
-        .location-input-core:focus {
-            outline: none;
-        }
-
         .btn-location-action {
             border: none !important;
             background: rgba(var(--bg-surface-rgb), 0.02);
@@ -460,69 +514,35 @@
         }
 
         .btn-location-action:hover:not(:disabled) {
-            background-color: rgba(var(--bg-surface-rgb), 0.1);
+            background-color: rgba(var(--bg-surface-rgb), 0.06);
             color: var(--text-primary);
         }
 
-        .btn-location-action:active:not(:disabled) {
-            transform: scale(0.92);
-        }
-
-        /* 定位状态机联动样式 */
-        .location-group.is-loading {
-            border-color: var(--accent-color);
-            background-color: var(--accent-light);
-        }
-        .location-group.is-loading .location-addon-prefix {
-            color: var(--accent-color);
-        }
-
-        .location-group.is-success {
-            border-color: var(--success-color);
-            animation: locPulseSuccess 0.4s ease-out;
-        }
-        .location-group.is-success .location-addon-prefix,
-        .location-group.is-success .btn-location-action {
-            color: var(--success-color);
-        }
-
-        .location-group.is-error {
-            border-color: var(--danger-color);
-            animation: locShakeError 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
-        .location-group.is-error .location-addon-prefix,
-        .location-group.is-error .btn-location-action {
-            color: var(--danger-color);
-        }
-
-        @keyframes locPulseSuccess {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-            100% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-        }
-
-        @keyframes locShakeError {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
-            40%, 60% { transform: translate3d(3px, 0, 0); }
+        .delete-cloud-btn {
+            position: absolute; top: 8px; right: 8px; background: rgba(239, 64, 64, 0.85);
+            border: none; color: white; width: 28px; height: 28px; border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+            cursor: pointer; transition: background 0.2s, transform 0.1s; backdrop-filter: blur(4px);
         }
 
         /* 计算器样式表 */
         .calc-sub-card {
-            background: var(--bg-body); border-radius: 16px; padding: 16px; margin-bottom: 16px;
-            border: 1px solid rgba(0,0,0,0.04); transition: background 0.3s, border 0.3s;
+            background: var(--bg-body); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 16px;
+            border: 1px solid rgba(235, 100, 44, 0.04); transition: background 0.3s, border 0.3s;
         }
         [data-theme="dark"] .calc-sub-card {
-            background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.01); border-color: rgba(255, 255, 255, 0.02);
         }
         .calc-input-group { display: flex; align-items: center; position: relative; width: 100%; }
+        
         .calc-input-group input {
-            width: 100%; padding: 8px 45px 8px 12px; border: 1.5px solid rgba(0,0,0,0.06);
-            border-radius: 10px; font-size: 0.95rem; font-weight: 600; color: var(--text-primary);
+            width: 100%; padding: 8px 45px 8px 12px; border: 1.5px solid var(--location-border);
+            border-radius: var(--radius-md); 
+            font-size: 0.95rem; font-weight: 600; color: var(--text-primary);
             background-color: var(--bg-surface); transition: all 0.2s ease;
         }
         [data-theme="dark"] .calc-input-group input {
-            border-color: rgba(255, 255, 255, 0.08); background-color: rgba(0, 0, 0, 0.2);
+            background-color: rgba(0, 0, 0, 0.2);
         }
         .calc-input-group input:focus {
             outline: none; border-color: var(--accent-color); background-color: var(--bg-surface);
@@ -534,39 +554,31 @@
 
         .tier-row {
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center;
-            margin-bottom: 10px; padding: 10px 12px; background: rgba(var(--bg-surface-rgb), 0.5); border-radius: 12px;
-            border: 1px solid rgba(0,0,0,0.04); transition: background 0.3s;
-        }
-        [data-theme="dark"] .tier-row {
-            background: rgba(0, 0, 0, 0.15); border-color: rgba(255,255,255,0.03);
+            margin-bottom: 10px; padding: 10px 12px; background: rgba(var(--bg-surface-rgb), 0.5); 
+            border-radius: var(--radius-md); 
+            border: 1px solid rgba(235, 100, 44, 0.05); transition: background 0.3s;
         }
         
         .tier-row .calc-input-group input, #groupPrice {
-            background: var(--bg-surface) !important; border: 1.5px solid rgba(0,0,0,0.06) !important; cursor: default;
+            background: var(--bg-surface) !important; border: 1.5px solid var(--location-border) !important; cursor: default;
             font-size: 0.9rem; height: 40px; padding: 6px 45px 6px 12px; box-shadow: none !important;
             text-align: center; font-weight: bold; color: var(--text-primary);
+            border-radius: var(--radius-md) !important;
         }
-        [data-theme="dark"] .tier-row .calc-input-group input, [data-theme="dark"] #groupPrice {
-            border-color: rgba(255, 255, 255, 0.08) !important; background-color: rgba(0, 0, 0, 0.2) !important;
-        }
-        .tier-row .calc-input-group input:focus, #groupPrice:focus { border-color: rgba(0,0,0,0.06) !important; box-shadow: none !important; }
-        [data-theme="dark"] .tier-row .calc-input-group input:focus, [data-theme="dark"] #groupPrice:focus { border-color: rgba(255, 255, 255, 0.08) !important; }
-        .tier-row .calc-input-group .input-suffix, .group-price-wrapper .input-suffix { right: 14px; font-size: 0.8rem; }
+        .tier-row .calc-input-group input:focus, #groupPrice:focus { border-color: var(--location-border) !important; box-shadow: none !important; }
 
         .grand-total-box {
             background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white;
-            padding: 14px; border-radius: 12px; text-align: center;
+            padding: 16px; border-radius: var(--radius-md); text-align: center;
             box-shadow: 0 6px 15px -3px rgba(16, 185, 129, 0.2);
         }
         .grand-total-box .result-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
         
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .detail-box {
-            background: var(--bg-body); border: 1px solid rgba(0,0,0,0.02); padding: 8px; border-radius: 10px; text-align: center;
+            background: var(--bg-body); border: 1px solid rgba(235, 100, 44, 0.03); padding: 8px; 
+            border-radius: var(--radius-md); text-align: center;
             min-width: 0; overflow: hidden;
-        }
-        [data-theme="dark"] .detail-box {
-            background: rgba(0,0,0,0.1); border-color: rgba(255,255,255,0.02);
         }
         .detail-grid .detail-box .result-value { 
             font-size: 0.95rem !important; font-weight: 800; color: var(--text-primary); margin-top: 4px; 
@@ -575,38 +587,43 @@
 
         .error-msg {
             color: var(--danger-text); background: var(--danger-bg); border: 1px solid rgba(239, 68, 68, 0.1);
-            padding: 10px; border-radius: 10px; margin-bottom: 12px; font-size: 0.8rem; font-weight: 600; display: none;
+            padding: 10px; border-radius: var(--radius-md); margin-bottom: 12px; font-size: 0.8rem; font-weight: 600; display: none;
         }
         .save-tip {
             text-align: right; font-size: 0.72rem; color: var(--success-color); margin-top: -4px; margin-bottom: 10px; font-weight: 700; display: none;
         }
         
         .calculator-wrapper {
-            background: var(--bg-body); border: 1px solid rgba(0,0,0,0.04); border-radius: 16px; padding: 16px; width: 100%; max-width: 320px; margin: 0 auto;
-        }
-        [data-theme="dark"] .calculator-wrapper {
-            background: rgba(0, 0, 0, 0.1); border-color: rgba(255, 255, 255, 0.03);
+            background: var(--bg-body); border: 1px solid var(--location-border); 
+            border-radius: var(--radius-lg); 
+            padding: 16px; width: 100%; max-width: 320px; margin: 0 auto;
         }
         #calcDisplay {
             width: 100%; height: 44px; margin-bottom: 12px; text-align: right; font-size: 1.3rem;
-            padding: 6px 12px; border: 1.5px solid rgba(0,0,0,0.05); border-radius: 10px;
+            padding: 6px 12px; border: 1.5px solid var(--location-border); 
+            border-radius: var(--radius-md); 
             background: var(--bg-surface); color: var(--text-primary); font-weight: 700; letter-spacing: 0.5px;
-        }
-        [data-theme="dark"] #calcDisplay {
-            border-color: rgba(255,255,255,0.06); background: rgba(0,0,0,0.15);
         }
         .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .calc-btn {
-            padding: 12px 0; font-size: 1.1rem; border: 1px solid rgba(0,0,0,0.02); border-radius: 10px;
+            padding: 12px 0; font-size: 1.1rem; border: 1px solid rgba(0,0,0,0.01); 
+            border-radius: var(--radius-md); 
             background: var(--bg-surface); cursor: pointer; font-weight: 700; color: var(--text-primary); transition: all 0.1s ease;
         }
         [data-theme="dark"] .calc-btn { background: rgba(255,255,255,0.04); border: none; }
-        .calc-btn:hover { background: rgba(0,0,0,0.04); }
-        [data-theme="dark"] .calc-btn:hover { background: rgba(255,255,255,0.08); }
+        .calc-btn:hover { background: var(--accent-light); color: var(--accent-text); }
         .calc-btn:active { transform: scale(0.94); }
-        .calc-op { background: var(--accent-light); color: var(--accent-color); }
+        .calc-op { background: var(--accent-light); color: var(--accent-text); }
         .calc-clear { background: var(--danger-bg); color: var(--danger-text); }
         .calc-equal { background: var(--accent-color); color: #fff; }
+
+        /* 全局弹出模态窗圆角 */
+        .modal-content {
+            border-radius: var(--radius-xl) !important;
+        }
+        .dynamic-modal-preview {
+            border-radius: var(--radius-xl) !important;
+        }
 
         .btn-close-custom { background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; backdrop-filter: blur(4px); transition: background 0.2s; }
         .btn-close-custom:active { background: rgba(0,0,0,0.8); }
@@ -641,24 +658,22 @@
             .desktop-nav { display: flex; gap: 12px; margin-right: 24px; }
             .desktop-nav-link {
                 text-decoration: none; color: var(--text-secondary); font-weight: 600;
-                font-size: 0.95rem; padding: 8px 16px; border-radius: 12px;
+                font-size: 0.95rem; padding: 8px 16px; border-radius: var(--radius-md);
                 transition: all 0.2s; display: flex; align-items: center; gap: 8px;
             }
-            .desktop-nav-link:hover { background: rgba(0,0,0,0.03); color: var(--text-primary); }
-            [data-theme="dark"] .desktop-nav-link:hover { background: rgba(255,255,255,0.05); }
-            .desktop-nav-link.active { background: var(--accent-light); color: var(--accent-text); }
+            .desktop-nav-link:hover { background: var(--accent-light); color: var(--accent-text); }
+            .desktop-nav-link.active { background: var(--accent-color); color: #fff; }
             .steps-scroller { flex-wrap: wrap; overflow: visible; justify-content: space-between; padding-bottom: 0; }
             .step-item { width: 18%; min-width: unset; }
-            .step-item:hover .step-img-wrapper { box-shadow: 0 15px 30px rgba(0,0,0,0.12); transform: translateY(-4px); }
+            .step-item:hover .step-img-wrapper { box-shadow: 0 15px 30px rgba(235, 100, 44, 0.15); transform: translateY(-4px); }
             .step-item:hover .step-img { transform: scale(1.08); }
             .action-grid { grid-template-columns: repeat(3, 1fr); }
             .action-btn.w-100 { grid-column: span 1 !important; }
-            .action-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
+            .action-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(235, 100, 44, 0.06); }
             [data-theme="dark"] .action-btn:hover { box-shadow: 0 12px 24px rgba(0,0,0,0.3); }
 
-            /* 电脑大屏下内联图片等比例放大 */
             .header-inline-logo {
-                height: 76px; /* 电脑大屏深度放大 */
+                height: 76px; 
             }
             .header-title {
                 max-width: none;
@@ -673,16 +688,13 @@
 
     <header class="app-header">
         <div></div>
-
         <div class="header-logo-container">
             <div class="header-title">
                 <img src="https://i.ibb.co/GX0kmHb/cropped.png" alt="淘宝闪购" class="header-inline-logo" onerror="this.style.display='none'">
-                
                 <?xml version="1.0" standalone="no"?> <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd"> <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="600.000000pt" height="245.000000pt" viewBox="0 0 600.000000 245.000000" preserveAspectRatio="xMidYMid meet"> <g transform="translate(0.000000,245.000000) scale(0.100000,-0.100000)" fill="#eb642c" stroke="none"> <path d="M693 2404 c8 -8 -21 -66 -84 -167 -27 -43 -49 -80 -49 -82 0 -2 203 -1 451 2 l451 6 -32 -45 c-31 -43 -33 -53 -66 -314 -55 -430 -61 -464 -87 -492 -28 -30 -63 -48 -110 -57 -30 -6 -37 -12 -37 -30 0 -12 -3 -36 -6 -52 l-6 -30 107 3 c79 3 115 9 143 23 46 24 87 67 102 106 6 17 31 185 55 375 25 190 54 412 65 494 11 82 20 151 20 153 0 3 -171 3 -380 1 -209 -2 -380 1 -380 5 0 5 14 28 30 52 17 24 30 46 30 49 0 3 -50 6 -112 6 -61 0 -109 -3 -105 -6z"/> <path d="M2295 2398 c-2 -7 -7 -31 -12 -53 l-9 -39 -282 3 -283 3 20 -39 c16 -31 18 -47 11 -93 -17 -108 -24 -100 89 -100 l98 0 7 40 6 40 426 0 427 0 -7 -40 -6 -41 102 3 102 3 16 108 c9 60 13 110 9 113 -4 2 -125 2 -269 -1 l-261 -5 6 55 7 55 -96 0 c-69 0 -98 -4 -101 -12z"/> <path d="M5248 2288 c-40 -68 -75 -127 -77 -131 -2 -5 132 -7 298 -5 165 1 301 2 301 0 0 -2 -13 -20 -29 -40 -16 -20 -32 -46 -35 -57 -3 -11 -22 -148 -41 -305 -47 -369 -49 -380 -81 -407 -22 -20 -36 -23 -113 -23 l-88 0 -7 -52 c-4 -29 -9 -68 -13 -87 l-6 -33 139 4 c150 4 175 11 228 64 58 59 53 34 125 599 28 215 53 411 57 438 l7 47 -227 0 c-124 0 -226 2 -226 5 0 3 11 28 25 55 l25 50 -94 0 -95 0 -73 -122z"/> <path d="M3240 2386 c-40 -13 -80 -66 -80 -106 0 -57 75 -109 134 -94 15 3 40 20 56 36 78 77 -4 199 -110 164z"/> <path d="M313 2350 c-58 -35 -78 -102 -48 -160 20 -38 63 -60 116 -60 35 0 48 6 80 39 33 32 39 45 39 80 0 98 -102 153 -187 101z"/> <path d="M3466 2308 c-4 -24 -9 -58 -12 -75 l-6 -33 416 0 c229 0 416 -4 416 -8 0 -5 -12 -19 -26 -33 -14 -13 -32 -36 -40 -51 -14 -26 -38 -188 -84 -563 -26 -216 -27 -217 -163 -225 l-92 -5 -11 -78 c-9 -66 -8 -80 3 -84 23 -9 256 4 285 15 49 20 106 80 122 130 8 26 22 112 31 192 18 172 58 488 85 687 11 79 20 150 20 158 0 13 -58 15 -469 15 l-468 0 -7 -42z"/> <path d="M4545 2314 c14 -20 25 -49 25 -63 0 -28 -65 -548 -80 -646 -15 -90 -18 -85 60 -85 48 0 72 4 74 13 2 6 20 145 40 307 21 162 40 312 43 333 l6 37 132 0 c72 0 134 -2 136 -5 6 -5 -20 -228 -56 -493 -14 -100 -23 -187 -20 -192 4 -6 35 -10 70 -10 l63 0 6 48 c14 119 49 390 66 517 11 77 23 170 26 208 l7 67 -311 0 -311 0 24 -36z"/> <path d="M4770 2124 c0 -3 -16 -126 -35 -273 -39 -293 -54 -360 -92 -410 -30 -39 -102 -87 -155 -103 -36 -10 -36 -12 -43 -72 -3 -33 -9 -74 -12 -90 -5 -29 -5 -29 33 -23 70 11 177 72 234 133 l54 57 15 -24 c38 -58 78 -91 154 -129 44 -22 84 -37 88 -33 4 4 10 43 14 85 l7 77 -44 22 c-61 31 -88 54 -120 102 -36 54 -36 70 7 402 19 149 35 272 35 275 0 3 -31 7 -70 8 -38 2 -70 0 -70 -4z"/> <path d="M3156 2083 c-13 -64 -57 -435 -53 -440 7 -6 121 23 156 40 25 12 27 19 53 197 37 258 45 230 -61 230 l-89 0 -6 -27z"/> <path d="M3724 2073 c-4 -16 -17 -49 -30 -75 -13 -26 -24 -50 -24 -53 0 -3 46 -5 103 -5 l102 0 23 63 c35 99 37 97 -73 97 l-95 0 -6 -27z"/> <path d="M676 2065 c-9 -13 -16 -27 -16 -31 0 -4 -18 -38 -40 -76 -22 -39 -40 -72 -40 -74 0 -3 60 -4 133 -4 l132 2 -3 -49 c-4 -77 3 -73 -141 -73 l-129 0 -7 -42 c-3 -24 -8 -55 -11 -70 l-6 -28 142 0 c111 0 139 -3 133 -12 -4 -7 -15 -60 -23 -118 l-15 -105 -54 -3 -53 -3 7 57 c4 31 9 63 12 71 4 10 -13 13 -79 13 l-85 0 -19 -132 -19 -133 304 -3 c299 -2 306 -2 350 20 57 28 67 50 78 161 l9 87 -77 0 -78 0 -6 -57 c-9 -85 -8 -83 -70 -83 -30 0 -55 1 -55 3 1 26 32 232 36 236 2 3 63 4 134 2 146 -3 132 -12 144 92 l6 47 -135 0 -135 0 6 58 c4 31 8 59 10 61 1 2 62 2 133 2 l131 -2 0 33 c0 18 3 50 6 71 l7 37 -243 0 -242 0 22 35 22 35 -80 0 c-74 0 -81 -2 -96 -25z"/> <path d="M5269 2033 c-36 -95 -179 -535 -184 -570 l-7 -43 225 0 c124 0 232 3 241 6 14 5 16 32 16 200 l0 194 -76 0 -76 0 4 -122 3 -123 -67 -3 c-55 -2 -68 0 -68 12 0 8 28 86 61 173 34 87 74 191 89 231 l28 72 -89 0 c-88 0 -90 0 -100 -27z"/> <path d="M213 2040 c20 -33 55 -120 72 -180 l22 -75 101 -3 101 -3 -20 72 c-19 70 -56 179 -61 184 -5 6 -218 10 -215 5z"/> <path d="M2234 2012 l-442 -2 -6 -58 c-4 -31 -9 -65 -12 -74 -5 -17 10 -18 226 -18 l232 0 -7 -72 c-4 -40 -10 -77 -13 -82 -3 -5 -96 -6 -222 -2 l-218 7 -5 -23 c-3 -13 -9 -49 -12 -80 l-7 -58 221 0 c204 0 221 -1 220 -17 0 -10 -6 -56 -13 -103 l-11 -85 -262 -3 -262 -2 -6 -43 c-11 -83 -10 -112 3 -111 6 1 286 2 621 3 l609 1 6 28 c2 15 8 48 11 75 l6 47 -64 0 -64 0 -27 70 c-15 39 -33 70 -39 71 -26 2 -172 -3 -175 -6 -2 -2 7 -32 21 -67 l26 -63 -106 -3 c-58 -1 -108 0 -111 2 -3 3 1 52 9 108 l14 103 222 3 221 2 6 28 c2 15 8 49 11 76 l7 49 -227 -7 -227 -7 5 23 c3 13 9 49 12 81 l7 57 234 0 233 0 5 43 c3 23 7 58 8 77 l3 35 -110 0 c-60 0 -309 -1 -551 -3z"/> <path d="M3578 1816 c-114 -127 -318 -231 -508 -258 -88 -12 -82 -4 -96 -125 l-7 -63 31 0 c130 0 404 99 553 200 l55 38 56 -23 c76 -31 137 -74 185 -131 l40 -47 79 28 c43 16 83 32 88 36 14 13 -42 86 -104 137 -61 50 -115 76 -178 87 -40 6 -45 4 -99 -41 -56 -46 -56 -45 18 32 79 81 149 169 149 185 0 5 -46 9 -102 9 l-103 0 -57 -64z"/> <path d="M287 1643 c-9 -21 -46 -110 -83 -198 -36 -88 -83 -193 -105 -234 -37 -69 -38 -73 -17 -67 13 3 64 6 114 6 l91 0 71 183 c39 100 85 219 101 265 l30 82 -93 0 -93 0 -16 -37z"/> <path d="M3210 1351 c-8 -5 -42 -15 -75 -22 -33 -7 -63 -18 -67 -23 -4 -6 -10 -36 -13 -66 -4 -30 -9 -63 -12 -73 -4 -16 3 -18 89 -15 l93 3 12 80 c19 129 16 140 -27 116z"/> <path d="M917 957 c-3 -8 -8 -44 -12 -80 -6 -56 -10 -67 -26 -67 -16 0 -18 6 -13 44 l6 43 -36 7 c-42 8 -56 2 -56 -24 0 -10 -16 -80 -35 -157 -19 -76 -35 -139 -35 -140 0 -2 18 -3 39 -3 40 0 40 0 62 61 12 33 29 63 36 66 29 11 35 -12 23 -93 -20 -143 -11 -130 -95 -144 l-73 -13 -11 -60 c-6 -33 -9 -62 -8 -64 2 -1 35 6 73 17 38 10 72 16 75 12 5 -6 0 -54 -25 -219 l-5 -33 64 0 c75 0 69 -12 86 160 6 69 16 130 21 136 4 7 22 14 38 18 26 5 30 10 30 40 0 19 3 42 7 52 5 15 2 16 -32 10 l-38 -7 6 38 c4 21 9 64 13 96 6 54 8 57 34 57 23 0 29 5 34 31 11 58 8 69 -20 69 -26 0 -26 0 -19 58 3 31 9 67 12 80 5 21 2 22 -55 22 -40 0 -62 -4 -65 -13z"/> <path d="M1155 893 c-15 -43 -41 -104 -57 -136 -54 -108 -54 -107 -5 -107 41 0 43 2 80 60 42 68 63 78 54 26 -8 -48 -103 -246 -165 -342 -29 -45 -52 -84 -52 -87 0 -4 19 -7 43 -7 32 0 49 6 64 22 59 65 141 227 188 373 18 54 28 71 44 73 29 5 27 -17 -8 -126 -56 -172 -132 -313 -237 -443 l-64 -79 54 0 c30 0 62 3 71 6 23 9 96 116 146 214 23 47 67 160 98 251 31 91 60 165 66 165 11 -1 9 -23 -16 -186 -11 -69 -24 -163 -31 -210 -14 -108 -28 -137 -71 -145 -18 -4 -39 -5 -47 -3 -10 2 -16 -10 -20 -45 l-6 -47 76 0 c41 0 86 6 100 13 36 18 66 69 74 124 37 264 76 565 76 592 l0 24 -170 -5 c-93 -3 -172 -3 -175 0 -2 2 2 16 9 31 7 14 17 36 20 49 7 21 5 22 -52 22 l-59 0 -28 -77z"/> <path d="M2163 935 l6 -35 -120 0 c-88 0 -119 -3 -119 -12 0 -7 -3 -30 -6 -50 l-7 -38 72 0 c39 0 71 -3 71 -6 0 -3 -27 -39 -61 -80 -45 -55 -62 -85 -66 -114 l-6 -40 94 0 c52 0 148 5 214 10 102 8 122 7 131 -5 13 -17 124 -22 124 -6 0 6 -14 48 -31 95 -33 93 -45 102 -118 90 l-39 -6 14 -34 c8 -18 14 -35 14 -38 0 -2 -50 -4 -110 -5 -61 -1 -117 -4 -125 -8 -25 -9 -17 3 53 76 l67 71 155 2 155 3 3 48 3 47 -110 0 -111 0 0 35 0 35 -76 0 -77 0 6 -35z"/> <path d="M2960 950 c0 -18 -8 -20 -152 -22 l-153 -3 -3 -37 -3 -38 150 0 151 0 0 -25 0 -24 -137 -3 -138 -3 -3 -37 -3 -38 134 0 134 0 -5 -25 -4 -25 -174 0 -174 0 0 -40 0 -40 413 2 412 3 3 38 3 37 -179 0 -179 0 5 25 4 24 142 3 141 3 3 38 3 37 -139 0 -139 0 5 25 4 25 164 0 164 0 0 40 0 40 -161 0 c-156 0 -160 1 -154 20 6 19 2 20 -64 20 -64 0 -71 -2 -71 -20z"/> <path d="M4030 920 l0 -50 -89 0 c-98 0 -92 4 -106 -67 -7 -33 -7 -33 35 -33 35 0 41 -3 36 -17 -3 -10 -10 -54 -16 -98 -28 -201 -69 -322 -158 -465 l-40 -65 57 -3 c53 -3 58 -1 84 30 46 54 116 206 141 308 l24 95 76 3 c88 3 84 12 65 -123 -28 -201 -34 -215 -103 -215 -42 0 -44 -1 -50 -38 -11 -67 -14 -64 83 -60 83 3 92 5 121 33 17 16 35 45 40 65 11 37 60 384 60 420 0 21 -4 21 -136 18 l-136 -3 5 54 c3 30 12 58 19 62 7 4 74 5 149 2 75 -3 139 -1 142 3 3 5 7 29 8 54 l3 45 -89 0 -90 0 -3 48 -3 47 -65 0 -64 0 0 -50z"/> <path d="M4600 940 l0 -30 -90 0 c-99 0 -91 5 -103 -72 l-4 -28 94 0 93 0 -6 -25 c-6 -25 -6 -25 59 -25 61 0 65 2 71 25 6 25 8 25 112 25 l106 0 -6 -25 c-6 -25 -6 -25 58 -25 60 0 64 2 70 25 6 24 9 25 95 25 l89 0 6 31 c14 70 15 69 -85 69 l-91 0 6 30 6 30 -70 0 -70 0 0 -30 0 -30 -106 0 -106 0 7 30 7 30 -71 0 -71 0 0 -30z"/> <path d="M1739 860 l26 -90 63 0 64 0 -7 43 c-4 23 -15 62 -24 87 l-17 45 -65 3 -66 3 26 -91z"/> <path d="M3526 928 c-2 -13 -11 -88 -20 -168 -10 -80 -28 -226 -41 -325 -13 -99 -27 -213 -31 -253 l-7 -73 59 3 58 3 32 265 c18 146 39 310 46 365 l13 100 33 3 c21 2 34 -2 37 -11 3 -7 -12 -63 -33 -123 l-38 -110 19 -27 c45 -59 28 -199 -26 -212 -25 -7 -37 -36 -37 -91 0 -30 20 -31 76 -4 63 31 109 106 114 185 5 74 0 102 -24 137 -24 36 -24 36 -5 64 26 39 65 165 74 237 l7 57 -151 0 c-148 0 -151 0 -155 -22z"/> <path d="M4465 663 c14 -31 27 -58 28 -59 1 -1 25 -4 53 -7 72 -7 81 1 60 55 -26 64 -32 68 -102 68 l-64 0 25 -57z"/> <path d="M1694 678 c8 -18 19 -57 26 -85 l12 -53 65 0 65 0 -6 38 c-4 20 -14 58 -22 85 l-16 47 -68 0 -69 0 13 -32z"/> <path d="M4690 706 c0 -2 -13 -98 -30 -214 -37 -263 -38 -302 -6 -339 l24 -28 210 0 c156 0 215 3 234 13 33 18 56 68 64 138 l7 56 -39 -25 c-21 -13 -57 -36 -78 -51 -37 -25 -45 -26 -160 -26 -83 0 -128 4 -139 13 -17 12 -16 22 5 187 l23 175 111 3 111 3 -9 -61 c-12 -90 -20 -100 -77 -100 -54 0 -61 -8 -61 -67 l0 -35 93 4 c143 6 158 22 182 196 9 59 17 119 20 135 l5 27 -245 0 c-135 0 -245 -2 -245 -4z"/> <path d="M4425 490 l35 -70 65 0 c36 0 65 4 65 9 0 20 -42 107 -57 119 -10 6 -45 12 -80 12 l-63 0 35 -70z"/> <path d="M2646 508 c-10 -59 -26 -189 -26 -209 0 -17 7 -19 59 -19 33 0 63 5 66 11 4 6 9 46 12 90 l6 79 101 1 c102 1 266 1 299 0 16 -1 18 -7 13 -38 -3 -21 -8 -59 -12 -85 l-6 -48 60 0 c36 0 64 5 70 13 5 6 13 48 16 92 4 44 10 95 13 113 l5 32 -335 0 -336 0 -5 -32z"/> <path d="M1946 493 c-2 -10 -7 -38 -11 -63 -10 -73 -42 -161 -85 -234 -22 -37 -40 -70 -40 -72 0 -2 26 -4 59 -4 57 0 59 1 85 40 38 58 66 132 87 238 10 52 19 98 19 103 0 5 -24 9 -54 9 -44 0 -56 -4 -60 -17z"/> <path d="M2116 498 c-2 -7 -13 -83 -25 -168 -12 -85 -25 -167 -27 -182 l-6 -28 61 0 c34 0 61 1 61 3 0 1 11 87 25 191 14 104 25 191 25 193 0 1 -25 3 -55 3 -36 0 -57 -4 -59 -12z"/> <path d="M2295 498 c-9 -30 -35 -247 -35 -294 0 -69 18 -84 99 -84 34 0 71 4 81 10 21 11 35 52 44 124 l6 50 -36 -42 c-34 -41 -57 -52 -68 -33 -3 5 1 64 9 132 8 68 15 130 15 137 0 8 -18 12 -55 12 -36 0 -57 -4 -60 -12z"/> <path d="M1725 443 c-9 -39 -80 -214 -110 -274 l-25 -49 70 0 c68 0 71 1 81 28 36 90 109 296 109 308 0 10 -15 14 -59 14 -56 0 -59 -1 -66 -27z"/> <path d="M2895 393 c-12 -53 -51 -98 -106 -125 -61 -30 -162 -58 -207 -58 -33 0 -42 -14 -42 -66 0 -32 2 -34 33 -34 60 1 205 38 268 71 116 58 176 123 194 207 l7 32 -70 0 c-68 0 -70 -1 -77 -27z"/> <path d="M4457 358 c-8 -13 -39 -71 -70 -130 l-55 -108 69 0 68 0 37 78 c20 42 47 101 60 130 l24 52 -60 0 c-51 0 -62 -3 -73 -22z"/> <path d="M2989 274 c-18 -18 -31 -35 -28 -38 45 -41 340 -139 359 -120 4 5 11 27 15 50 l6 40 -123 39 c-68 21 -139 44 -159 51 -36 12 -38 11 -70 -22z"/> </g> </svg>
             </div>
-            <p class="text-secondary small mb-0 fw-medium opacity-75">物流责任避险手册与核算工具</p>
+            <p class="text-secondary small mb-0 fw-medium opacity-75">淘宝闪购物流免责防护与核算工具</p>
         </div>
-
         <div class="header-right-controls">
             <nav class="desktop-nav">
                 <a href="#risk" class="desktop-nav-link"><i class="fas fa-exclamation-circle"></i> 罚款</a>
@@ -797,7 +809,7 @@
                     <span class="d-block text-xs opacity-75 lh-sm">可以和顾客解释罚款原因，引导顾客私下转账，避免罚款</span>
                 </button>
                 <button type="button" class="action-btn w-100 d-flex align-items-center gap-3" style="grid-column: span 2; background: var(--accent-light); color: var(--accent-text);">
-                    <span class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; background: rgba(255,255,255,0.5); border-radius: 12px;">
+                    <span class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; background: rgba(255,255,255,0.5); border-radius: var(--radius-md);">
                         <i class="fas fa-check-circle fs-4"></i>
                     </span>
                     <span class="text-start">
@@ -817,19 +829,30 @@
                 <div class="d-flex">
                     <i class="fas fa-bullhorn mt-1 me-3"></i>
                     <div class="small fw-bold" style="line-height: 1.5;">
-                        提示：路上遇到积水或结冰时，直接用手机普通相机拍下来传到这里就行。系统会自动在照片上印出当前时间和具体位置！
+                        提示：路上遇到积水或结冰时，直接点击大图标即可调起相机拍下来。系统会自动在照片上印出当前时间和具体位置！
                     </div>
                 </div>
             </div>
-            <div class="bg-body p-3 rounded-4 mb-3 border border-opacity-10">
+            <div class="bg-body p-3 rounded-4 mb-4 border border-opacity-10" style="border-color: rgba(235, 100, 44, 0.1) !important; border-radius: var(--radius-lg);">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="small fw-bold text-secondary">水印照片发送对象</span>
                     <span class="badge bg-primary rounded-pill px-3 py-2">站长：朱振伟</span>
                 </div>
             </div>
-            <div class="weather-grid mb-4">
-                <div class="weather-card"><i class="fas fa-water"></i><div class="small fw-bold">积水拍摄</div></div>
-                <div class="weather-card"><i class="fas fa-snowflake"></i><div class="small fw-bold">冰雪拍摄</div></div>
+
+            <div class="weather-action-row">
+                <button type="button" class="weather-action-trigger" onclick="document.getElementById('weather-upload').click();" aria-label="启动原生相机拍摄路面积水">
+                    <div class="weather-large-icon-box">
+                        <i class="fas fa-water"></i>
+                    </div>
+                    <span class="weather-action-text">积水拍摄</span>
+                </button>
+                <button type="button" class="weather-action-trigger" onclick="document.getElementById('weather-upload').click();" aria-label="启动原生相机拍摄冰雪结冰">
+                    <div class="weather-large-icon-box">
+                        <i class="fas fa-snowflake"></i>
+                    </div>
+                    <span class="weather-action-text">冰雪拍摄</span>
+                </button>
             </div>
             
             <div class="mb-3">
@@ -848,7 +871,7 @@
             </div>
 
             <div class="weather-upload-container mt-4">
-                <label for="weather-upload" id="uploadZone" class="w-100 p-4 border rounded-4 d-flex flex-column align-items-center justify-content-center text-center position-relative" style="border-style: dashed !important; border-width: 2px !important; border-color: var(--text-secondary) !important; background: rgba(var(--bg-surface-rgb), 0.3); cursor: pointer; transition: background 0.2s;">
+                <label for="weather-upload" id="uploadZone" class="w-100 p-4 border d-flex flex-column align-items-center justify-content-center text-center position-relative" style="border-radius: var(--radius-lg); border-style: dashed !important; border-width: 2px !important; border-color: var(--accent-color) !important; background: rgba(var(--bg-surface-rgb), 0.3); cursor: pointer; transition: background 0.2s;">
                     <i class="fas fa-camera fs-2 mb-2" style="color: var(--accent-color);"></i>
                     <span class="fw-bold small d-block" style="color: var(--text-primary);">点击拍照或者选择照片上传（可多选）</span>
                     <span class="text-xs opacity-75 d-block mt-1" style="color: var(--text-secondary);">图片会自动压缩，刷新页面照片不丢失</span>
@@ -872,9 +895,9 @@
 
             <div class="row g-3">
                 <div class="col-12 col-lg-8">
-                    <div class="calc-sub-card style-res-box p-3" style="background: var(--bg-surface); box-shadow: var(--inner-card-shadow); border-radius: 16px;">
+                    <div class="calc-sub-card style-res-box p-3" style="background: var(--bg-surface); box-shadow: var(--inner-card-shadow); border-radius: var(--radius-lg);">
                         <div class="result-panel">
-                            <div class="grand-total-box">
+                            <div class="grand-total-box" style="border-radius: var(--radius-md);">
                                 <div class="result-label opacity-75 text-xs fw-bold mb-1">统一汇总结算总额</div>
                                 <div id="resTotal" class="result-value">￥0.00</div>
                             </div>
@@ -990,7 +1013,7 @@
                     <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center" data-bs-dismiss="modal">
                         <i class="fas fa-times"></i>
                     </button>
-                    <img src="" id="modalImg" class="img-fluid rounded-4 shadow-lg dynamic-modal-preview" alt="全屏查看" style="max-height: 85vh; width: auto;">
+                    <img src="" id="modalImg" class="img-fluid dynamic-modal-preview shadow-lg" alt="全屏查看" style="max-height: 85vh; width: auto;">
                 </div>
             </div>
         </div>
@@ -1246,8 +1269,8 @@
                             col.className = 'col-6 col-md-4 position-relative';
                             
                             const wrapper = document.createElement('div');
-                            wrapper.className = 'position-relative overflow-hidden rounded-4 shadow-sm';
-                            wrapper.style.cssText = 'aspect-ratio: 4/3; background: var(--bg-body);';
+                            wrapper.className = 'position-relative overflow-hidden shadow-sm';
+                            wrapper.style.cssText = 'aspect-ratio: 4/3; background: var(--bg-body); border-radius: var(--radius-lg);';
                             
                             const img = document.createElement('img');
                             img.src = urlData.publicUrl;
