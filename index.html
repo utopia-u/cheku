@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>物流责任防范指南与结算助手</title>
+    <title>淘宝闪购物流责任防范与结算助手</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -92,7 +92,7 @@
             line-height: 1.6;
         }
 
-        /* 顶部导航升级：采用CSS Grid架构确保绝对居中，预防组件不对称变形 */
+        /* 顶部导航：采用CSS Grid架构确保全分辨率设备下绝对居中 */
         .app-header {
             padding: calc(14px + var(--safe-top)) 24px 14px;
             background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface-rgb), 0.8) 100%);
@@ -115,7 +115,7 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        /* 锁死第二栏：内部元素完美实现纵向Flex对齐并强制居中 */
+        /* 锁死第二栏：内部元素实现纵向Flex对齐并强制居中 */
         .header-logo-container {
             grid-column: 2;
             display: flex;
@@ -126,7 +126,7 @@
             width: 100%;
         }
 
-        /* 增强边界安全防护：子标题超长文本强制截断，禁止顶开或挤压导航 */
+        /* 子标题超长文本强制截断，禁止顶开或挤压导航 */
         .header-logo-container p {
             white-space: nowrap;
             overflow: hidden;
@@ -380,9 +380,7 @@
         }
         .weather-card i { margin-bottom: 6px; font-size: 1.5rem; opacity: 0.9; }
 
-        /* ==============================
-           2. 工业级地理定位组件专属样式流
-           ============================== */
+        /* 地理定位组件专属样式流 */
         .location-wrapper {
             width: 100%;
             display: flex;
@@ -459,7 +457,7 @@
             transform: scale(0.92);
         }
 
-        /* 状态机驱动的联动高亮流 */
+        /* 状态机驱动的联动高亮样式 */
         .location-group.is-loading {
             border-color: var(--accent-color);
             background-color: var(--accent-light);
@@ -865,7 +863,7 @@
                                 <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
                                     <div class="text-xs fw-bold text-secondary">常规匹配档位</div>
                                     <div id="resTier" class="result-value">-</div>
-                                end </div>
+                                </div>
                                 <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
                                     <div class="text-xs fw-bold text-secondary">常规小计</div>
                                     <div id="resRegularTotal" class="result-value">￥0.00</div>
@@ -994,11 +992,11 @@
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 定时器与观察者资源回收注册表（内存泄漏规避）
+            // 定时器与观察者资源回收注册表
             const cleanupRegistry = {
                 intervals: [],
                 observers: [],
-                timeouts: [] // 注册延时异步回收控制
+                timeouts: []
             };
 
             const sections = document.querySelectorAll('section');
@@ -1077,7 +1075,7 @@
             }
 
             // ==============================
-            // 腾讯地图定位及刷新逻辑（深度状态机优化）
+            // 腾讯地图定位及刷新逻辑（深度状态机）
             // ==============================
             const locInput = document.getElementById('watermark-location');
             const refreshBtn = document.getElementById('refresh-location-btn');
@@ -1087,26 +1085,20 @@
 
             if (locInput && locContainer && refreshBtn) {
                 let userHasTyped = false;
-                let geoPendingTimeout = null; // 异步熔断机制指针
+                let geoPendingTimeout = null;
 
                 locInput.addEventListener('input', () => {
                     userHasTyped = true;
-                    // 若用户输入时过长，边缘防御安全截断
                     if (locInput.value.length > 60) {
                         locInput.value = locInput.value.slice(0, 60);
                     }
                 });
 
-                // 更新成功状态机
                 const updateLocSuccess = (text) => { 
                     if (geoPendingTimeout) clearTimeout(geoPendingTimeout);
-                    
-                    // 数据裁剪防御：过滤换行并强限60字长，避免照片水印渲染溢出崩溃
                     const sanitizedText = String(text || '').replace(/[\r\n]/g, '').slice(0, 60);
-                    
                     if (!userHasTyped) locInput.value = sanitizedText; 
                     
-                    // 状态机转换
                     locContainer.className = 'location-group is-success';
                     if (statusIconWrapper) statusIconWrapper.innerHTML = '<i class="fas fa-check-circle"></i>';
                     if (refreshIcon) refreshIcon.className = 'fas fa-sync-alt';
@@ -1119,16 +1111,13 @@
                     cleanupRegistry.timeouts.push(t);
                 };
 
-                // 更新失败状态机
                 const updateLocFallback = (reasonText) => { 
                     if (geoPendingTimeout) clearTimeout(geoPendingTimeout);
-                    
                     if (!userHasTyped) { 
                         locInput.value = ''; 
                         locInput.placeholder = reasonText || '定位失败，请手动输入位置'; 
                     } 
                     
-                    // 动态注入错误震颤动效类
                     locContainer.className = 'location-group is-error';
                     if (statusIconWrapper) statusIconWrapper.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
                     if (refreshIcon) refreshIcon.className = 'fas fa-exclamation-triangle';
@@ -1143,25 +1132,20 @@
                 };
 
                 const triggerGeolocation = () => {
-                    // 并发节流锁
                     if (refreshBtn.disabled) return; 
-
                     refreshBtn.disabled = true;
                     userHasTyped = false;
                     
-                    // 加载状态注入
                     locContainer.className = 'location-group is-loading';
                     if (statusIconWrapper) statusIconWrapper.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                     if (refreshIcon) refreshIcon.className = 'fas fa-sync-alt fa-spin';
                     locInput.value = "正在重新捕获GPS定位...";
 
-                    // 超时主动熔断控制：若底层SDK 7秒无响应则强行断开阻止挂起
                     geoPendingTimeout = setTimeout(() => {
                         updateLocFallback('定位超时，请手动输入');
                     }, 7000);
                     cleanupRegistry.timeouts.push(geoPendingTimeout);
 
-                    // 健全检测：验证腾讯地图API可用度
                     if (window.qq && qq.maps && qq.maps.Geolocation) {
                         try {
                             const geo = new qq.maps.Geolocation("OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77", "wuliu_helper");
@@ -1182,10 +1166,8 @@
                     }
                 };
 
-                // 页面初始化时触发
                 triggerGeolocation();
 
-                // 绑定优化后的单路刷新事件
                 refreshBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     triggerGeolocation();
@@ -1612,7 +1594,7 @@
             window.addEventListener('beforeunload', () => {
                 cleanupRegistry.intervals.forEach(clearInterval);
                 cleanupRegistry.observers.forEach(obs => obs.disconnect());
-                cleanupRegistry.timeouts.forEach(clearTimeout); // 拦截并安全清理未决延时任务
+                cleanupRegistry.timeouts.forEach(clearTimeout);
             });
         });
     </script>
