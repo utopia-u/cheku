@@ -52,11 +52,11 @@
             --warning-text: #B45309;
 
             /* 工业级温润高圆角阶梯 Token 系统 */
-            --radius-xl: 38px;        /* 适用于最外层业务卡片、罚款票据围盒、全屏大模态 */
-            --radius-lg: 24px;        /* 适用于内部警示框、照片举证横向滚组、响应式交互大按钮 */
-            --radius-md: 16px;        /* 适用于核心表单输入框、阶梯行、数据小计块、盘算键盘按键 */
-            --radius-sm: 8px;         /* 适用于微型徽章状态标记、嵌入小微标 */
-            --radius-pill: 9999px;    /* 适用于胶囊式悬浮底栏、纯圆组件 */
+            --radius-xl: 38px;        
+            --radius-lg: 24px;        
+            --radius-md: 16px;        
+            --radius-sm: 8px;         
+            --radius-pill: 9999px;    
 
             --card-shadow: 0 12px 28px -5px rgba(255, 68, 0, 0.06), 0 4px 12px -3px rgba(0,0,0,0.02);
             --inner-card-shadow: 0 6px 18px rgba(255, 68, 0, 0.04);
@@ -102,7 +102,7 @@
             line-height: 1.6;
         }
 
-        /* 顶部导航：高平衡 Grid 架构 */
+        /* 顶部导航 */
         .app-header {
             padding: calc(10px + var(--safe-top)) 20px 10px; 
             background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface-rgb), 0.8) 100%);
@@ -142,7 +142,6 @@
             max-width: 220px; 
         }
 
-        /* 水平 Flex 流，使图片和 SVG 紧贴 */
         .header-title {
             display: flex;
             align-items: center;
@@ -240,14 +239,22 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* 票据罚款大卡片 */
+        /* ==============================
+           ★ 票据罚款大卡片 (方案一：白底悬浮)
+           ============================== */
         .ticket-wrapper {
             margin: 24px 20px;
             position: relative;
             z-index: 1;
-            -webkit-filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(255, 68, 0, 0.25));
-            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15)) drop-shadow(0 20px 40px rgba(255, 68, 0, 0.25));
+            /* 投射极淡的橙色预警阴影 */
+            -webkit-filter: drop-shadow(0 12px 28px rgba(255, 68, 0, 0.08));
+            filter: drop-shadow(0 12px 28px rgba(255, 68, 0, 0.08));
             transform: translateZ(0);
+        }
+
+        [data-theme="dark"] .ticket-wrapper {
+            -webkit-filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.5));
+            filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.5));
         }
 
         .ticket-card {
@@ -256,11 +263,9 @@
             width: 100%;
             display: block;
             border-radius: var(--radius-xl); 
-            background: 
-                radial-gradient(circle at 100% 0%, rgba(255,255,255,0.2) 0%, transparent 50%),
-                linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 100%),
-                linear-gradient(135deg, #FF4400 0%, #a12b08 100%);
-            color: white;
+            /* 剥离渐变，回归纯粹底色 */
+            background: var(--bg-surface);
+            color: var(--text-primary);
             position: relative;
             -webkit-mask-image: 
                 radial-gradient(circle at 0 calc(100% - var(--bottom-height)), transparent var(--notch-size), black calc(var(--notch-size) + 0.5px)),
@@ -274,21 +279,16 @@
             mask-size: 51% 100%;
             mask-position: left, right;
             mask-repeat: no-repeat;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15); 
+            /* 用细密内发光替代实心边框界定边缘 */
+            box-shadow: inset 0 0 0 1.5px rgba(255, 68, 0, 0.25); 
+        }
+
+        [data-theme="dark"] .ticket-card {
+            box-shadow: inset 0 0 0 1.5px rgba(255, 68, 0, 0.35);
         }
 
         .ticket-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: repeating-linear-gradient(
-                45deg,
-                rgba(255, 255, 255, 0.03) 0px,
-                rgba(255, 255, 255, 0.03) 10px,
-                transparent 10px,
-                transparent 20px
-            );
-            pointer-events: none;
+            display: none; /* 彻底移除条纹干扰，保持视觉绝对干净 */
         }
 
         .ticket-content { 
@@ -304,41 +304,44 @@
             position: absolute;
             bottom: var(--bottom-height); 
             left: 0; right: 0;
-            border-top: 2px dashed rgba(255,255,255,0.3); 
+            border-top: 2px dashed rgba(255, 68, 0, 0.2); 
             height: 0;
-            opacity: 0.6;
             margin: 0;
+        }
+
+        [data-theme="dark"] .ticket-dashed-line {
+            border-top: 2px dashed rgba(255, 68, 0, 0.35);
         }
 
         .fine-amount-wrapper {
             display: flex;
             align-items: baseline;
             margin-top: 4px;
+            color: var(--accent-color); /* 聚焦于数字高亮 */
         }
-        .fine-symbol { font-size: 1.5rem; font-weight: 600; margin-right: 4px; opacity: 0.9; }
+        .fine-symbol { font-size: 1.5rem; font-weight: 600; margin-right: 4px; }
         .fine-amount { 
             font-size: 3.8rem; font-weight: 800; letter-spacing: -3px; 
             line-height: 0.9; font-family: 'Plus Jakarta Sans', sans-serif; 
-            text-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
-        .fine-amount-wrapper .fine-unit { font-size: 1rem; opacity: 0.8; font-weight: 600; margin-left: 8px; color: #fff; }
+        .fine-amount-wrapper .fine-unit { font-size: 1rem; opacity: 0.8; font-weight: 600; margin-left: 8px; color: var(--text-secondary); }
 
         .info-pill-container {
             position: absolute; bottom: 0; left: 0; right: 0;
             height: var(--bottom-height);
-            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.2)); 
-            padding: 0 24px; backdrop-filter: blur(5px);
-            display: flex; align-items: center;
+            background: rgba(255, 68, 0, 0.03); 
+            padding: 0 24px; display: flex; align-items: center;
         }
+        
+        [data-theme="dark"] .info-pill-container { background: rgba(255, 68, 0, 0.05); }
         
         .icon-warning-glow {
             width: 44px; height: 44px; 
-            background: rgba(255,255,255,0.2); 
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.3);
+            background: var(--danger-bg); 
+            color: var(--danger-color);
             border-radius: var(--radius-md); 
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.12);
         }
 
         /* 步骤横向滚动图组 */
@@ -398,7 +401,7 @@
         .nav-item.active { color: #fff; background: var(--accent-color); box-shadow: 0 4px 12px rgba(255, 68, 0, 0.2); }
 
         /* ==============================
-           2. 恶劣天气去卡片化大图标流（深度重构线）
+           2. 恶劣天气去卡片化大图标流
            ============================== */
         .weather-action-row {
             display: grid;
@@ -427,7 +430,6 @@
             transform: scale(0.92);
         }
         
-        /* 纯透大图标圆形承载微盒 */
         .weather-large-icon-box {
             width: 80px;
             height: 80px;
@@ -437,7 +439,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.4rem; /* 工业级大图标规格 */
+            font-size: 2.4rem; 
             margin-bottom: 12px;
             box-shadow: 0 8px 20px rgba(255, 68, 0, 0.05);
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -456,7 +458,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* 地理定位输入框容器 */
         .location-group {
             display: flex;
             align-items: center;
@@ -617,13 +618,8 @@
         .calc-clear { background: var(--danger-bg); color: var(--danger-text); }
         .calc-equal { background: var(--accent-color); color: #fff; }
 
-        /* 全局弹出模态窗圆角 */
-        .modal-content {
-            border-radius: var(--radius-xl) !important;
-        }
-        .dynamic-modal-preview {
-            border-radius: var(--radius-xl) !important;
-        }
+        .modal-content { border-radius: var(--radius-xl) !important; }
+        .dynamic-modal-preview { border-radius: var(--radius-xl) !important; }
 
         .btn-close-custom { background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; backdrop-filter: blur(4px); transition: background 0.2s; }
         .btn-close-custom:active { background: rgba(0,0,0,0.8); }
@@ -633,9 +629,7 @@
         .text-xs { font-size: 0.75rem; }
         .text-sm { font-size: 0.875rem; }
 
-        /* ==============================
-           3. PC端响应式自适应网格
-           ============================== */
+        /* PC端响应式 */
         @media (min-width: 992px) {
             body { padding-bottom: 40px; }
             .main-layout-wrapper {
@@ -672,15 +666,9 @@
             .action-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(255, 68, 0, 0.06); }
             [data-theme="dark"] .action-btn:hover { box-shadow: 0 12px 24px rgba(0,0,0,0.3); }
 
-            .header-inline-logo {
-                height: 76px; 
-            }
-            .header-title {
-                max-width: none;
-            }
-            .header-title svg {
-                width: 180px !important;
-            }
+            .header-inline-logo { height: 76px; }
+            .header-title { max-width: none; }
+            .header-title svg { width: 180px !important; }
         }
     </style>
 </head>
@@ -717,28 +705,28 @@
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <div>
                             <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="badge bg-white text-danger fw-bold px-2 py-1" style="font-size: 0.7rem;">高风险</span>
-                                <span class="opacity-75 small fw-bold text-uppercase" style="letter-spacing: 1px;">Penalty</span>
+                                <span class="badge bg-danger text-white fw-bold px-2 py-1" style="font-size: 0.7rem;">高风险</span>
+                                <span class="text-secondary small fw-bold text-uppercase opacity-75" style="letter-spacing: 1px;">Penalty</span>
                             </div>
                             <h5 class="mb-0 fw-900 fs-4">超时取消罚款</h5>
                         </div>
-                        <div class="icon-warning-glow"><i class="fas fa-exclamation-triangle fs-5 text-white"></i></div>
+                        <div class="icon-warning-glow"><i class="fas fa-exclamation-triangle fs-5"></i></div>
                     </div>
                     <div class="mt-3 mb-4">
                         <div class="fine-amount-wrapper">
                             <span class="fine-symbol">¥</span><span class="fine-amount">500</span><span class="fine-unit">/ 单</span>
                         </div>
-                        <div class="text-white text-opacity-75 text-xs fw-medium mt-1">
-                            <i class="fas fa-arrow-up me-1"></i> 单笔最高扣款金额
+                        <div class="text-secondary text-xs fw-medium mt-1">
+                            <i class="fas fa-arrow-up me-1" style="color: var(--danger-color);"></i> 单笔最高扣款金额
                         </div>
                     </div>
                     <div class="ticket-dashed-line"></div>
                     <div class="info-pill-container">
                         <div class="d-flex align-items-start">
-                            <i class="fas fa-info-circle me-3 mt-1 fs-5 opacity-75"></i>
+                            <i class="fas fa-info-circle me-3 mt-1 fs-5" style="color: var(--accent-color); opacity: 0.8;"></i>
                             <div style="line-height: 1.4;">
-                                <span class="d-block text-white text-opacity-50 text-xs fw-bold mb-1">触发条件</span>
-                                <span class="d-block text-sm fw-medium">物流责任导致订单取消，未完成正常或强制报备流程。</span>
+                                <span class="d-block text-secondary text-xs fw-bold mb-1 opacity-75">触发条件</span>
+                                <span class="d-block text-sm fw-medium" style="color: var(--text-primary);">物流责任导致订单取消，未完成正常或强制报备流程。</span>
                             </div>
                         </div>
                     </div>
@@ -927,7 +915,7 @@
                             <div class="calc-sub-card mb-0">
                                 <label class="text-sm fw-bold text-secondary mb-2 d-block">常规完成总单量</label>
                                 <div class="calc-input-group">
-                                    <input type="number" id="totalOrders" placeholder="0" min="0" step="1">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="totalOrders" placeholder="0">
                                     <span class="input-suffix">单</span>
                                 </div>
                             </div>
@@ -936,7 +924,7 @@
                             <div class="calc-sub-card mb-0">
                                 <label class="text-sm fw-bold text-secondary mb-2 d-block">拼团完成总单量</label>
                                 <div class="calc-input-group">
-                                    <input type="number" id="groupOrders" placeholder="0" min="0" step="1">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="groupOrders" placeholder="0">
                                     <span class="input-suffix">单</span>
                                 </div>
                             </div>
@@ -1183,7 +1171,8 @@
                     }, 7000);
                     cleanupRegistry.timeouts.push(geoPendingTimeout);
 
-                    if (window.qq && qq.maps && qq.maps.Geolocation) {
+                    // 安全防御：避免广告拦截导致对象未定义而白屏
+                    if (typeof qq !== 'undefined' && qq.maps && qq.maps.Geolocation) {
                         try {
                             const geo = new qq.maps.Geolocation("OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77", "wuliu_helper");
                             geo.getLocation(
@@ -1199,7 +1188,7 @@
                             updateLocFallback('系统错误，请手动输入');
                         }
                     } else {
-                        updateLocFallback('组件缺失，请直接手动填写');
+                        updateLocFallback('定位组件加载失败，请手动输入');
                     }
                 };
 
@@ -1328,7 +1317,7 @@
 
                 function processImage(file, locText) {
                     return new Promise(resolve => {
-                        if (!file.type.startsWith('image/')) return resolve(file);
+                        if (!file.type.startsWith('image/')) return resolve(file); // 容错非图片文件
                         const reader = new FileReader();
                         reader.onload = e => {
                             const img = new Image();
@@ -1368,7 +1357,7 @@
                 }
 
                 fileInput.addEventListener('change', async function(e) {
-                    const files = Array.from(e.target.files);
+                    const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/')); // 过滤非图像
                     if (!files.length) return;
 
                     const txtNode = uploadZone.querySelector('.fw-bold');
@@ -1593,9 +1582,11 @@
 
             initCalculatorData();
 
+            // 增强版安全计算器：重构 eval 以避免 XSS/崩盘
             const calcDisplay = document.getElementById('calcDisplay');
             const calcButtons = document.querySelectorAll('.calc-buttons .calc-btn');
             let calcValue = '';
+            const operators = ['+', '-', '*', '/'];
 
             calcButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1605,19 +1596,38 @@
                     if (action === 'C') {
                         calcValue = '';
                     } else if (action === '⌫') {
-                        calcValue = calcValue.slice(0, -1);
+                        calcValue = calcValue === '错误' ? '' : calcValue.slice(0, -1);
                     } else if (action === '=') {
+                        if (calcValue === '' || calcValue === '错误' || operators.includes(calcValue.slice(-1))) return;
                         try {
-                            if(calcValue.trim() !== '') {
-                                let result = new Function('return ' + calcValue)();
-                                calcValue = String(Math.round(result * 1000000) / 1000000); 
-                            }
+                            if (!/^[0-9+\-*/. ]+$/.test(calcValue)) throw new Error('Invalid Math String');
+                            let result = new Function('return ' + calcValue)();
+                            if (!isFinite(result)) throw new Error('Infinity');
+                            calcValue = String(Math.round(result * 1000000) / 1000000); 
                         } catch (e) {
                             calcValue = '错误';
                         }
                     } else {
                         if (calcValue === '错误') calcValue = '';
-                        calcValue += action;
+                        const lastChar = calcValue.slice(-1);
+                        
+                        // 防止连按运算符造成崩溃 (例：5//2)
+                        if (operators.includes(action)) {
+                            if (calcValue === '') return;
+                            if (operators.includes(lastChar)) {
+                                calcValue = calcValue.slice(0, -1) + action;
+                            } else {
+                                calcValue += action;
+                            }
+                        } 
+                        // 防御多小数点 (例：5.5.5)
+                        else if (action === '.') {
+                            const parts = calcValue.split(/[\+\-\*\/]/);
+                            if (parts[parts.length - 1].includes('.')) return;
+                            calcValue += action;
+                        } else {
+                            calcValue += action;
+                        }
                     }
                     calcDisplay.value = calcValue;
                 });
