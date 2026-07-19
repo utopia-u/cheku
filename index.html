@@ -12,7 +12,7 @@
     <script type="text/javascript" src="https://apis.map.qq.com/tools/geolocation/min?key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=wuliu"></script>
 
     <script>
-        // 立即执行函数：防闪烁主题初始化
+        // 立即执行函数：防闪烁主题初始化，默认读取本地存储或系统时间
         (function() {
             const savedTheme = localStorage.getItem('theme');
             const currentHour = new Date().getHours();
@@ -27,7 +27,7 @@
 
     <style>
         /* ==============================
-           1. 全局与移动端基础样式
+           1. 全局与移动端基础样式 (已全面优化深色模式文字对比度)
            ============================== */
         :root {
             --bg-body: #F2F4F7;
@@ -56,24 +56,32 @@
             --header-height: auto; 
         }
 
+        /* 核心优化：深色模式文字对比度调整与柔和度增强 */
         [data-theme="dark"] {
             --bg-body: #0F172A;
             --bg-surface-rgb: 30, 41, 59;
             --bg-surface: rgb(var(--bg-surface-rgb));
-            --text-primary: #F8FAFC; 
-            --text-secondary: #CBD5E1; 
+            --text-primary: #F8FAFC; /* 提升主文字亮度，确保对比度符合 WCAG AA */
+            --text-secondary: #94A3B8; /* 优化次要文字颜色，避免过暗导致无法阅读 */
             --accent-color: #60A5FA;
             --accent-light: rgba(59, 130, 246, 0.15);
             --accent-text: #93C5FD; 
             --danger-bg: rgba(239, 68, 68, 0.15);
-            --danger-text: #FCA5A5;
+            --danger-text: #FCA5A5; /* 柔和的警示红文本 */
             --success-bg: rgba(16, 185, 129, 0.15);
             --success-text: #6EE7B7;
             --warning-bg: rgba(245, 158, 11, 0.15);
-            --warning-text: #FCD34D;
+            --warning-text: #FDE68A; /* 柔和的警告黄文本 */
             --card-shadow: 0 10px 30px rgba(0,0,0,0.4);
             --inner-card-shadow: 0 6px 16px rgba(0,0,0,0.3);
         }
+
+        /* 强制覆盖 Bootstrap 默认硬编码颜色，适配深色模式 */
+        [data-theme="dark"] .text-secondary { color: var(--text-secondary) !important; }
+        [data-theme="dark"] .text-danger { color: var(--danger-text) !important; }
+        [data-theme="dark"] .bg-white { background-color: var(--bg-surface) !important; }
+        [data-theme="dark"] .bg-primary { background-color: var(--accent-color) !important; color: #0F172A !important; }
+        [data-theme="dark"] .text-dark { color: var(--text-primary) !important; }
 
         html, body {
             touch-action: manipulation;
@@ -117,7 +125,6 @@
             align-items: flex-start;
         }
 
-        /* 锁死合理的外部比例围盒尺寸 */
         .header-title {
             width: 100%;
             max-width: 145px; 
@@ -130,7 +137,6 @@
             display: block;
         }
 
-        /* 高级路径向左平移 11.73%，完美解决两排文字不对齐问题 */
         .header-title svg path:nth-child(n+18) {
             transform-box: view-box;
             transform: translateX(-11.73%);
@@ -333,15 +339,15 @@
             display: flex; justify-content: center; z-index: 1000; pointer-events: none;
         }
         .bottom-nav {
-            pointer-events: auto; background: rgba(255, 255, 255, 0.85);
+            pointer-events: auto; background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-radius: 32px; padding: 8px 12px; display: flex; align-items: center;
             gap: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.3);
         }
-        [data-theme="dark"] .bottom-nav { background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        [data-theme="dark"] .bottom-nav { background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .nav-item { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 1.2rem; transition: all 0.3s; text-decoration: none; position: relative; touch-action: manipulation; }
         .nav-item.active { color: #fff; background: var(--text-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        [data-theme="dark"] .nav-item.active { background: var(--accent-color); color: #fff; }
+        [data-theme="dark"] .nav-item.active { background: var(--accent-color); color: #0F172A; } /* 深色模式激活状态采用反色提升对比度 */
 
         /* 天气模块 */
         .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -350,6 +356,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             color: white; position: relative; overflow: hidden; box-shadow: var(--inner-card-shadow);
         }
+        [data-theme="dark"] .weather-card { background: #475569; }
         .weather-card i { margin-bottom: 6px; font-size: 1.5rem; opacity: 0.9; }
 
         /* ==============================
@@ -362,7 +369,6 @@
         [data-theme="dark"] .calc-sub-card {
             background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.04);
         }
-        /* 纠正原生代码 typo：将 d-flex 更正为标准的 display: flex */
         .calc-input-group { display: flex; align-items: center; position: relative; width: 100%; }
         .calc-input-group input {
             width: 100%; padding: 8px 45px 8px 12px; border: 1.5px solid rgba(0,0,0,0.06);
@@ -370,7 +376,7 @@
             background-color: var(--bg-surface); transition: all 0.2s ease;
         }
         [data-theme="dark"] .calc-input-group input {
-            border-color: rgba(255, 255, 255, 0.08); background-color: rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.08); background-color: rgba(0, 0, 0, 0.2); color: var(--text-primary);
         }
         .calc-input-group input:focus {
             outline: none; border-color: var(--accent-color); background-color: var(--bg-surface);
@@ -392,7 +398,7 @@
         .tier-row .calc-input-group input, #groupPrice {
             background: var(--bg-surface) !important; border: 1.5px solid rgba(0,0,0,0.06) !important; cursor: default;
             font-size: 0.9rem; height: 40px; padding: 6px 45px 6px 12px; box-shadow: none !important;
-            text-align: center; font-weight: bold; color: var(--text-primary);
+            text-align: center; font-weight: bold; color: var(--text-primary) !important; /* 强制覆盖深色只读表单颜色 */
         }
         [data-theme="dark"] .tier-row .calc-input-group input, [data-theme="dark"] #groupPrice {
             border-color: rgba(255, 255, 255, 0.08) !important; background-color: rgba(0, 0, 0, 0.2) !important;
@@ -426,7 +432,7 @@
             padding: 10px; border-radius: 10px; margin-bottom: 12px; font-size: 0.8rem; font-weight: 600; display: none;
         }
         .save-tip {
-            text-align: right; font-size: 0.72rem; color: var(--success-color); margin-top: -4px; margin-bottom: 10px; font-weight: 700; display: none;
+            text-align: right; font-size: 0.72rem; color: var(--success-text); margin-top: -4px; margin-bottom: 10px; font-weight: 700; display: none;
         }
         
         .calculator-wrapper {
@@ -441,18 +447,18 @@
             background: var(--bg-surface); color: var(--text-primary); font-weight: 700; letter-spacing: 0.5px;
         }
         [data-theme="dark"] #calcDisplay {
-            border-color: rgba(255,255,255,0.06); background: rgba(0,0,0,0.15);
+            border-color: rgba(255,255,255,0.06); background: rgba(0,0,0,0.15); color: var(--text-primary);
         }
         .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .calc-btn {
             padding: 12px 0; font-size: 1.1rem; border: 1px solid rgba(0,0,0,0.02); border-radius: 10px;
             background: var(--bg-surface); cursor: pointer; font-weight: 700; color: var(--text-primary); transition: all 0.1s ease;
         }
-        [data-theme="dark"] .calc-btn { background: rgba(255,255,255,0.04); border: none; }
+        [data-theme="dark"] .calc-btn { background: rgba(255,255,255,0.04); border: none; color: var(--text-primary); }
         .calc-btn:hover { background: rgba(0,0,0,0.04); }
         [data-theme="dark"] .calc-btn:hover { background: rgba(255,255,255,0.08); }
         .calc-btn:active { transform: scale(0.94); }
-        .calc-op { background: var(--accent-light); color: var(--accent-color); }
+        .calc-op { background: var(--accent-light); color: var(--accent-text); }
         .calc-clear { background: var(--danger-bg); color: var(--danger-text); }
         .calc-equal { background: var(--accent-color); color: #fff; }
 
@@ -504,7 +510,6 @@
             .action-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
             [data-theme="dark"] .action-btn:hover { box-shadow: 0 12px 24px rgba(0,0,0,0.3); }
 
-            /* 电脑宽屏自适应容器宽度约束 */
             .header-title {
                 max-width: 180px;
             }
@@ -519,7 +524,7 @@
     <header class="app-header d-flex justify-content-between align-items-center">
         <div class="header-logo-container">
             <div class="header-title">
-                <?xml version="1.0" standalone="no"?> <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd"> <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="600.000000pt" height="245.000000pt" viewBox="0 0 600.000000 245.000000" preserveAspectRatio="xMidYMid meet"> <g transform="translate(0.000000,245.000000) scale(0.100000,-0.100000)" fill="#eb642c" stroke="none"> <path d="M693 2404 c8 -8 -21 -66 -84 -167 -27 -43 -49 -80 -49 -82 0 -2 203 -1 451 2 l451 6 -32 -45 c-31 -43 -33 -53 -66 -314 -55 -430 -61 -464 -87 -492 -28 -30 -63 -48 -110 -57 -30 -6 -37 -12 -37 -30 0 -12 -3 -36 -6 -52 l-6 -30 107 3 c79 3 115 9 143 23 46 24 87 67 102 106 6 17 31 185 55 375 25 190 54 412 65 494 11 82 20 151 20 153 0 3 -171 3 -380 1 -209 -2 -380 1 -380 5 0 5 14 28 30 52 17 24 30 46 30 49 0 3 -50 6 -112 6 -61 0 -109 -3 -105 -6z"/> <path d="M2295 2398 c-2 -7 -7 -31 -12 -53 l-9 -39 -282 3 -283 3 20 -39 c16 -31 18 -47 11 -93 -17 -108 -24 -100 89 -100 l98 0 7 40 6 40 426 0 427 0 -7 -40 -6 -41 102 3 102 3 16 108 c9 60 13 110 9 113 -4 2 -125 2 -269 -1 l-261 -5 6 55 7 55 -96 0 c-69 0 -98 -4 -101 -12z"/> <path d="M5248 2288 c-40 -68 -75 -127 -77 -131 -2 -5 132 -7 298 -5 165 1 301 2 301 0 0 -2 -13 -20 -29 -40 -16 -20 -32 -46 -35 -57 -3 -11 -22 -148 -41 -305 -47 -369 -49 -380 -81 -407 -22 -20 -36 -23 -113 -23 l-88 0 -7 -52 c-4 -29 -9 -68 -13 -87 l-6 -33 139 4 c150 4 175 11 228 64 58 59 53 34 125 599 28 215 53 411 57 438 l7 47 -227 0 c-124 0 -226 2 -226 5 0 3 11 28 25 55 l25 50 -94 0 -95 0 -73 -122z"/> <path d="M3240 2386 c-40 -13 -80 -66 -80 -106 0 -57 75 -109 134 -94 15 3 40 20 56 36 78 77 -4 199 -110 164z"/> <path d="M313 2350 c-58 -35 -78 -102 -48 -160 20 -38 63 -60 116 -60 35 0 48 6 80 39 33 32 39 45 39 80 0 98 -102 153 -187 101z"/> <path d="M3466 2308 c-4 -24 -9 -58 -12 -75 l-6 -33 416 0 c229 0 416 -4 416 -8 0 -5 -12 -19 -26 -33 -14 -13 -32 -36 -40 -51 -14 -26 -38 -188 -84 -563 -26 -216 -27 -217 -163 -225 l-92 -5 -11 -78 c-9 -66 -8 -80 3 -84 23 -9 256 4 285 15 49 20 106 80 122 130 8 26 22 112 31 192 18 172 58 488 85 687 11 79 20 150 20 158 0 13 -58 15 -469 15 l-468 0 -7 -42z"/> <path d="M4545 2314 c14 -20 25 -49 25 -63 0 -28 -65 -548 -80 -646 -15 -90 -18 -85 60 -85 48 0 72 4 74 13 2 6 20 145 40 307 21 162 40 312 43 333 l6 37 132 0 c72 0 134 -2 136 -5 6 -5 -20 -228 -56 -493 -14 -100 -23 -187 -20 -192 4 -6 35 -10 70 -10 l63 0 6 48 c14 119 49 390 66 517 11 77 23 170 26 208 l7 67 -311 0 -311 0 24 -36z"/> <path d="M4770 2124 c0 -3 -16 -126 -35 -273 -39 -293 -54 -360 -92 -410 -30 -39 -102 -87 -155 -103 -36 -10 -36 -12 -43 -72 -3 -33 -9 -74 -12 -90 -5 -29 -5 -29 33 -23 70 11 177 72 234 133 l54 57 15 -24 c38 -58 78 -91 154 -129 44 -22 84 -37 88 -33 4 4 10 43 14 85 l7 77 -44 22 c-61 31 -88 54 -120 102 -36 54 -36 70 7 402 19 149 35 272 35 275 0 3 -31 7 -70 8 -38 2 -70 0 -70 -4z"/> <path d="M3156 2083 c-13 -64 -57 -435 -53 -440 7 -6 121 23 156 40 25 12 27 19 53 197 37 258 45 230 -61 230 l-89 0 -6 -27z"/> <path d="M3724 2073 c-4 -16 -17 -49 -30 -75 -13 -26 -24 -50 -24 -53 0 -3 46 -5 103 -5 l102 0 23 63 c35 99 37 97 -73 97 l-95 0 -6 -27z"/> <path d="M676 2065 c-9 -13 -16 -27 -16 -31 0 -4 -18 -38 -40 -76 -22 -39 -40 -72 -40 -74 0 -3 60 -4 133 -4 l132 2 -3 -49 c-4 -77 3 -73 -141 -73 l-129 0 -7 -42 c-3 -24 -8 -55 -11 -70 l-6 -28 142 0 c111 0 139 -3 133 -12 -4 -7 -15 -60 -23 -118 l-15 -105 -54 -3 -53 -3 7 57 c4 31 9 63 12 71 4 10 -13 13 -79 13 l-85 0 -19 -132 -19 -133 304 -3 c299 -2 306 -2 350 20 57 28 67 50 78 161 l9 87 -77 0 -78 0 -6 -57 c-9 -85 -8 -83 -70 -83 -30 0 -55 1 -55 3 1 26 32 232 36 236 2 3 63 4 134 2 146 -3 132 -12 144 92 l6 47 -135 0 -135 0 6 58 c4 31 8 59 10 61 1 2 62 2 133 2 l131 -2 0 33 c0 18 3 50 6 71 l7 37 -243 0 -242 0 22 35 22 35 -80 0 c-74 0 -81 -2 -96 -25z"/> <path d="M5269 2033 c-36 -95 -179 -535 -184 -570 l-7 -43 225 0 c124 0 232 3 241 6 14 5 16 32 16 200 l0 194 -76 0 -76 0 4 -122 3 -123 -67 -3 c-55 -2 -68 0 -68 12 0 8 28 86 61 173 34 87 74 191 89 231 l28 72 -89 0 c-88 0 -90 0 -100 -27z"/> <path d="M213 2040 c20 -33 55 -120 72 -180 l22 -75 101 -3 101 -3 -20 72 c-19 70 -56 179 -61 184 -5 6 -218 10 -215 5z"/> <path d="M2234 2012 l-442 -2 -6 -58 c-4 -31 -9 -65 -12 -74 -5 -17 10 -18 226 -18 l232 0 -7 -72 c-4 -40 -10 -77 -13 -82 -3 -5 -96 -6 -222 -2 l-218 7 -5 -23 c-3 -13 -9 -49 -12 -80 l-7 -58 221 0 c204 0 221 -1 220 -17 0 -10 -6 -56 -13 -103 l-11 -85 -262 -3 -262 -2 -6 -43 c-11 -83 -10 -112 3 -111 6 1 286 2 621 3 l609 1 6 28 c2 15 8 48 11 75 l6 47 -64 0 -64 0 -27 70 c-15 39 -33 70 -39 71 -26 2 -172 -3 -175 -6 -2 -2 7 -32 21 -67 l26 -63 -106 -3 c-58 -1 -108 0 -111 2 -3 3 1 52 9 108 l14 103 222 3 221 2 6 28 c2 15 8 49 11 76 l7 49 -227 -7 -227 -7 5 23 c3 13 9 49 12 81 l7 57 234 0 233 0 5 43 c3 23 7 58 8 77 l3 35 -110 0 c-60 0 -309 -1 -551 -3z"/> <path d="M3578 1816 c-114 -127 -318 -231 -508 -258 -88 -12 -82 -4 -96 -125 l-7 -63 31 0 c130 0 404 99 553 200 l55 38 56 -23 c76 -31 137 -74 185 -131 l40 -47 79 28 c43 16 83 32 88 36 14 13 -42 86 -104 137 -61 50 -115 76 -178 87 -40 6 -45 4 -99 -41 -56 -46 -56 -45 18 32 79 81 149 169 149 185 0 5 -46 9 -102 9 l-103 0 -57 -64z"/> <path d="M287 1643 c-9 -21 -46 -110 -83 -198 -36 -88 -83 -193 -105 -234 -37 -69 -38 -73 -17 -67 13 3 64 6 114 6 l91 0 71 183 c39 100 85 219 101 265 l30 82 -93 0 -93 0 -16 -37z"/> <path d="M3210 1351 c-8 -5 -42 -15 -75 -22 -33 -7 -63 -18 -67 -23 -4 -6 -10 -36 -13 -66 -4 -30 -9 -63 -12 -73 -4 -16 3 -18 89 -15 l93 3 12 80 c19 129 16 140 -27 116z"/> <path d="M917 957 c-3 -8 -8 -44 -12 -80 -6 -56 -10 -67 -26 -67 -16 0 -18 6 -13 44 l6 43 -36 7 c-42 8 -56 2 -56 -24 0 -10 -16 -80 -35 -157 -19 -76 -35 -139 -35 -140 0 -2 18 -3 39 -3 40 0 40 0 62 61 12 33 29 63 36 66 29 11 35 -12 23 -93 -20 -143 -11 -130 -95 -144 l-73 -13 -11 -60 c-6 -33 -9 -62 -8 -64 2 -1 35 6 73 17 38 10 72 16 75 12 5 -6 0 -54 -25 -219 l-5 -33 64 0 c75 0 69 -12 86 160 6 69 16 130 21 136 4 7 22 14 38 18 26 5 30 10 30 40 0 19 3 42 7 52 5 15 2 16 -32 10 l-38 -7 6 38 c4 21 9 64 13 96 6 54 8 57 34 57 23 0 29 5 34 31 11 58 8 69 -20 69 -26 0 -26 0 -19 58 3 31 9 67 12 80 5 21 2 22 -55 22 -40 0 -62 -4 -65 -13z"/> <path d="M1155 893 c-15 -43 -41 -104 -57 -136 -54 -108 -54 -107 -5 -107 41 0 43 2 80 60 42 68 63 78 54 26 -8 -48 -103 -246 -165 -342 -29 -45 -52 -84 -52 -87 0 -4 19 -7 43 -7 32 0 49 6 64 22 59 65 141 227 188 373 18 54 28 71 44 73 29 5 27 -17 -8 -126 -56 -172 -132 -313 -237 -443 l-64 -79 54 0 c30 0 62 3 71 6 23 9 96 116 146 214 23 47 67 160 98 251 31 91 60 165 66 165 11 -1 9 -23 -16 -186 -11 -69 -24 -163 -31 -210 -14 -108 -28 -137 -71 -145 -18 -4 -39 -5 -47 -3 -10 2 -16 -10 -20 -45 l-6 -47 76 0 c41 0 86 6 100 13 36 18 66 69 74 124 37 264 76 565 76 592 l0 24 -170 -5 c-93 -3 -172 -3 -175 0 -2 2 2 16 9 31 7 14 17 36 20 49 7 21 5 22 -52 22 l-59 0 -28 -77z"/> <path d="M2163 935 l6 -35 -120 0 c-88 0 -119 -3 -119 -12 0 -7 -3 -30 -6 -50 l-7 -38 72 0 c39 0 71 -3 71 -6 0 -3 -27 -39 -61 -80 -45 -55 -62 -85 -66 -114 l-6 -40 94 0 c52 0 148 5 214 10 102 8 122 7 131 -5 13 -17 124 -22 124 -6 0 6 -14 48 -31 95 -33 93 -45 102 -118 90 l-39 -6 14 -34 c8 -18 14 -35 14 -38 0 -2 -50 -4 -110 -5 -61 -1 -117 -4 -125 -8 -25 -9 -17 3 53 76 l67 71 155 2 155 3 3 48 3 47 -110 0 -111 0 0 35 0 35 -76 0 -77 0 6 -35z"/> <path d="M2960 950 c0 -18 -8 -20 -152 -22 l-153 -3 -3 -37 -3 -38 150 0 151 0 0 -25 0 -24 -137 -3 -138 -3 -3 -37 -3 -38 134 0 134 0 -5 -25 -4 -25 -174 0 -174 0 0 -40 0 -40 413 2 412 3 3 38 3 37 -179 0 -179 0 5 25 4 24 142 3 141 3 3 38 3 37 -139 0 -139 0 5 25 4 25 164 0 164 0 0 40 0 40 -161 0 c-156 0 -160 1 -154 20 6 19 2 20 -64 20 -64 0 -71 -2 -71 -20z"/> <path d="M4030 920 l0 -50 -89 0 c-98 0 -92 4 -106 -67 -7 -33 -7 -33 35 -33 35 0 41 -3 36 -17 -3 -10 -10 -54 -16 -98 -28 -201 -69 -322 -158 -465 l-40 -65 57 -3 c53 -3 58 -1 84 30 46 54 116 206 141 308 l24 95 76 3 c88 3 84 12 65 -123 -28 -201 -34 -215 -103 -215 -42 0 -44 -1 -50 -38 -11 -67 -14 -64 83 -60 83 3 92 5 121 33 17 16 35 45 40 65 11 37 60 384 60 420 0 21 -4 21 -136 18 l-136 -3 5 54 c3 30 12 58 19 62 7 4 74 5 149 2 75 -3 139 -1 142 3 3 5 7 29 8 54 l3 45 -89 0 -90 0 -3 48 -3 47 -65 0 -64 0 0 -50z"/> <path d="M4600 940 l0 -30 -90 0 c-99 0 -91 5 -103 -72 l-4 -28 94 0 93 0 -6 -25 c-6 -25 -6 -25 59 -25 61 0 65 2 71 25 6 25 8 25 112 25 l106 0 -6 -25 c-6 -25 -6 -25 58 -25 60 0 64 2 70 25 6 24 9 25 95 25 l89 0 6 31 c14 70 15 69 -85 69 l-91 0 6 30 6 30 -70 0 -70 0 0 -30 0 -30 -106 0 -106 0 7 30 7 30 -71 0 -71 0 0 -30z"/> <path d="M1739 860 l26 -90 63 0 64 0 -7 43 c-4 23 -15 62 -24 87 l-17 45 -65 3 -66 3 26 -91z"/> <path d="M3526 928 c-2 -13 -11 -88 -20 -168 -10 -80 -28 -226 -41 -325 -13 -99 -27 -213 -31 -253 l-7 -73 59 3 58 3 32 265 c18 146 39 310 46 365 l13 100 33 3 c21 2 34 -2 37 -11 3 -7 -12 -63 -33 -123 l-38 -110 19 -27 c45 -59 28 -199 -26 -212 -25 -7 -37 -36 -37 -91 0 -30 20 -31 76 -4 63 31 109 106 114 185 5 74 0 102 -24 137 -24 36 -24 36 -5 64 26 39 65 165 74 237 l7 57 -151 0 c-148 0 -151 0 -155 -22z"/> <path d="M4465 663 c14 -31 27 -58 28 -59 1 -1 25 -4 53 -7 72 -7 81 1 60 55 -26 64 -32 68 -102 68 l-64 0 25 -57z"/> <path d="M1694 678 c8 -18 19 -57 26 -85 l12 -53 65 0 65 0 -6 38 c-4 20 -14 58 -22 85 l-16 47 -68 0 -69 0 13 -32z"/> <path d="M4690 706 c0 -2 -13 -98 -30 -214 -37 -263 -38 -302 -6 -339 l24 -28 210 0 c156 0 215 3 234 13 33 18 56 68 64 138 l7 56 -39 -25 c-21 -13 -57 -36 -78 -51 -37 -25 -45 -26 -160 -26 -83 0 -128 4 -139 13 -17 12 -16 22 5 187 l23 175 111 3 111 3 -9 -61 c-12 -90 -20 -100 -77 -100 -54 0 -61 -8 -61 -67 l0 -35 93 4 c143 6 158 22 182 196 9 59 17 119 20 135 l5 27 -245 0 c-135 0 -245 -2 -245 -4z"/> <path d="M4425 490 l35 -70 65 0 c36 0 65 4 65 9 0 20 -42 107 -57 119 -10 6 -45 12 -80 12 l-63 0 35 -70z"/> <path d="M2646 508 c-10 -59 -26 -189 -26 -209 0 -17 7 -19 59 -19 33 0 63 5 66 11 4 6 9 46 12 90 l6 79 101 1 c102 1 266 1 299 0 16 -1 18 -7 13 -38 -3 -21 -8 -59 -12 -85 l-6 -48 60 0 c36 0 64 5 70 13 5 6 13 48 16 92 4 44 10 95 13 113 l5 32 -335 0 -336 0 -5 -32z"/> <path d="M1946 493 c-2 -10 -7 -38 -11 -63 -10 -73 -42 -161 -85 -234 -22 -37 -40 -70 -40 -72 0 -2 26 -4 59 -4 57 0 59 1 85 40 38 58 66 132 87 238 10 52 19 98 19 103 0 5 -24 9 -54 9 -44 0 -56 -4 -60 -17z"/> <path d="M2116 498 c-2 -7 -13 -83 -25 -168 -12 -85 -25 -167 -27 -182 l-6 -28 61 0 c34 0 61 1 61 3 0 1 11 87 25 191 14 104 25 191 25 193 0 1 -25 3 -55 3 -36 0 -57 -4 -59 -12z"/> <path d="M2295 498 c-9 -30 -35 -247 -35 -294 0 -69 18 -84 99 -84 34 0 71 4 81 10 21 11 35 52 44 124 l6 50 -36 -42 c-34 -41 -57 -52 -68 -33 -3 5 1 64 9 132 8 68 15 130 15 137 0 8 -18 12 -55 12 -36 0 -57 -4 -60 -12z"/> <path d="M1725 443 c-9 -39 -80 -214 -110 -274 l-25 -49 70 0 c68 0 71 1 81 28 36 90 109 296 109 308 0 10 -15 14 -59 14 -56 0 -59 -1 -66 -27z"/> <path d="M2895 393 c-12 -53 -51 -98 -106 -125 -61 -30 -162 -58 -207 -58 -33 0 -42 -14 -42 -66 0 -32 2 -34 33 -34 60 1 205 38 268 71 116 58 176 123 194 207 l7 32 -70 0 c-68 0 -70 -1 -77 -27z"/> <path d="M4457 358 c-8 -13 -39 -71 -70 -130 l-55 -108 69 0 68 0 37 78 c20 42 47 101 60 130 l24 52 -60 0 c-51 0 -62 -3 -73 -22z"/> <path d="M2989 274 c-18 -18 -31 -35 -28 -38 45 -41 340 -139 359 -120 4 5 11 27 15 50 l6 40 -123 39 c-68 21 -139 44 -159 51 -36 12 -38 11 -70 -22z"/> </g> </svg>
+                <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="600.000000pt" height="245.000000pt" viewBox="0 0 600.000000 245.000000" preserveAspectRatio="xMidYMid meet"> <g transform="translate(0.000000,245.000000) scale(0.100000,-0.100000)" fill="#eb642c" stroke="none"> <path d="M693 2404 c8 -8 -21 -66 -84 -167 -27 -43 -49 -80 -49 -82 0 -2 203 -1 451 2 l451 6 -32 -45 c-31 -43 -33 -53 -66 -314 -55 -430 -61 -464 -87 -492 -28 -30 -63 -48 -110 -57 -30 -6 -37 -12 -37 -30 0 -12 -3 -36 -6 -52 l-6 -30 107 3 c79 3 115 9 143 23 46 24 87 67 102 106 6 17 31 185 55 375 25 190 54 412 65 494 11 82 20 151 20 153 0 3 -171 3 -380 1 -209 -2 -380 1 -380 5 0 5 14 28 30 52 17 24 30 46 30 49 0 3 -50 6 -112 6 -61 0 -109 -3 -105 -6z"/> <path d="M2295 2398 c-2 -7 -7 -31 -12 -53 l-9 -39 -282 3 -283 3 20 -39 c16 -31 18 -47 11 -93 -17 -108 -24 -100 89 -100 l98 0 7 40 6 40 426 0 427 0 -7 -40 -6 -41 102 3 102 3 16 108 c9 60 13 110 9 113 -4 2 -125 2 -269 -1 l-261 -5 6 55 7 55 -96 0 c-69 0 -98 -4 -101 -12z"/> <path d="M5248 2288 c-40 -68 -75 -127 -77 -131 -2 -5 132 -7 298 -5 165 1 301 2 301 0 0 -2 -13 -20 -29 -40 -16 -20 -32 -46 -35 -57 -3 -11 -22 -148 -41 -305 -47 -369 -49 -380 -81 -407 -22 -20 -36 -23 -113 -23 l-88 0 -7 -52 c-4 -29 -9 -68 -13 -87 l-6 -33 139 4 c150 4 175 11 228 64 58 59 53 34 125 599 28 215 53 411 57 438 l7 47 -227 0 c-124 0 -226 2 -226 5 0 3 11 28 25 55 l25 50 -94 0 -95 0 -73 -122z"/> <path d="M3240 2386 c-40 -13 -80 -66 -80 -106 0 -57 75 -109 134 -94 15 3 40 20 56 36 78 77 -4 199 -110 164z"/> <path d="M313 2350 c-58 -35 -78 -102 -48 -160 20 -38 63 -60 116 -60 35 0 48 6 80 39 33 32 39 45 39 80 0 98 -102 153 -187 101z"/> <path d="M3466 2308 c-4 -24 -9 -58 -12 -75 l-6 -33 416 0 c229 0 416 -4 416 -8 0 -5 -12 -19 -26 -33 -14 -13 -32 -36 -40 -51 -14 -26 -38 -188 -84 -563 -26 -216 -27 -217 -163 -225 l-92 -5 -11 -78 c-9 -66 -8 -80 3 -84 23 -9 256 4 285 15 49 20 106 80 122 130 8 26 22 112 31 192 18 172 58 488 85 687 11 79 20 150 20 158 0 13 -58 15 -469 15 l-468 0 -7 -42z"/> <path d="M4545 2314 c14 -20 25 -49 25 -63 0 -28 -65 -548 -80 -646 -15 -90 -18 -85 60 -85 48 0 72 4 74 13 2 6 20 145 40 307 21 162 40 312 43 333 l6 37 132 0 c72 0 134 -2 136 -5 6 -5 -20 -228 -56 -493 -14 -100 -23 -187 -20 -192 4 -6 35 -10 70 -10 l63 0 6 48 c14 119 49 390 66 517 11 77 23 170 26 208 l7 67 -311 0 -311 0 24 -36z"/> <path d="M4770 2124 c0 -3 -16 -126 -35 -273 -39 -293 -54 -360 -92 -410 -30 -39 -102 -87 -155 -103 -36 -10 -36 -12 -43 -72 -3 -33 -9 -74 -12 -90 -5 -29 -5 -29 33 -23 70 11 177 72 234 133 l54 57 15 -24 c38 -58 78 -91 154 -129 44 -22 84 -37 88 -33 4 4 10 43 14 85 l7 77 -44 22 c-61 31 -88 54 -120 102 -36 54 -36 70 7 402 19 149 35 272 35 275 0 3 -31 7 -70 8 -38 2 -70 0 -70 -4z"/> <path d="M3156 2083 c-13 -64 -57 -435 -53 -440 7 -6 121 23 156 40 25 12 27 19 53 197 37 258 45 230 -61 230 l-89 0 -6 -27z"/> <path d="M3724 2073 c-4 -16 -17 -49 -30 -75 -13 -26 -24 -50 -24 -53 0 -3 46 -5 103 -5 l102 0 23 63 c35 99 37 97 -73 97 l-95 0 -6 -27z"/> <path d="M676 2065 c-9 -13 -16 -27 -16 -31 0 -4 -18 -38 -40 -76 -22 -39 -40 -72 -40 -74 0 -3 60 -4 133 -4 l132 2 -3 -49 c-4 -77 3 -73 -141 -73 l-129 0 -7 -42 c-3 -24 -8 -55 -11 -70 l-6 -28 142 0 c111 0 139 -3 133 -12 -4 -7 -15 -60 -23 -118 l-15 -105 -54 -3 -53 -3 7 57 c4 31 9 63 12 71 4 10 -13 13 -79 13 l-85 0 -19 -132 -19 -133 304 -3 c299 -2 306 -2 350 20 57 28 67 50 78 161 l9 87 -77 0 -78 0 -6 -57 c-9 -85 -8 -83 -70 -83 -30 0 -55 1 -55 3 1 26 32 232 36 236 2 3 63 4 134 2 146 -3 132 -12 144 92 l6 47 -135 0 -135 0 6 58 c4 31 8 59 10 61 1 2 62 2 133 2 l131 -2 0 33 c0 18 3 50 6 71 l7 37 -243 0 -242 0 22 35 22 35 -80 0 c-74 0 -81 -2 -96 -25z"/> <path d="M5269 2033 c-36 -95 -179 -535 -184 -570 l-7 -43 225 0 c124 0 232 3 241 6 14 5 16 32 16 200 l0 194 -76 0 -76 0 4 -122 3 -123 -67 -3 c-55 -2 -68 0 -68 12 0 8 28 86 61 173 34 87 74 191 89 231 l28 72 -89 0 c-88 0 -90 0 -100 -27z"/> <path d="M213 2040 c20 -33 55 -120 72 -180 l22 -75 101 -3 101 -3 -20 72 c-19 70 -56 179 -61 184 -5 6 -218 10 -215 5z"/> <path d="M2234 2012 l-442 -2 -6 -58 c-4 -31 -9 -65 -12 -74 -5 -17 10 -18 226 -18 l232 0 -7 -72 c-4 -40 -10 -77 -13 -82 -3 -5 -96 -6 -222 -2 l-218 7 -5 -23 c-3 -13 -9 -49 -12 -80 l-7 -58 221 0 c204 0 221 -1 220 -17 0 -10 -6 -56 -13 -103 l-11 -85 -262 -3 -262 -2 -6 -43 c-11 -83 -10 -112 3 -111 6 1 286 2 621 3 l609 1 6 28 c2 15 8 48 11 75 l6 47 -64 0 -64 0 -27 70 c-15 39 -33 70 -39 71 -26 2 -172 -3 -175 -6 -2 -2 7 -32 21 -67 l26 -63 -106 -3 c-58 -1 -108 0 -111 2 -3 3 1 52 9 108 l14 103 222 3 221 2 6 28 c2 15 8 49 11 76 l7 49 -227 -7 -227 -7 5 23 c3 13 9 49 12 81 l7 57 234 0 233 0 5 43 c3 23 7 58 8 77 l3 35 -110 0 c-60 0 -309 -1 -551 -3z"/> <path d="M3578 1816 c-114 -127 -318 -231 -508 -258 -88 -12 -82 -4 -96 -125 l-7 -63 31 0 c130 0 404 99 553 200 l55 38 56 -23 c76 -31 137 -74 185 -131 l40 -47 79 28 c43 16 83 32 88 36 14 13 -42 86 -104 137 -61 50 -115 76 -178 87 -40 6 -45 4 -99 -41 -56 -46 -56 -45 18 32 79 81 149 169 149 185 0 5 -46 9 -102 9 l-103 0 -57 -64z"/> <path d="M287 1643 c-9 -21 -46 -110 -83 -198 -36 -88 -83 -193 -105 -234 -37 -69 -38 -73 -17 -67 13 3 64 6 114 6 l91 0 71 183 c39 100 85 219 101 265 l30 82 -93 0 -93 0 -16 -37z"/> <path d="M3210 1351 c-8 -5 -42 -15 -75 -22 -33 -7 -63 -18 -67 -23 -4 -6 -10 -36 -13 -66 -4 -30 -9 -63 -12 -73 -4 -16 3 -18 89 -15 l93 3 12 80 c19 129 16 140 -27 116z"/> <path d="M917 957 c-3 -8 -8 -44 -12 -80 -6 -56 -10 -67 -26 -67 -16 0 -18 6 -13 44 l6 43 -36 7 c-42 8 -56 2 -56 -24 0 -10 -16 -80 -35 -157 -19 -76 -35 -139 -35 -140 0 -2 18 -3 39 -3 40 0 40 0 62 61 12 33 29 63 36 66 29 11 35 -12 23 -93 -20 -143 -11 -130 -95 -144 l-73 -13 -11 -60 c-6 -33 -9 -62 -8 -64 2 -1 35 6 73 17 38 10 72 16 75 12 5 -6 0 -54 -25 -219 l-5 -33 64 0 c75 0 69 -12 86 160 6 69 16 130 21 136 4 7 22 14 38 18 26 5 30 10 30 40 0 19 3 42 7 52 5 15 2 16 -32 10 l-38 -7 6 38 c4 21 9 64 13 96 6 54 8 57 34 57 23 0 29 5 34 31 11 58 8 69 -20 69 -26 0 -26 0 -19 58 3 31 9 67 12 80 5 21 2 22 -55 22 -40 0 -62 -4 -65 -13z"/> <path d="M1155 893 c-15 -43 -41 -104 -57 -136 -54 -108 -54 -107 -5 -107 41 0 43 2 80 60 42 68 63 78 54 26 -8 -48 -103 -246 -165 -342 -29 -45 -52 -84 -52 -87 0 -4 19 -7 43 -7 32 0 49 6 64 22 59 65 141 227 188 373 18 54 28 71 44 73 29 5 27 -17 -8 -126 -56 -172 -132 -313 -237 -443 l-64 -79 54 0 c30 0 62 3 71 6 23 9 96 116 146 214 23 47 67 160 98 251 31 91 60 165 66 165 11 -1 9 -23 -16 -186 -11 -69 -24 -163 -31 -210 -14 -108 -28 -137 -71 -145 -18 -4 -39 -5 -47 -3 -10 2 -16 -10 -20 -45 l-6 -47 76 0 c41 0 86 6 100 13 36 18 66 69 74 124 37 264 76 565 76 592 l0 24 -170 -5 c-93 -3 -172 -3 -175 0 -2 2 2 16 9 31 7 14 17 36 20 49 7 21 5 22 -52 22 l-59 0 -28 -77z"/> <path d="M2163 935 l6 -35 -120 0 c-88 0 -119 -3 -119 -12 0 -7 -3 -30 -6 -50 l-7 -38 72 0 c39 0 71 -3 71 -6 0 -3 -27 -39 -61 -80 -45 -55 -62 -85 -66 -114 l-6 -40 94 0 c52 0 148 5 214 10 102 8 122 7 131 -5 13 -17 124 -22 124 -6 0 6 -14 48 -31 95 -33 93 -45 102 -118 90 l-39 -6 14 -34 c8 -18 14 -35 14 -38 0 -2 -50 -4 -110 -5 -61 -1 -117 -4 -125 -8 -25 -9 -17 3 53 76 l67 71 155 2 155 3 3 48 3 47 -110 0 -111 0 0 35 0 35 -76 0 -77 0 6 -35z"/> <path d="M2960 950 c0 -18 -8 -20 -152 -22 l-153 -3 -3 -37 -3 -38 150 0 151 0 0 -25 0 -24 -137 -3 -138 -3 -3 -37 -3 -38 134 0 134 0 -5 -25 -4 -25 -174 0 -174 0 0 -40 0 -40 413 2 412 3 3 38 3 37 -179 0 -179 0 5 25 4 24 142 3 141 3 3 38 3 37 -139 0 -139 0 5 25 4 25 164 0 164 0 0 40 0 40 -161 0 c-156 0 -160 1 -154 20 6 19 2 20 -64 20 -64 0 -71 -2 -71 -20z"/> <path d="M4030 920 l0 -50 -89 0 c-98 0 -92 4 -106 -67 -7 -33 -7 -33 35 -33 35 0 41 -3 36 -17 -3 -10 -10 -54 -16 -98 -28 -201 -69 -322 -158 -465 l-40 -65 57 -3 c53 -3 58 -1 84 30 46 54 116 206 141 308 l24 95 76 3 c88 3 84 12 65 -123 -28 -201 -34 -215 -103 -215 -42 0 -44 -1 -50 -38 -11 -67 -14 -64 83 -60 83 3 92 5 121 33 17 16 35 45 40 65 11 37 60 384 60 420 0 21 -4 21 -136 18 l-136 -3 5 54 c3 30 12 58 19 62 7 4 74 5 149 2 75 -3 139 -1 142 3 3 5 7 29 8 54 l3 45 -89 0 -90 0 -3 48 -3 47 -65 0 -64 0 0 -50z"/> <path d="M4600 940 l0 -30 -90 0 c-99 0 -91 5 -103 -72 l-4 -28 94 0 93 0 -6 -25 c-6 -25 -6 -25 59 -25 61 0 65 2 71 25 6 25 8 25 112 25 l106 0 -6 -25 c-6 -25 -6 -25 58 -25 60 0 64 2 70 25 6 24 9 25 95 25 l89 0 6 31 c14 70 15 69 -85 69 l-91 0 6 30 6 30 -70 0 -70 0 0 -30 0 -30 -106 0 -106 0 7 30 7 30 -71 0 -71 0 0 -30z"/> <path d="M1739 860 l26 -90 63 0 64 0 -7 43 c-4 23 -15 62 -24 87 l-17 45 -65 3 -66 3 26 -91z"/> <path d="M3526 928 c-2 -13 -11 -88 -20 -168 -10 -80 -28 -226 -41 -325 -13 -99 -27 -213 -31 -253 l-7 -73 59 3 58 3 32 265 c18 146 39 310 46 365 l13 100 33 3 c21 2 34 -2 37 -11 3 -7 -12 -63 -33 -123 l-38 -110 19 -27 c45 -59 28 -199 -26 -212 -25 -7 -37 -36 -37 -91 0 -30 20 -31 76 -4 63 31 109 106 114 185 5 74 0 102 -24 137 -24 36 -24 36 -5 64 26 39 65 165 74 237 l7 57 -151 0 c-148 0 -151 0 -155 -22z"/> <path d="M4465 663 c14 -31 27 -58 28 -59 1 -1 25 -4 53 -7 72 -7 81 1 60 55 -26 64 -32 68 -102 68 l-64 0 25 -57z"/> <path d="M1694 678 c8 -18 19 -57 26 -85 l12 -53 65 0 65 0 -6 38 c-4 20 -14 58 -22 85 l-16 47 -68 0 -69 0 13 -32z"/> <path d="M4690 706 c0 -2 -13 -98 -30 -214 -37 -263 -38 -302 -6 -339 l24 -28 210 0 c156 0 215 3 234 13 33 18 56 68 64 138 l7 56 -39 -25 c-21 -13 -57 -36 -78 -51 -37 -25 -45 -26 -160 -26 -83 0 -128 4 -139 13 -17 12 -16 22 5 187 l23 175 111 3 111 3 -9 -61 c-12 -90 -20 -100 -77 -100 -54 0 -61 -8 -61 -67 l0 -35 93 4 c143 6 158 22 182 196 9 59 17 119 20 135 l5 27 -245 0 c-135 0 -245 -2 -245 -4z"/> <path d="M4425 490 l35 -70 65 0 c36 0 65 4 65 9 0 20 -42 107 -57 119 -10 6 -45 12 -80 12 l-63 0 35 -70z"/> <path d="M2646 508 c-10 -59 -26 -189 -26 -209 0 -17 7 -19 59 -19 33 0 63 5 66 11 4 6 9 46 12 90 l6 79 101 1 c102 1 266 1 299 0 16 -1 18 -7 13 -38 -3 -21 -8 -59 -12 -85 l-6 -48 60 0 c36 0 64 5 70 13 5 6 13 48 16 92 4 44 10 95 13 113 l5 32 -335 0 -336 0 -5 -32z"/> <path d="M1946 493 c-2 -10 -7 -38 -11 -63 -10 -73 -42 -161 -85 -234 -22 -37 -40 -70 -40 -72 0 -2 26 -4 59 -4 57 0 59 1 85 40 38 58 66 132 87 238 10 52 19 98 19 103 0 5 -24 9 -54 9 -44 0 -56 -4 -60 -17z"/> <path d="M2116 498 c-2 -7 -13 -83 -25 -168 -12 -85 -25 -167 -27 -182 l-6 -28 61 0 c34 0 61 1 61 3 0 1 11 87 25 191 14 104 25 191 25 193 0 1 -25 3 -55 3 -36 0 -57 -4 -59 -12z"/> <path d="M2295 498 c-9 -30 -35 -247 -35 -294 0 -69 18 -84 99 -84 34 0 71 4 81 10 21 11 35 52 44 124 l6 50 -36 -42 c-34 -41 -57 -52 -68 -33 -3 5 1 64 9 132 8 68 15 130 15 137 0 8 -18 12 -55 12 -36 0 -57 -4 -60 -12z"/> <path d="M1725 443 c-9 -39 -80 -214 -110 -274 l-25 -49 70 0 c68 0 71 1 81 28 36 90 109 296 109 308 0 10 -15 14 -59 14 -56 0 -59 -1 -66 -27z"/> <path d="M2895 393 c-12 -53 -51 -98 -106 -125 -61 -30 -162 -58 -207 -58 -33 0 -42 -14 -42 -66 0 -32 2 -34 33 -34 60 1 205 38 268 71 116 58 176 123 194 207 l7 32 -70 0 c-68 0 -70 -1 -77 -27z"/> <path d="M4457 358 c-8 -13 -39 -71 -70 -130 l-55 -108 69 0 68 0 37 78 c20 42 47 101 60 130 l24 52 -60 0 c-51 0 -62 -3 -73 -22z"/> <path d="M2989 274 c-18 -18 -31 -35 -28 -38 45 -41 340 -139 359 -120 4 5 11 27 15 50 l6 40 -123 39 c-68 21 -139 44 -159 51 -36 12 -38 11 -70 -22z"/> </g> </svg>
             </div>
             <p class="text-secondary small mb-0 fw-medium opacity-75">物流责任避险手册与核算工具</p>
         </div>
@@ -565,7 +570,7 @@
                         <div class="d-flex align-items-start">
                             <i class="fas fa-info-circle me-3 mt-1 fs-5 opacity-75"></i>
                             <div style="line-height: 1.4;">
-                                <span class="d-block text-white text-opacity-50 text-xs fw-bold mb-1">触发条件</span>
+                                <span class="d-block text-white text-opacity-75 text-xs fw-bold mb-1">触发条件</span>
                                 <span class="d-block text-sm fw-medium">物流责任导致订单取消，未完成正常或强制报备流程。</span>
                             </div>
                         </div>
@@ -584,7 +589,7 @@
                     <i class="fas fa-bell me-2"></i><span class="fw-bold">提前报备商家出餐慢</span>
                 </div>
                 <small class="d-block opacity-75" style="line-height: 1.5;">
-                    高峰期需优先识别超时隐痕的订单。若距离商家较远，可直接<span class="fw-bold rounded" style="background-color: rgba(239, 68, 68, 0.18); color: #ef4444; padding: 2px 6px; display: inline-block; line-height: 1.2;">强制报备出餐慢</span>。无论是否虚假，只要完成流程，订单取消均不计入物流责任。
+                    高峰期需优先识别超时隐痕的订单。若距离商家较远，可直接<span class="fw-bold rounded" style="background-color: var(--danger-bg); color: var(--danger-text); padding: 2px 6px; display: inline-block; line-height: 1.2;">强制报备出餐慢</span>。无论是否虚假，只要完成流程，订单取消均不计入物流责任。
                 </small>
             </div>
             <div class="mb-2 ps-1">
@@ -603,21 +608,7 @@
                     <div class="step-img-wrapper"><span class="step-badge">步骤 3</span><img src="https://i.ibb.co/zHn96kLf/IMG-5775.jpg" class="step-img" alt="提交举证"></div>
                     <div class="step-caption">提交举证</div>
                 </div>
-                <div class="step-item" onclick="viewImage('https://i.ibb.co/67PnNnBz/IMG-5777.jpg')">
-                    <div class="step-img-wrapper"><span class="step-badge">步骤 4</span><img src="https://i.ibb.co/67PnNnBz/IMG-5777.jpg" class="step-img" alt="确认提交"></div>
-                    <div class="step-caption">确认提交</div>
-                </div>
-                <div class="step-item" onclick="viewImage('https://i.ibb.co/fGdg0KjG/IMG-5779.jpg')">
-                    <div class="step-img-wrapper"><span class="step-badge">步骤 5</span><img src="https://i.ibb.co/fGdg0KjG/IMG-5779.jpg" class="step-img" alt="点击报备"></div>
-                    <div class="step-caption">点击报备</div>
-                </div>
             </div>
-            <small class="text-secondary opacity-75 text-center mt-3 text-xs fw-bold tracking-wider d-block d-lg-none">
-                <i class="fas fa-exchange-alt me-1"></i> 左右滑动查看 <span class="mx-2 opacity-50">|</span> <i class="fas fa-expand me-1"></i> 图片可点击放大
-            </small>
-            <small class="text-secondary opacity-75 text-center mt-3 text-xs fw-bold tracking-wider d-none d-lg-block">
-                <i class="fas fa-mouse-pointer me-1"></i> 点击图片可放大查看详情
-            </small>
         </section>
 
         <section id="actions" class="section-card">
@@ -636,783 +627,10 @@
                     <span class="d-block fw-bold mb-1">安抚顾客情绪</span>
                     <span class="d-block text-xs opacity-75 lh-sm">可以和顾客解释罚款原因，引导顾客私下转账，避免罚款</span>
                 </button>
-                <button type="button" class="action-btn w-100 d-flex align-items-center gap-3" style="grid-column: span 2; background: var(--accent-light); color: var(--accent-text);">
-                    <span class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; background: rgba(255,255,255,0.5); border-radius: 12px;">
-                        <i class="fas fa-check-circle fs-4"></i>
-                    </span>
-                    <span class="text-start">
-                        <span class="d-block fw-bold">及时去点送达</span>
-                        <span class="d-block text-xs opacity-75">如果离顾客位置不远，先去及时点送达</span>
-                    </span>
-                </button>
             </div>
         </section>
 
-        <section id="weather" class="section-card">
-            <div class="section-title">
-                <div class="icon-box"><i class="fas fa-cloud-showers-heavy"></i></div>
-                <span>恶劣天气需拍照报备</span>
-            </div>
-            <div class="alert border-0 p-3 mb-4 rounded-4" style="background: var(--accent-light); color: var(--accent-text);">
-                <div class="d-flex">
-                    <i class="fas fa-bullhorn mt-1 me-3"></i>
-                    <div class="small fw-bold" style="line-height: 1.5;">
-                        提示：路上遇到积水或结冰时，直接用手机普通相机拍下来传到这里就行。系统会自动在照片上印出当前时间和具体位置！
-                    </div>
-                </div>
-            </div>
-            <div class="bg-body p-3 rounded-4 mb-3 border border-opacity-10">
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="small fw-bold text-secondary">水印照片发送对象</span>
-                    <span class="badge bg-primary rounded-pill px-3 py-2">站长：朱振伟</span>
-                </div>
-            </div>
-            <div class="weather-grid mb-4">
-                <div class="weather-card"><i class="fas fa-water"></i><div class="small fw-bold">积水拍摄</div></div>
-                <div class="weather-card"><i class="fas fa-snowflake"></i><div class="small fw-bold">冰雪拍摄</div></div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label small fw-bold text-secondary mb-1">📍 自动定位位置（可手动修改）：</label>
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-body border-end-0 text-secondary" style="border-radius: 12px 0 0 12px;"><i class="fas fa-map-marker-alt"></i></span>
-                    <input type="text" id="watermark-location" class="form-control bg-body border-start-0 border-end-0 py-2 small" value="正在调用底层定位..." style="font-size: 0.85rem; color: var(--text-primary); font-weight: 600; border-radius: 0;">
-                    <button class="btn btn-sm bg-body border border-start-0 text-secondary d-flex align-items-center px-3" type="button" id="refresh-location-btn" style="border-radius: 0 12px 12px 0; border-color: rgba(0,0,0,0.1) !important;" aria-label="刷新位置">
-                        <i class="fas fa-sync-alt" id="refresh-icon"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="weather-upload-container mt-4">
-                <label for="weather-upload" id="uploadZone" class="w-100 p-4 border rounded-4 d-flex flex-column align-items-center justify-content-center text-center position-relative" style="border-style: dashed !important; border-width: 2px !important; border-color: var(--text-secondary) !important; background: rgba(var(--bg-surface-rgb), 0.3); cursor: pointer; transition: background 0.2s;">
-                    <i class="fas fa-camera fs-2 mb-2" style="color: var(--accent-color);"></i>
-                    <span class="fw-bold small d-block" style="color: var(--text-primary);">点击拍照或者选择照片上传（可多选）</span>
-                    <span class="text-xs opacity-75 d-block mt-1" style="color: var(--text-secondary);">图片会自动压缩，刷新页面照片不丢失</span>
-                </label>
-                <input type="file" id="weather-upload" accept="image/*" class="d-none" multiple>
-                
-                <div id="upload-preview-container" class="mt-4 d-none">
-                    <div id="preview-gallery" class="row row-cols-2 row-cols-md-3 g-3"></div>
-                </div>
-            </div>
-        </section>
-
-        <section id="calculator" class="section-card">
-            <div class="section-title">
-                <div class="icon-box"><i class="fas fa-calculator"></i></div>
-                <span>阶梯单量单价计算器</span>
-            </div>
-
-            <div id="errorBox" class="error-msg"></div>
-            <div id="saveTip" class="save-tip">✓ 数据已自动同步到本地存储</div>
-
-            <div class="row g-3">
-                <div class="col-12 col-lg-8">
-                    <div class="calc-sub-card style-res-box p-3" style="background: var(--bg-surface); box-shadow: var(--inner-card-shadow); border-radius: 16px;">
-                        <div class="result-panel">
-                            <div class="grand-total-box">
-                                <div class="result-label opacity-75 text-xs fw-bold mb-1">统一汇总结算总额</div>
-                                <div id="resTotal" class="result-value">￥0.00</div>
-                            </div>
-                            <div class="detail-grid mt-3">
-                                <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
-                                    <div class="text-xs fw-bold text-secondary">常规匹配档位</div>
-                                    <div id="resTier" class="result-value">-</div>
-                                </div>
-                                <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
-                                    <div class="text-xs fw-bold text-secondary">常规小计</div>
-                                    <div id="resRegularTotal" class="result-value">￥0.00</div>
-                                </div>
-                                <div class="detail-box" style="border-top: 2.5px solid var(--warning-color);">
-                                    <div class="text-xs fw-bold text-secondary">拼团明细</div>
-                                    <div id="resGroupInfo" class="result-value">0单 × ￥0.00</div>
-                                </div>
-                                <div class="detail-box" style="border-top: 2.5px solid var(--warning-color);">
-                                    <div class="text-xs fw-bold text-secondary">拼团小计</div>
-                                    <div id="resGroupTotal" class="result-value">￥0.00</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row g-3 mb-1">
-                        <div class="col-12 col-md-4">
-                            <div class="calc-sub-card mb-0">
-                                <label class="text-sm fw-bold text-secondary mb-2 d-block">常规完成总单量</label>
-                                <div class="calc-input-group">
-                                    <input type="number" id="totalOrders" placeholder="0" min="0" step="1">
-                                    <span class="input-suffix">单</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <div class="calc-sub-card mb-0">
-                                <label class="text-sm fw-bold text-secondary mb-2 d-block">拼团完成总单量</label>
-                                <div class="calc-input-group">
-                                    <input type="number" id="groupOrders" placeholder="0" min="0" step="1">
-                                    <span class="input-suffix">单</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <div class="calc-sub-card mb-0">
-                                <label class="text-sm fw-bold text-secondary mb-2 d-block">拼团固定单价</label>
-                                <div class="calc-input-group group-price-wrapper">
-                                    <input type="text" id="groupPrice" value="3.20" readonly>
-                                    <span class="input-suffix opacity-75">元</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="calc-sub-card mt-3 p-3">
-                        <div class="mb-3">
-                            <span class="text-xs fw-bold text-secondary"><i class="fas fa-sliders-h me-1"></i> 常规阶梯档位标准表（固定不可改）</span>
-                        </div>
-                        <div id="tierContainer" style="padding-right: 0;"></div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-lg-4 d-flex align-items-start justify-content-center">
-                    <div class="w-100 py-2" style="max-width: 320px;">
-                        <div class="text-center mb-2"><span class="text-xs fw-bold text-secondary"><i class="fas fa-calculator me-1"></i> 便捷快速核算辅助盘</span></div>
-                        <div class="calculator-wrapper shadow-sm">
-                            <input type="text" id="calcDisplay" readonly placeholder="0">
-                            <div class="calc-buttons">
-                                <button class="calc-btn calc-clear">C</button>
-                                <button class="calc-btn calc-clear">⌫</button>
-                                <button class="calc-btn calc-op">/</button>
-                                <button class="calc-btn calc-op">*</button>
-                                
-                                <button class="calc-btn">7</button>
-                                <button class="calc-btn">8</button>
-                                <button class="calc-btn">9</button>
-                                <button class="calc-btn calc-op">-</button>
-                                
-                                <button class="calc-btn">4</button>
-                                <button class="calc-btn">5</button>
-                                <button class="calc-btn">6</button>
-                                <button class="calc-btn calc-op">+</button>
-                                
-                                <button class="calc-btn">1</button>
-                                <button class="calc-btn">2</button>
-                                <button class="calc-btn">3</button>
-                                <button class="calc-btn calc-equal" style="grid-row: span 2; height: 100%;">=</button>
-                                
-                                <button class="calc-btn" style="grid-column: span 2;">0</button>
-                                <button class="calc-btn">.</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <nav class="bottom-nav-container">
-        <div class="bottom-nav">
-            <a href="#risk" class="nav-item"><i class="fas fa-exclamation-circle"></i></a>
-            <a href="#prevention" class="nav-item"><i class="fas fa-list-ol"></i></a>
-            <a href="#actions" class="nav-item"><i class="fas fa-bolt"></i></a>
-            <a href="#weather" class="nav-item"><i class="fas fa-camera"></i></a>
-            <a href="#calculator" class="nav-item"><i class="fas fa-calculator"></i></a>
         </div>
-    </nav>
 
-    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content bg-transparent border-0 shadow-none">
-                <div class="modal-body-wrapper text-center position-relative">
-                    <button type="button" class="btn-close-custom border-0 text-white position-absolute top-0 end-0 m-2 z-3 d-flex justify-content-center align-items-center" data-bs-dismiss="modal">
-                        <i class="fas fa-times"></i>
-                    </button>
-                    <img src="" id="modalImg" class="img-fluid rounded-4 shadow-lg dynamic-modal-preview" alt="全屏查看" style="max-height: 85vh; width: auto;">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="scroll-sentinel" style="height: 1px; margin-top: -1px; pointer-events: none;"></div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // 全局图片预览方法挂载（节点安全保护）
-        window.viewImage = function(srcUrl) {
-            const modalImg = document.getElementById('modalImg');
-            const modalElement = document.getElementById('imageModal');
-            if (modalImg && modalElement && typeof bootstrap !== 'undefined') {
-                modalImg.src = srcUrl;
-                const bsModal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
-                bsModal.show();
-            }
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // 定时器与观察者资源回收注册表（内存泄漏规避）
-            const cleanupRegistry = {
-                intervals: [],
-                observers: []
-            };
-
-            const sections = document.querySelectorAll('section');
-            const sentinel = document.getElementById('scroll-sentinel');
-            const navItems = document.querySelectorAll('.nav-item, .desktop-nav-link');
-            let isProgrammaticScrolling = false;
-            let scrollTimeout = null;
-            const visibilityMap = {};
-
-            function clearScrollLock() { isProgrammaticScrolling = false; }
-            if ('onscrollend' in window) window.addEventListener('scrollend', clearScrollLock);
-
-            // 联动高亮 IntersectionObserver 逻辑
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.target) {
-                        const id = entry.target.getAttribute('id');
-                        if (entry.isIntersecting) visibilityMap[id] = entry.intersectionRect.height;
-                        else delete visibilityMap[id];
-                    }
-                });
-                if (isProgrammaticScrolling) return;
-                let activeId = null, maxHeight = -1;
-                for (const id in visibilityMap) {
-                    if (id === 'scroll-sentinel') continue;
-                    if (visibilityMap[id] > maxHeight) { maxHeight = visibilityMap[id]; activeId = id; }
-                }
-                if (visibilityMap['scroll-sentinel'] > 0 && sections.length > 0) activeId = sections[sections.length - 1].getAttribute('id');
-                if (activeId) {
-                    navItems.forEach(link => {
-                        const href = link.getAttribute('href');
-                        if (href) link.classList.toggle('active', href.includes(activeId));
-                    });
-                }
-            }, { threshold: [0, 0.2, 0.5, 0.8, 1.0] });
-
-            sections.forEach(sec => observer.observe(sec));
-            if (sentinel) observer.observe(sentinel);
-            cleanupRegistry.observers.push(observer);
-
-            // 平滑滚动点击事件
-            navItems.forEach(link => link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                if (!targetId) return;
-                const targetSection = document.querySelector(targetId);
-                if (targetSection) {
-                    isProgrammaticScrolling = true;
-                    navItems.forEach(l => l.classList.toggle('active', l.getAttribute('href') === targetId));
-                    const isMobile = window.innerWidth < 992;
-                    window.scrollTo({ top: targetSection.getBoundingClientRect().top + window.scrollY - (isMobile ? 80 : 90) - 10, behavior: 'smooth' });
-                    clearTimeout(scrollTimeout);
-                    scrollTimeout = setTimeout(clearScrollLock, 600);
-                }
-            }));
-
-            // 主题色彩控制
-            const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle) {
-                const themeIcon = themeToggle.querySelector('i');
-                if (themeIcon && document.documentElement.getAttribute('data-theme') === 'dark') {
-                    themeIcon.classList.replace('fa-moon', 'fa-sun');
-                }
-                themeToggle.addEventListener('click', () => {
-                    const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                    document.documentElement.setAttribute('data-theme', newTheme);
-                    localStorage.setItem('theme', newTheme);
-                    if (themeIcon) {
-                        themeIcon.style.transform = 'scale(0) rotate(180deg)';
-                        setTimeout(() => {
-                            themeIcon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-                            themeIcon.style.transform = 'scale(1) rotate(0deg)';
-                        }, 150);
-                    }
-                });
-            }
-
-            // ==============================
-            // 腾讯地图定位及刷新逻辑（异常防白兜底）
-            // ==============================
-            const locInput = document.getElementById('watermark-location');
-            const refreshBtn = document.getElementById('refresh-location-btn');
-            const refreshIcon = document.getElementById('refresh-icon');
-
-            if (locInput) {
-                let userHasTyped = false;
-                locInput.addEventListener('input', () => userHasTyped = true);
-
-                const updateLoc = (text) => { 
-                    if (!userHasTyped) locInput.value = text; 
-                    stopSpinning();
-                };
-
-                const fallback = () => { 
-                    if (!userHasTyped) { 
-                        locInput.value = ''; 
-                        locInput.placeholder = '定位失败，请手动输入位置'; 
-                    } 
-                    stopSpinning();
-                };
-
-                const startSpinning = () => {
-                    if (refreshIcon) refreshIcon.classList.add('fa-spin');
-                    if (refreshBtn) refreshBtn.disabled = true;
-                };
-
-                const stopSpinning = () => {
-                    if (refreshIcon) refreshIcon.classList.remove('fa-spin');
-                    if (refreshBtn) refreshBtn.disabled = false;
-                };
-
-                const triggerGeolocation = () => {
-                    startSpinning();
-                    if (!userHasTyped) {
-                        locInput.value = "正在调用底层定位...";
-                    }
-                    if (window.qq && qq.maps && qq.maps.Geolocation) {
-                        const geo = new qq.maps.Geolocation("OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77", "wuliu_helper");
-                        geo.getLocation(
-                            pos => updateLoc(pos.addr || (pos.province + pos.city + ' (请补充小区)')),
-                            () => geo.getIpLocation(
-                                ipPos => updateLoc((ipPos.province || '') + ipPos.city + ' (请补充街道)'), 
-                                fallback
-                            ),
-                            { timeout: 6000 }
-                        );
-                    } else {
-                        fallback();
-                    }
-                };
-
-                triggerGeolocation();
-
-                if (refreshBtn) {
-                    refreshBtn.addEventListener('click', () => {
-                        userHasTyped = false; 
-                        triggerGeolocation();
-                    });
-                }
-            }
-
-            // ==============================
-            // Supabase 云图片上传展示逻辑（异常断网保护）
-            // ==============================
-            const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
-            const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
-            const BUCKET_NAME = 'weather-proofs'; 
-
-            const fileInput = document.getElementById('weather-upload');
-            const uploadZone = document.getElementById('uploadZone');
-            const previewContainer = document.getElementById('upload-preview-container');
-            const previewGallery = document.getElementById('preview-gallery');
-            let isSyncing = false;
-
-            if (fileInput && uploadZone && previewContainer && previewGallery && window.supabase) {
-                let supabaseClient = null;
-                try {
-                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                } catch (e) {
-                    console.error("Supabase 客户端建立异常", e);
-                }
-
-                let currentHash = ''; 
-
-                async function syncGallery(isSilent = false) {
-                    if (isSyncing || !supabaseClient) return;
-                    isSyncing = true;
-                    try {
-                        if (!isSilent && !currentHash) {
-                            previewContainer.classList.remove('d-none');
-                            previewGallery.innerHTML = '<div class="col-12 text-center text-secondary small py-4"><i class="fas fa-spinner fa-spin me-2"></i>正在拉取数据...</div>';
-                        }
-
-                        const { data, error } = await supabaseClient.storage.from(BUCKET_NAME).list('weather-photos', { limit: 50, sortBy: { column: 'name', order: 'desc' } });
-                        if (error) throw error;
-
-                        const files = (data || []).filter(f => f.name !== '.emptyFolderPlaceholder');
-                        const newHash = files.map(f => f.name).join(',');
-                        
-                        if (isSilent && newHash === currentHash) {
-                            isSyncing = false; return; 
-                        }
-                        currentHash = newHash;
-
-                        if (files.length === 0) {
-                            previewGallery.innerHTML = '<div class="col-12 text-center text-secondary small py-3">暂时没有照片</div>';
-                            isSyncing = false; return;
-                        }
-
-                        const fragment = document.createDocumentFragment();
-                        files.forEach(file => {
-                            const path = `weather-photos/${file.name}`;
-                            const { data: urlData } = supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(path);
-                            if (!urlData?.publicUrl) return;
-
-                            const col = document.createElement('div');
-                            col.className = 'col-6 col-md-4 position-relative';
-                            
-                            const wrapper = document.createElement('div');
-                            wrapper.className = 'position-relative overflow-hidden rounded-4 shadow-sm';
-                            wrapper.style.cssText = 'aspect-ratio: 4/3; background: var(--bg-body);';
-                            
-                            const img = document.createElement('img');
-                            img.src = urlData.publicUrl;
-                            img.className = 'w-100 h-100';
-                            img.style.cssText = 'object-fit: cover; cursor: pointer;';
-                            img.alt = '报备照片';
-                            img.onclick = () => window.viewImage(urlData.publicUrl);
-                            
-                            const btn = document.createElement('button');
-                            btn.type = 'button';
-                            btn.className = 'delete-cloud-btn';
-                            btn.setAttribute('data-path', path);
-                            btn.setAttribute('aria-label', '删除照片');
-                            btn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-                            
-                            btn.onclick = async function(e) {
-                                e.stopPropagation();
-                                const targetPath = this.getAttribute('data-path');
-                                this.disabled = true;
-                                this.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 0.7rem;"></i>';
-                                try {
-                                    const { error: delErr } = await supabaseClient.storage.from(BUCKET_NAME).remove([targetPath]);
-                                    if (delErr) throw delErr;
-                                    await syncGallery(true); 
-                                } catch (err) {
-                                    alert('删除失败，请重试：' + err.message);
-                                    this.disabled = false;
-                                    this.innerHTML = '<i class="fas fa-trash-alt"></i>';
-                                }
-                            };
-
-                            wrapper.appendChild(img);
-                            wrapper.appendChild(btn);
-                            col.appendChild(wrapper);
-                            fragment.appendChild(col);
-                        });
-
-                        previewGallery.innerHTML = ''; 
-                        previewGallery.appendChild(fragment);
-                        previewContainer.classList.remove('d-none');
-                    } catch (err) {
-                        console.error('相册同步异常:', err);
-                        if (!isSilent) previewGallery.innerHTML = `<div class="col-12 text-center text-danger small py-3"><i class="fas fa-wifi me-2"></i>加载失败，请重试。</div>`;
-                    } finally {
-                        isSyncing = false;
-                    }
-                }
-
-                syncGallery(false);
-                
-                const syncInterval = setInterval(() => {
-                    if (document.visibilityState === 'visible') syncGallery(true);
-                }, 15000);
-                cleanupRegistry.intervals.push(syncInterval);
-
-                // 图片压缩与安全防伪水印添加
-                function processImage(file, locText) {
-                    return new Promise(resolve => {
-                        if (!file.type.startsWith('image/')) return resolve(file);
-                        const reader = new FileReader();
-                        reader.onload = e => {
-                            const img = new Image();
-                            img.onload = () => {
-                                const canvas = document.createElement('canvas');
-                                const maxW = 1024;
-                                let w = img.width, h = img.height;
-                                if (w > maxW || h > maxW) {
-                                    if (w > h) { h = Math.round(h * maxW / w); w = maxW; }
-                                    else { w = Math.round(w * maxW / h); h = maxW; }
-                                }
-                                canvas.width = w; canvas.height = h;
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(img, 0, 0, w, h);
-
-                                const fSize = Math.max(14, Math.round(w * 0.026));
-                                ctx.font = `bold ${fSize}px sans-serif`;
-                                ctx.textBaseline = 'top';
-
-                                const now = new Date();
-                                const timeStr = `⏰ 时间：2026-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-                                const locStr = `📍 位置：${locText || '未获取到位置'}`;
-                                
-                                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-                                ctx.fillRect(0, h - (fSize * 3 + 20), w, fSize * 3 + 20);
-                                ctx.fillStyle = '#fff';
-                                ctx.fillText(timeStr, 10, h - (fSize * 2.5 + 10));
-                                ctx.fillText(locStr, 10, h - (fSize * 1.2 + 10));
-
-                                canvas.toBlob(blob => resolve(blob ? new File([blob], file.name.replace(/\.[^/.]+$/, "") + "_proof.jpg", { type: 'image/jpeg' }) : file), 'image/jpeg', 0.7);
-                            };
-                            img.onerror = () => resolve(file);
-                            img.src = e.target.result;
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                }
-
-                fileInput.addEventListener('change', async function(e) {
-                    const files = Array.from(e.target.files);
-                    if (!files.length) return;
-
-                    const txtNode = uploadZone.querySelector('.fw-bold');
-                    const ogTxt = txtNode ? txtNode.innerText : '';
-                    uploadZone.style.opacity = '0.6';
-                    uploadZone.style.pointerEvents = 'none';
-
-                    const loc = locInput ? locInput.value.trim() : '';
-
-                    for (let i = 0; i < files.length; i++) {
-                        if (txtNode) txtNode.innerText = `处理中 (${i + 1}/${files.length})...`;
-                        const processed = await processImage(files[i], loc);
-                        const fileName = `weather-photos/${Date.now()}-${Math.random().toString(36).substring(2,7)}.jpg`;
-
-                        try {
-                            const { error } = await supabaseClient.storage.from(BUCKET_NAME).upload(fileName, processed, { cacheControl: '604800', upsert: false });
-                            if (error) throw error;
-                        } catch (err) {
-                            alert(`照片 [${files[i].name}] 上传失败: ${err.message}`);
-                        }
-                    }
-
-                    if (txtNode) txtNode.innerText = ogTxt;
-                    uploadZone.style.opacity = '1';
-                    uploadZone.style.pointerEvents = 'auto';
-                    fileInput.value = ''; 
-                    
-                    currentHash = '';
-                    syncGallery(true);
-                });
-            }
-
-            // ==============================
-            // 阶梯展现与核算控制核心引擎
-            // ==============================
-            const imageTiers = [
-                { minOrder: 1, price: 4.0 },
-                { minOrder: 600, price: 5.0 },
-                { minOrder: 1000, price: 5.5 },
-                { minOrder: 1300, price: 6.5 }
-            ];
-
-            const totalOrdersInput = document.getElementById('totalOrders');
-            const groupOrdersInput = document.getElementById('groupOrders');
-            const groupPriceInput = document.getElementById('groupPrice');
-            
-            const tierContainer = document.getElementById('tierContainer');
-            const errorBox = document.getElementById('errorBox');
-            const saveTip = document.getElementById('saveTip');
-
-            const resTier = document.getElementById('resTier');
-            const resRegularTotal = document.getElementById('resRegularTotal');
-            const resGroupInfo = document.getElementById('resGroupInfo');
-            const resGroupTotal = document.getElementById('resGroupTotal');
-            const resTotal = document.getElementById('resTotal');
-
-            let saveTimeout = null;
-
-            // 输入纯数字过滤校验机制
-            const sanitizeInput = (val) => {
-                let clean = val.replace(/[^\d]/g, ''); 
-                if (clean.length > 5) clean = clean.slice(0, 5); 
-                return clean;
-            };
-
-            function initCalculatorData() {
-                let localData = null;
-                try {
-                    if (window.localStorage) {
-                        localData = localStorage.getItem('tier_calculator_storage_v2');
-                    }
-                } catch (e) {
-                    console.warn("本地存储被浏览器安全规则拦截", e);
-                }
-
-                if (tierContainer) {
-                    tierContainer.innerHTML = '';
-                    imageTiers.forEach(tier => addTierRow(tier.minOrder, tier.price));
-                }
-
-                if (localData && totalOrdersInput && groupOrdersInput && groupPriceInput) {
-                    try {
-                        const parsed = JSON.parse(localData);
-                        totalOrdersInput.value = parsed.totalOrders !== undefined ? sanitizeInput(String(parsed.totalOrders)) : '0';
-                        groupOrdersInput.value = parsed.groupOrders !== undefined ? sanitizeInput(String(parsed.groupOrders)) : '0';
-                        groupPriceInput.value = '3.20'; 
-                        calculate(false); 
-                        return;
-                    } catch (e) {
-                        console.error("缓存反序列化出错", e);
-                    }
-                }
-                loadDefaultImageTiers();
-            }
-
-            function loadDefaultImageTiers() {
-                if (totalOrdersInput && groupOrdersInput && groupPriceInput) {
-                    totalOrdersInput.value = '0'; 
-                    groupOrdersInput.value = '0'; 
-                    groupPriceInput.value = '3.20'; 
-                    calculate(true);
-                }
-            }
-
-            function addTierRow(minOrder = '', price = '') {
-                if (!tierContainer) return;
-                const row = document.createElement('div');
-                row.className = 'tier-row';
-                row.innerHTML = `
-                    <div class="calc-input-group">
-                        <input type="text" class="form-control text-center fw-bold" value="${minOrder}" readonly style="background: var(--bg-surface); color: var(--text-primary);">
-                        <span class="input-suffix opacity-75">单起</span>
-                    </div>
-                    <div class="calc-input-group">
-                        <input type="text" class="form-control text-center fw-bold" value="${price.toFixed(2)}" readonly style="background: var(--bg-surface); color: var(--text-primary);">
-                        <span class="input-suffix opacity-75">元</span>
-                    </div>
-                `;
-                tierContainer.appendChild(row);
-            }
-
-            function calculate(shouldSave = true) {
-                showError("");
-                if (!totalOrdersInput || !groupOrdersInput || !resTier || !resRegularTotal || !resGroupInfo || !resGroupTotal || !resTotal) return;
-                
-                const totalOrdersStr = totalOrdersInput.value.trim();
-                const groupOrdersStr = groupOrdersInput.value.trim();
-                const groupPriceStr = "3.20"; 
-                
-                if (shouldSave) {
-                    try {
-                        if (window.localStorage) {
-                            const dataToSave = { totalOrders: totalOrdersStr, groupOrders: groupOrdersStr, groupPrice: groupPriceStr };
-                            localStorage.setItem('tier_calculator_storage_v2', JSON.stringify(dataToSave));
-                            if (saveTip) {
-                                saveTip.style.display = 'block';
-                                if (saveTimeout) clearTimeout(saveTimeout);
-                                saveTimeout = setTimeout(() => { saveTip.style.display = 'none'; }, 1200);
-                            }
-                        }
-                    } catch (e) {}
-                }
-
-                let regularSubtotal = 0;
-                let regularTierText = "-";
-                
-                if (totalOrdersStr !== "") {
-                    const totalOrders = parseFloat(totalOrdersStr);
-                    if (totalOrders < 0 || !Number.isInteger(totalOrders)) {
-                        showError("常规总单量需要输入一个正整数！");
-                        resetResultDisplay();
-                        return;
-                    }
-
-                    let matchedIndex = -1;
-                    for (let i = 0; i < imageTiers.length; i++) {
-                        if (totalOrders >= imageTiers[i].minOrder) { matchedIndex = i; }
-                    }
-
-                    if (matchedIndex !== -1) {
-                        const matchedTier = imageTiers[matchedIndex];
-                        regularSubtotal = totalOrders * matchedTier.price;
-                        
-                        if (matchedIndex === imageTiers.length - 1) {
-                            regularTierText = `${matchedTier.minOrder}单+ (￥${matchedTier.price.toFixed(2)})`;
-                        } else {
-                            const nextTier = imageTiers[matchedIndex + 1];
-                            regularTierText = `${matchedTier.minOrder}-${nextTier.minOrder - 1}单 (￥${matchedTier.price.toFixed(2)})`;
-                        }
-                    } else {
-                        regularTierText = "未达门槛";
-                        regularSubtotal = 0;
-                    }
-                }
-
-                let groupSubtotal = 0;
-                let groupCount = 0;
-                let groupUnitPrice = 3.20;
-
-                if (groupOrdersStr !== "") {
-                    groupCount = groupOrdersStr === "" ? 0 : parseFloat(groupOrdersStr);
-
-                    if (groupCount < 0 || !Number.isInteger(groupCount)) {
-                        showError("拼团单量需要输入一个正整数！");
-                        resetResultDisplay();
-                        return;
-                    }
-                    groupSubtotal = groupCount * groupUnitPrice;
-                }
-
-                const grandTotal = regularSubtotal + groupSubtotal;
-                
-                resTier.textContent = regularTierText;
-                resRegularTotal.textContent = `￥${regularSubtotal.toFixed(2)}`;
-                resGroupInfo.textContent = `${groupCount}单×￥${groupUnitPrice.toFixed(2)}`;
-                resGroupTotal.textContent = `￥${groupSubtotal.toFixed(2)}`;
-                resTotal.textContent = `￥${grandTotal.toFixed(2)}`;
-            }
-
-            function resetResultDisplay() {
-                if (resTier && resRegularTotal && resGroupInfo && resGroupTotal && resTotal) {
-                    resTier.textContent = "数据错误"; resRegularTotal.textContent = "￥0.00";
-                    resGroupInfo.textContent = "0单 × ￥0.00"; resGroupTotal.textContent = "￥0.00"; resTotal.textContent = "￥0.00";
-                }
-            }
-
-            function showError(msg) {
-                if (!errorBox) return;
-                if (msg) { errorBox.textContent = msg; errorBox.style.display = 'block'; } 
-                else { errorBox.style.display = 'none'; }
-            }
-
-            if (totalOrdersInput && groupOrdersInput) {
-                totalOrdersInput.addEventListener('input', (e) => {
-                    e.target.value = sanitizeInput(e.target.value);
-                    calculate(true);
-                });
-                groupOrdersInput.addEventListener('input', (e) => {
-                    e.target.value = sanitizeInput(e.target.value);
-                    calculate(true);
-                });
-            }
-
-            initCalculatorData();
-
-            // ==============================
-            // 右侧便捷快速物理盘算控制器
-            // ==============================
-            const calcDisplay = document.getElementById('calcDisplay');
-            const calcButtons = document.querySelectorAll('.calc-buttons .calc-btn');
-            let calcValue = '';
-
-            calcButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    if (!calcDisplay) return;
-                    const action = btn.textContent;
-                    
-                    if (action === 'C') {
-                        calcValue = '';
-                    } else if (action === '⌫') {
-                        calcValue = calcValue.slice(0, -1);
-                    } else if (action === '=') {
-                        try {
-                            if(calcValue.trim() !== '') {
-                                let result = new Function('return ' + calcValue)();
-                                calcValue = String(Math.round(result * 1000000) / 1000000); 
-                            }
-                        } catch (e) {
-                            calcValue = '错误';
-                        }
-                    } else {
-                        if (calcValue === '错误') calcValue = '';
-                        calcValue += action;
-                    }
-                    calcDisplay.value = calcValue;
-                });
-            });
-
-            // 页面生命周期终结前解绑资源
-            window.addEventListener('beforeunload', () => {
-                cleanupRegistry.intervals.forEach(clearInterval);
-                cleanupRegistry.observers.forEach(obs => obs.disconnect());
-            });
-        });
-    </script>
-</body>
+    </body>
 </html>
