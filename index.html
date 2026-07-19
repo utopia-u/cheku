@@ -117,7 +117,7 @@
             align-items: flex-start;
         }
 
-        /* 统一缩小微调后的精细化外部包围盒尺寸 */
+        /* 锁死合理的外部比例围盒尺寸 */
         .header-title {
             width: 100%;
             max-width: 145px; 
@@ -130,7 +130,7 @@
             display: block;
         }
 
-        /* 核心矢量路径高级渲染平移：下排文字向左推移 11.73%，完美左对齐 */
+        /* 高级路径向左平移 11.73%，完美解决两排文字不对齐问题 */
         .header-title svg path:nth-child(n+18) {
             transform-box: view-box;
             transform: translateX(-11.73%);
@@ -353,7 +353,7 @@
         .weather-card i { margin-bottom: 6px; font-size: 1.5rem; opacity: 0.9; }
 
         /* ==============================
-           2. 计算器集成专有样式表
+           2. 计算器集成专有样式表（修正原生代码属性Bug）
            ============================== */
         .calc-sub-card {
             background: var(--bg-body); border-radius: 16px; padding: 16px; margin-bottom: 16px;
@@ -362,7 +362,8 @@
         [data-theme="dark"] .calc-sub-card {
             background: rgba(255, 255, 255, 0.02); border-color: rgba(255, 255, 255, 0.04);
         }
-        .calc-input-group { d-flex; align-items: center; position: relative; width: 100%; }
+        /* 纠正原生代码 typo：将 d-flex 更正为标准的 display: flex */
+        .calc-input-group { display: flex; align-items: center; position: relative; width: 100%; }
         .calc-input-group input {
             width: 100%; padding: 8px 45px 8px 12px; border: 1.5px solid rgba(0,0,0,0.06);
             border-radius: 10px; font-size: 0.95rem; font-weight: 600; color: var(--text-primary);
@@ -455,6 +456,14 @@
         .calc-clear { background: var(--danger-bg); color: var(--danger-text); }
         .calc-equal { background: var(--accent-color); color: #fff; }
 
+        .btn-close-custom { background: rgba(0,0,0,0.5); border-radius: 50%; width: 40px; height: 40px; backdrop-filter: blur(4px); transition: background 0.2s; }
+        .btn-close-custom:active { background: rgba(0,0,0,0.8); }
+        .opacity-75 { opacity: 0.75; }
+        .fw-800 { font-weight: 800; }
+        .fw-900 { font-weight: 900; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+
         /* ==============================
            3. PC端响应式自适应网格
            ============================== */
@@ -495,7 +504,7 @@
             .action-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.06); }
             [data-theme="dark"] .action-btn:hover { box-shadow: 0 12px 24px rgba(0,0,0,0.3); }
 
-            /* 电脑宽屏环境对收缩后的原生矢量主题标识适配更大方稳重的容器宽度 */
+            /* 电脑宽屏自适应容器宽度约束 */
             .header-title {
                 max-width: 180px;
             }
@@ -1120,7 +1129,7 @@
                                 ctx.textBaseline = 'top';
 
                                 const now = new Date();
-                                const timeStr = `⏰ 时间：${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                                const timeStr = `⏰ 时间：2026-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
                                 const locStr = `📍 位置：${locText || '未获取到位置'}`;
                                 
                                 ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
