@@ -63,20 +63,6 @@
             --nav-height: 80px;
             --header-height: auto; 
             --location-border: rgba(255, 68, 0, 0.12);
-
-            /* 2026 超流体悬浮岛（Spatial Liquid Island）高质感变量 */
-            --island-bg-light: rgba(255, 255, 255, 0.72);
-            --island-border-light: rgba(255, 255, 255, 0.85);
-            --island-shadow-light: 
-                0 20px 40px -12px rgba(255, 68, 0, 0.15),
-                0 8px 16px -8px rgba(0, 0, 0, 0.06),
-                inset 0 1px 2px 0 rgba(255, 255, 255, 0.95),
-                inset 0 -1px 2px 0 rgba(0, 0, 0, 0.05);
-                
-            --glider-gradient: linear-gradient(135deg, #FF5500 0%, #FF2200 100%);
-            --glider-shadow: 
-                0 6px 18px -2px rgba(255, 68, 0, 0.48),
-                inset 0 1px 1.5px rgba(255, 255, 255, 0.4);
         }
 
         [data-theme="dark"] {
@@ -97,15 +83,6 @@
             --card-shadow: 0 12px 32px rgba(0,0,0,0.5);
             --inner-card-shadow: 0 6px 18px rgba(0,0,0,0.4);
             --location-border: rgba(255, 68, 0, 0.15);
-
-            /* 暗黑模式悬浮岛变量 */
-            --island-bg-dark: rgba(28, 25, 23, 0.75);
-            --island-border-dark: rgba(255, 255, 255, 0.12);
-            --island-shadow-dark: 
-                0 20px 45px -10px rgba(0, 0, 0, 0.65),
-                0 8px 20px -6px rgba(0, 0, 0, 0.45),
-                inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
-                inset 0 -1px 1px 0 rgba(0, 0, 0, 0.6);
         }
 
         html, body {
@@ -407,7 +384,7 @@
         .action-icon { font-size: 1.8rem; margin-bottom: 12px; display: inline-block; }
 
         /* ==========================================================================
-           2026 超流体悬浮岛 (Spatial Liquid Island) - 样式升级
+           GitHub Mobile 风格悬浮岛 UI & 特效重构
            ========================================================================== */
         .bottom-nav-container {
             position: fixed;
@@ -428,43 +405,44 @@
             position: relative;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            padding: 6px;
+            gap: 2px;
+            padding: 5px;
             border-radius: var(--radius-pill);
-            background: var(--island-bg-light);
-            backdrop-filter: blur(28px) saturate(210%);
-            -webkit-backdrop-filter: blur(28px) saturate(210%);
-            border: 1px solid var(--island-border-light);
-            box-shadow: var(--island-shadow-light);
-            transition: 
-                background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-            will-change: transform, background;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(208, 215, 222, 0.8);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
         }
 
         [data-theme="dark"] .bottom-nav {
-            background: var(--island-bg-dark);
-            border: 1px solid var(--island-border-dark);
-            box-shadow: var(--island-shadow-dark);
+            background: rgba(22, 27, 34, 0.85);
+            border: 1px solid rgba(48, 54, 61, 0.8);
+            box-shadow: 0 12px 36px -6px rgba(1, 4, 9, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4);
         }
 
-        /* 物理弹簧轨迹滑块 */
+        /* GitHub 动态高亮背景块 */
         .nav-pill-glider {
             position: absolute;
-            top: 6px;
+            top: 5px;
             left: 0;
-            height: calc(100% - 12px);
-            background: var(--glider-gradient);
+            height: calc(100% - 10px);
+            background: #F3F4F6;
             border-radius: var(--radius-pill);
-            box-shadow: var(--glider-shadow);
+            border: 1px solid rgba(208, 215, 222, 0.6);
             z-index: 1;
             pointer-events: none;
             transition: 
-                transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
-                width 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+                transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             will-change: transform, width;
+        }
+
+        [data-theme="dark"] .nav-pill-glider {
+            background: #21262D;
+            border: 1px solid rgba(240, 246, 252, 0.1);
         }
 
         .nav-item {
@@ -474,7 +452,7 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            height: 44px;
+            height: 40px;
             padding: 0 14px;
             border-radius: var(--radius-pill);
             color: var(--text-secondary);
@@ -483,36 +461,45 @@
             user-select: none;
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
-            transition: color 0.25s ease, transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: color 0.2s ease, transform 0.15s ease;
             cursor: pointer;
         }
 
         .nav-item i {
-            font-size: 1.35rem;
+            font-size: 1.25rem;
             line-height: 1;
             flex-shrink: 0;
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
         }
 
         .nav-item .nav-text {
-            font-size: 0.85rem;
-            font-weight: 700;
+            font-size: 0.82rem;
+            font-weight: 600;
             white-space: nowrap;
             max-width: 0;
             opacity: 0;
             overflow: hidden;
             letter-spacing: -0.01em;
             transition: 
-                max-width 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
-                opacity 0.25s ease-out;
+                max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.2s ease-out;
         }
 
         .nav-item.active {
-            color: #FFFFFF !important;
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .nav-item.active {
+            color: #F0F6FC !important;
         }
 
         .nav-item.active i {
-            transform: scale(1.05);
+            color: var(--accent-color);
+            transform: scale(1.08);
+        }
+
+        [data-theme="dark"] .nav-item.active i {
+            color: #58A6FF;
         }
 
         .nav-item.active .nav-text {
@@ -524,16 +511,12 @@
             color: var(--text-primary);
         }
 
-        .nav-item:hover:not(.active) i {
-            transform: translateY(-1px);
-        }
-
         .nav-item:active {
-            transform: scale(0.92);
+            transform: scale(0.94);
         }
 
         .nav-item:focus-visible {
-            box-shadow: 0 0 0 3px rgba(255, 68, 0, 0.4);
+            box-shadow: 0 0 0 2px #0969da;
         }
 
         /* 恶劣天气视觉控制 */
@@ -589,87 +572,273 @@
             cursor: pointer; transition: background 0.2s, transform 0.1s; backdrop-filter: blur(4px);
         }
 
-        /* 计算器样式表 */
+        /* 阶梯单量计算器样式 */
         .calc-sub-card {
-            background: var(--bg-body); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 16px;
-            border: 1px solid rgba(255, 68, 0, 0.04); transition: background 0.3s, border 0.3s;
-        }
-        [data-theme="dark"] .calc-sub-card {
-            background: rgba(255, 255, 255, 0.01); border-color: rgba(255, 255, 255, 0.02);
-        }
-        .calc-input-group { display: flex; align-items: center; position: relative; width: 100%; }
-        
-        .calc-input-group input {
-            width: 100%; padding: 8px 45px 8px 12px; border: 1.5px solid var(--location-border);
-            border-radius: var(--radius-md); font-size: 0.95rem; font-weight: 600; color: var(--text-primary);
-            background-color: var(--bg-surface); transition: all 0.2s ease;
-        }
-        [data-theme="dark"] .calc-input-group input { background-color: rgba(0, 0, 0, 0.2); }
-        .calc-input-group input:focus {
-            outline: none; border-color: var(--accent-color); background-color: var(--bg-surface);
-            box-shadow: 0 0 0 3px var(--accent-light);
-        }
-        .calc-input-group .input-suffix {
-            position: absolute; right: 12px; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); pointer-events: none;
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 68, 0, 0.06);
+            box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
-        .tier-row {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center;
-            margin-bottom: 10px; padding: 10px 12px; background: rgba(var(--bg-surface-rgb), 0.5); 
-            border-radius: var(--radius-md); border: 1px solid rgba(255, 68, 0, 0.05); transition: background 0.3s;
-        }
-        
-        .tier-row .calc-input-group input, #groupPrice {
-            background: var(--bg-surface) !important; border: 1.5px solid var(--location-border) !important; cursor: default;
-            font-size: 0.9rem; height: 40px; padding: 6px 45px 6px 12px; box-shadow: none !important;
-            text-align: center; font-weight: bold; color: var(--text-primary); border-radius: var(--radius-md) !important;
+        [data-theme="dark"] .calc-sub-card {
+            background: rgba(38, 34, 32, 0.6);
+            border-color: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.3);
         }
 
         .grand-total-box {
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white;
-            padding: 16px; border-radius: var(--radius-md); text-align: center;
-            box-shadow: 0 6px 15px -3px rgba(16, 185, 129, 0.2);
+            background: linear-gradient(135deg, #059669 0%, #10B981 60%, #34D399 100%);
+            color: #FFFFFF;
+            padding: 22px 20px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            position: relative;
+            box-shadow: 
+                0 16px 32px -8px rgba(16, 185, 129, 0.38),
+                inset 0 1px 1px 0 rgba(255, 255, 255, 0.4),
+                inset 0 -2px 4px 0 rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .grand-total-box .result-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; }
-        
-        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+        .grand-total-box::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .grand-total-box .result-value {
+            font-size: 2.3rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            line-height: 1.1;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
         .detail-box {
-            background: var(--bg-body); border: 1px solid rgba(255, 68, 0, 0.03); padding: 8px; 
-            border-radius: var(--radius-md); text-align: center; min-width: 0; overflow: hidden;
+            background: var(--bg-body);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            padding: 12px 10px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            min-width: 0;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
         }
-        .detail-grid .detail-box .result-value { 
-            font-size: 0.95rem !important; font-weight: 800; color: var(--text-primary); margin-top: 4px; 
-            display: block; width: 100%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;
+
+        [data-theme="dark"] .detail-box {
+            background: rgba(20, 18, 17, 0.5);
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .detail-grid .detail-box .result-value {
+            font-size: 0.98rem !important;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-top: 6px;
+            display: block;
+            width: 100%;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .calc-input-group {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 100%;
+        }
+
+        .calc-input-group input {
+            width: 100%;
+            height: 48px;
+            padding: 8px 46px 8px 14px;
+            border: 1.5px solid var(--location-border);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            background-color: var(--bg-body);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] .calc-input-group input {
+            background-color: rgba(0, 0, 0, 0.25);
+        }
+
+        .calc-input-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background-color: var(--bg-surface);
+            box-shadow: 0 0 0 3.5px var(--accent-light);
+        }
+
+        .calc-input-group .input-suffix {
+            position: absolute;
+            right: 14px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .tier-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px 14px;
+            background: rgba(var(--bg-surface-rgb), 0.6);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 68, 0, 0.06);
+            transition: all 0.2s ease;
+        }
+
+        .tier-row:hover {
+            border-color: rgba(255, 68, 0, 0.2);
+            background: var(--accent-light);
+        }
+
+        .tier-row .calc-input-group input {
+            background: var(--bg-surface) !important;
+            border: 1px solid var(--location-border) !important;
+            cursor: default;
+            font-size: 0.92rem;
+            height: 40px;
+            padding: 6px 42px 6px 12px;
+            box-shadow: none !important;
+            text-align: center;
+            font-weight: 800;
+            color: var(--text-primary);
+            border-radius: var(--radius-md) !important;
+        }
+
+        .calculator-wrapper {
+            background: var(--bg-surface);
+            border: 1px solid var(--location-border);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+            box-shadow: var(--card-shadow);
+        }
+
+        #calcDisplay {
+            width: 100%;
+            height: 52px;
+            margin-bottom: 14px;
+            text-align: right;
+            font-size: 1.45rem;
+            padding: 8px 16px;
+            border: 1.5px solid var(--location-border);
+            border-radius: var(--radius-md);
+            background: var(--bg-body);
+            color: var(--text-primary);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .calc-btn {
+            height: 48px;
+            font-size: 1.15rem;
+            border: 1px solid rgba(0,0,0,0.03);
+            border-radius: var(--radius-md);
+            background: var(--bg-body);
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-primary);
+            transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        [data-theme="dark"] .calc-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .calc-btn:hover {
+            background: var(--accent-light);
+            color: var(--accent-text);
+            transform: translateY(-2px);
+        }
+
+        .calc-btn:active {
+            transform: scale(0.92);
+        }
+
+        .calc-op {
+            background: var(--accent-light);
+            color: var(--accent-text);
+            font-weight: 800;
+        }
+
+        .calc-clear {
+            background: var(--danger-bg);
+            color: var(--danger-text);
+            font-weight: 800;
+        }
+
+        .calc-equal {
+            background: linear-gradient(135deg, #FF5500 0%, #FF2200 100%);
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(255, 68, 0, 0.35);
+            font-weight: 800;
         }
 
         .error-msg {
-            color: var(--danger-text); background: var(--danger-bg); border: 1px solid rgba(239, 68, 68, 0.1);
-            padding: 10px; border-radius: var(--radius-md); margin-bottom: 12px; font-size: 0.8rem; font-weight: 600; display: none;
+            color: var(--danger-text);
+            background: var(--danger-bg);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: none;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08);
         }
+
         .save-tip {
-            text-align: right; font-size: 0.72rem; color: var(--success-color); margin-top: -4px; margin-bottom: 10px; font-weight: 700; display: none;
+            text-align: right;
+            font-size: 0.75rem;
+            color: var(--success-color);
+            margin-top: -6px;
+            margin-bottom: 12px;
+            font-weight: 800;
+            display: none;
         }
-        
-        .calculator-wrapper {
-            background: var(--bg-body); border: 1px solid var(--location-border); 
-            border-radius: var(--radius-lg); padding: 16px; width: 100%; max-width: 320px; margin: 0 auto;
-        }
-        #calcDisplay {
-            width: 100%; height: 44px; margin-bottom: 12px; text-align: right; font-size: 1.3rem;
-            padding: 6px 12px; border: 1.5px solid var(--location-border); border-radius: var(--radius-md); 
-            background: var(--bg-surface); color: var(--text-primary); font-weight: 700; letter-spacing: 0.5px;
-        }
-        .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .calc-btn {
-            padding: 12px 0; font-size: 1.1rem; border: 1px solid rgba(0,0,0,0.01); border-radius: var(--radius-md); 
-            background: var(--bg-surface); cursor: pointer; font-weight: 700; color: var(--text-primary); transition: all 0.1s ease;
-        }
-        [data-theme="dark"] .calc-btn { background: rgba(255,255,255,0.04); border: none; }
-        .calc-btn:hover { background: var(--accent-light); color: var(--accent-text); }
-        .calc-btn:active { transform: scale(0.94); }
-        .calc-op { background: var(--accent-light); color: var(--accent-text); }
-        .calc-clear { background: var(--danger-bg); color: var(--danger-text); }
-        .calc-equal { background: var(--accent-color); color: #fff; }
 
         .modal-content { border-radius: var(--radius-xl) !important; }
         .dynamic-modal-preview { border-radius: var(--radius-xl) !important; }
@@ -976,26 +1145,26 @@
 
             <div class="row g-3">
                 <div class="col-12 col-lg-8">
-                    <div class="calc-sub-card style-res-box p-3" style="background: var(--bg-surface); box-shadow: var(--inner-card-shadow); border-radius: var(--radius-lg);">
+                    <div class="calc-sub-card p-3 p-md-4">
                         <div class="result-panel">
-                            <div class="grand-total-box" style="border-radius: var(--radius-md);">
-                                <div class="result-label opacity-75 text-xs fw-bold mb-1">统一汇汇总结算总额</div>
+                            <div class="grand-total-box">
+                                <div class="result-label opacity-75 text-xs fw-bold mb-1" style="letter-spacing: 0.5px;">统一汇汇总结算总额</div>
                                 <div id="resTotal" class="result-value">￥0.00</div>
                             </div>
                             <div class="detail-grid mt-3">
-                                <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
+                                <div class="detail-box" style="border-top: 3px solid var(--accent-color);">
                                     <div class="text-xs fw-bold text-secondary">常规匹配档位</div>
                                     <div id="resTier" class="result-value">-</div>
                                 </div>
-                                <div class="detail-box" style="border-top: 2.5px solid var(--accent-color);">
+                                <div class="detail-box" style="border-top: 3px solid var(--accent-color);">
                                     <div class="text-xs fw-bold text-secondary">常规小计</div>
                                     <div id="resRegularTotal" class="result-value">￥0.00</div>
                                 </div>
-                                <div class="detail-box" style="border-top: 2.5px solid var(--warning-color);">
+                                <div class="detail-box" style="border-top: 3px solid var(--warning-color);">
                                     <div class="text-xs fw-bold text-secondary">拼团明细</div>
                                     <div id="resGroupInfo" class="result-value">0单 × ￥0.00</div>
                                 </div>
-                                <div class="detail-box" style="border-top: 2.5px solid var(--warning-color);">
+                                <div class="detail-box" style="border-top: 3px solid var(--warning-color);">
                                     <div class="text-xs fw-bold text-secondary">拼团小计</div>
                                     <div id="resGroupTotal" class="result-value">￥0.00</div>
                                 </div>
@@ -1005,10 +1174,10 @@
 
                     <div class="row g-3 mb-1">
                         <div class="col-12 col-md-4">
-                            <div class="calc-sub-card mb-0">
+                            <div class="calc-sub-card mb-0 p-3">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <label class="text-sm fw-bold text-secondary mb-0">完成总单量</label>
-                                    <span id="regularOrdersBadge" class="badge bg-light text-secondary text-xs border" style="display:none; font-weight:600;">常规: 0单</span>
+                                    <span id="regularOrdersBadge" class="badge bg-light text-secondary text-xs border" style="display:none; font-weight:700;">常规: 0单</span>
                                 </div>
                                 <div class="calc-input-group">
                                     <input type="text" inputmode="numeric" pattern="[0-9]*" id="totalOrders" placeholder="0">
@@ -1017,7 +1186,7 @@
                             </div>
                         </div>
                         <div class="col-6 col-md-4">
-                            <div class="calc-sub-card mb-0">
+                            <div class="calc-sub-card mb-0 p-3">
                                 <label class="text-sm fw-bold text-secondary mb-2 d-block">拼团完成单量</label>
                                 <div class="calc-input-group">
                                     <input type="text" inputmode="numeric" pattern="[0-9]*" id="groupOrders" placeholder="0">
@@ -1026,7 +1195,7 @@
                             </div>
                         </div>
                         <div class="col-6 col-md-4">
-                            <div class="calc-sub-card mb-0">
+                            <div class="calc-sub-card mb-0 p-3">
                                 <label class="text-sm fw-bold text-secondary mb-2 d-block">拼团固定单价</label>
                                 <div class="calc-input-group group-price-wrapper">
                                     <input type="text" id="groupPrice" value="3.20" readonly>
@@ -1036,18 +1205,18 @@
                         </div>
                     </div>
 
-                    <div class="calc-sub-card mt-3 p-3">
+                    <div class="calc-sub-card mt-3 p-3 p-md-4">
                         <div class="mb-3">
                             <span class="text-xs fw-bold text-secondary"><i class="ph ph-sliders me-1"></i> 常规阶梯档位标准表（固定不可改）</span>
                         </div>
-                        <div id="tierContainer" style="padding-right: 0;"></div>
+                        <div id="tierContainer"></div>
                     </div>
                 </div>
 
                 <div class="col-12 col-lg-4 d-flex align-items-start justify-content-center">
                     <div class="w-100 py-2" style="max-width: 320px;">
                         <div class="text-center mb-2"><span class="text-xs fw-bold text-secondary"><i class="ph ph-calculator me-1"></i> 便捷快速核算辅助盘</span></div>
-                        <div class="calculator-wrapper shadow-sm">
+                        <div class="calculator-wrapper">
                             <input type="text" id="calcDisplay" readonly placeholder="0">
                             <div class="calc-buttons">
                                 <button class="calc-btn calc-clear">C</button>
@@ -1626,11 +1795,11 @@
                 row.className = 'tier-row';
                 row.innerHTML = `
                     <div class="calc-input-group">
-                        <input type="text" class="form-control text-center fw-bold" value="${minOrder}" readonly style="background: var(--bg-surface); color: var(--text-primary);">
+                        <input type="text" class="form-control text-center fw-bold" value="${minOrder}" readonly>
                         <span class="input-suffix opacity-75">单起</span>
                     </div>
                     <div class="calc-input-group">
-                        <input type="text" class="form-control text-center fw-bold" value="${Number(price).toFixed(2)}" readonly style="background: var(--bg-surface); color: var(--text-primary);">
+                        <input type="text" class="form-control text-center fw-bold" value="${Number(price).toFixed(2)}" readonly>
                         <span class="input-suffix opacity-75">元</span>
                     </div>
                 `;
