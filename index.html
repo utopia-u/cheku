@@ -842,7 +842,7 @@
                     <div class="calc-sub-card style-res-box p-3" style="background: var(--bg-surface); box-shadow: var(--inner-card-shadow); border-radius: var(--radius-lg);">
                         <div class="result-panel">
                             <div class="grand-total-box" style="border-radius: var(--radius-md);">
-                                <div class="result-label opacity-75 text-xs fw-bold mb-1">统一汇汇总结算总额</div>
+                                <div class="result-label opacity-75 text-xs fw-bold mb-1">统一汇总结算总额</div>
                                 <div id="resTotal" class="result-value">￥0.00</div>
                             </div>
                             <div class="detail-grid mt-3">
@@ -1273,6 +1273,20 @@
                 }, 15000);
                 cleanupRegistry.intervals.push(syncInterval);
 
+                // 设备型号与终端类型智能检测函数
+                function getDeviceInfo() {
+                    const ua = navigator.userAgent || '';
+                    if (/iPhone/i.test(ua)) return 'Apple iPhone 移动客户端';
+                    if (/iPad/i.test(ua)) return 'Apple iPad 移动客户端';
+                    if (/Android/i.test(ua)) {
+                        const match = ua.match(/Android\s+([\d.]+);?\s*([^;)]*)/i);
+                        return match && match[2] ? `Android (${match[2].trim()})` : 'Android 智能手机终端';
+                    }
+                    if (/Macintosh/i.test(ua)) return 'Mac OS 桌面终端';
+                    if (/Windows/i.test(ua)) return 'Windows 桌面终端';
+                    return '骑手现场移动拍摄终端';
+                }
+
                 function processImage(file, locText) {
                     return new Promise(resolve => {
                         if (!file || !file.type || !file.type.startsWith('image/')) return resolve(file);
@@ -1291,19 +1305,30 @@
                                 const ctx = canvas.getContext('2d');
                                 ctx.drawImage(img, 0, 0, w, h);
 
-                                const fSize = Math.max(14, Math.round(w * 0.026));
-                                ctx.font = `bold ${fSize}px sans-serif`;
+                                const fSize = Math.max(15, Math.round(w * 0.026));
+                                ctx.font = `bold ${fSize}px "Noto Sans SC", sans-serif`;
                                 ctx.textBaseline = 'top';
 
                                 const now = new Date();
-                                const timeStr = `⏰ 时间：2026-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')} : ${String(now.getMinutes()).padStart(2,'0')}`;
+                                const timeStr = `⏰ 时间：2026-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
                                 const locStr = `📍 位置：${locText || '未获取到位置'}`;
-                                
-                                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-                                ctx.fillRect(0, h - (fSize * 3 + 20), w, fSize * 3 + 20);
-                                ctx.fillStyle = '#fff';
-                                ctx.fillText(timeStr, 10, h - (fSize * 2.5 + 10));
-                                ctx.fillText(locStr, 10, h - (fSize * 1.2 + 10));
+                                const devStr = `📱 设备：${getDeviceInfo()}`;
+                                const tagStr = `🛡️ 存证：淘宝闪购物流责任防范存证图`;
+
+                                const lines = [tagStr, timeStr, locStr, devStr];
+                                const padding = Math.round(fSize * 0.8);
+                                const lineHeight = Math.round(fSize * 1.45);
+                                const boxHeight = lines.length * lineHeight + padding * 2;
+
+                                // 绘制底部黑色半透明蒙层
+                                ctx.fillStyle = 'rgba(0, 0, 0, 0.78)';
+                                ctx.fillRect(0, h - boxHeight, w, boxHeight);
+
+                                // 循环写入多行水印内容
+                                ctx.fillStyle = '#FFFFFF';
+                                lines.forEach((line, index) => {
+                                    ctx.fillText(line, padding, h - boxHeight + padding + index * lineHeight);
+                                });
 
                                 canvas.toBlob(blob => resolve(blob ? new File([blob], file.name.replace(/\.[^/.]+$/, "") + "_proof.jpg", { type: 'image/jpeg' }) : file), 'image/jpeg', 0.7);
                             };
