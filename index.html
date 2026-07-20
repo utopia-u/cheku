@@ -56,7 +56,6 @@
             --radius-sm: 8px;         
             --radius-pill: 9999px;    
 
-            /* 替换原先的彩色污浊阴影为自然中性浅阴影 */
             --card-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.04), 0 2px 6px -2px rgba(0, 0, 0, 0.02);
             --inner-card-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
             --safe-top: env(safe-area-inset-top);
@@ -385,7 +384,7 @@
         .action-icon { font-size: 1.8rem; margin-bottom: 12px; display: inline-block; }
 
         /* ==========================================================================
-           iOS 26 Liquid Glass 悬浮岛 UI & 物理特效（优化清透阴影版）
+           iOS 26 Liquid Glass 超透玻璃悬浮岛 UI & 物理特效重构
            ========================================================================== */
         .bottom-nav-container {
             position: fixed;
@@ -401,7 +400,7 @@
             box-sizing: border-box;
         }
 
-        /* 液体玻璃外壳：精简冗余内阴影 */
+        /* 悬浮岛外壳：大幅提升玻璃透明度 (至 32% 浓度) */
         .bottom-nav {
             pointer-events: auto;
             position: relative;
@@ -410,20 +409,20 @@
             gap: 4px;
             padding: 6px;
             border-radius: var(--radius-pill);
-            background: rgba(255, 255, 255, 0.68);
-            backdrop-filter: blur(30px) saturate(210%);
-            -webkit-backdrop-filter: blur(30px) saturate(210%);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.32);
+            backdrop-filter: blur(24px) saturate(200%) contrast(102%);
+            -webkit-backdrop-filter: blur(24px) saturate(200%) contrast(102%);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 
-                0 12px 32px -8px rgba(0, 0, 0, 0.08),
-                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+                0 16px 36px -8px rgba(0, 0, 0, 0.08),
+                0 0 0 1px rgba(255, 255, 255, 0.3) inset;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
             will-change: transform;
             transform: translateZ(0);
         }
 
-        /* 清透扫光层 */
+        /* 清透高光微反射水波 */
         .bottom-nav::before {
             content: '';
             position: absolute;
@@ -433,13 +432,13 @@
             height: 220%;
             background: linear-gradient(
                 135deg,
-                rgba(255, 255, 255, 0.4) 0%,
+                rgba(255, 255, 255, 0.35) 0%,
                 rgba(255, 255, 255, 0) 40%,
-                rgba(255, 255, 255, 0.2) 100%
+                rgba(255, 255, 255, 0.15) 100%
             );
             pointer-events: none;
             transform: rotate(28deg);
-            opacity: 0.7;
+            opacity: 0.6;
             animation: liquidSpecular 9s ease-in-out infinite alternate;
         }
 
@@ -449,24 +448,27 @@
         }
 
         [data-theme="dark"] .bottom-nav {
-            background: rgba(22, 27, 34, 0.7);
-            backdrop-filter: blur(30px) saturate(190%);
-            -webkit-backdrop-filter: blur(30px) saturate(190%);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(18, 21, 28, 0.35);
+            backdrop-filter: blur(24px) saturate(180%) brightness(110%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(110%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 
-                0 16px 40px -8px rgba(0, 0, 0, 0.6),
-                0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+                0 20px 40px -10px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.06) inset;
         }
 
-        /* 液态滑块：移除拖尾色彩阴影瑕疵 */
+        /* 液态高透水滴滑块 (Ultra-Clear Liquid Glider) */
         .nav-pill-glider {
             position: absolute;
             top: 6px;
             left: 0;
             height: calc(100% - 12px);
-            background: linear-gradient(135deg, #FFFFFF 0%, rgba(245, 247, 250, 0.95) 100%);
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border-radius: var(--radius-pill);
-            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);
             z-index: 1;
             pointer-events: none;
             transform-origin: center center;
@@ -477,8 +479,9 @@
         }
 
         [data-theme="dark"] .nav-pill-glider {
-            background: linear-gradient(135deg, #30363D 0%, #21262D 100%);
-            box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.45);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.3);
         }
 
         .nav-item {
@@ -966,7 +969,7 @@
                         <path d="M4425 490 l35 -70 65 0 c36 0 65 4 65 9 0 20 -42 107 -57 119 -10 6 -45 12 -80 12 l-63 0 35 -70z"/>
                         <path d="M2646 508 c-10 -59 -26 -189 -26 -209 0 -17 7 -19 59 -19 33 0 63 5 66 11 4 6 9 46 12 90 l6 79 101 1 c102 1 266 1 299 0 16 -1 18 -7 13 -38 -3 -21 -8 -59 -12 -85 l-6 -48 60 0 c36 0 64 5 70 13 5 6 13 48 16 92 4 44 10 95 13 113 l5 32 -335 0 -336 0 -5 -32z"/>
                         <path d="M1946 493 c-2 -10 -7 -38 -11 -63 -10 -73 -42 -161 -85 -234 -22 -37 -40 -70 -40 -72 0 -2 26 -4 59 -4 57 0 59 1 85 40 38 58 66 132 87 238 10 52 19 98 19 103 0 5 -24 9 -54 9 -44 0 -56 -4 -60 -17z"/>
-                        <path d="M2116 498 c-2 -7 -13 -83 -25 -168 -12 -85 -25 -167 -27 -182 l-6 -28 61 0 c34 0 61 1 61 3 0 1 11 87 25 191 14 104 25 191 25 193 0 1 -25 3 -55 3 -36 0 -57 -4 -60 -12z"/>
+                        <path d="M2116 498 c-2 -7 -13 -83 -25 -168 -12 -85 -25 -167 -27 -182 l-6 -28 61 0 c34 0 61 1 61 3 0 1 11 87 25 191 14 104 25 191 25 193 0 1 -25 3 -55 3 -36 0 -57 -4 -59 -12z"/>
                         <path d="M2295 498 c-9 -30 -35 -247 -35 -294 0 -69 18 -84 99 -84 34 0 71 4 81 10 21 11 35 52 44 124 l6 50 -36 -42 c-34 -41 -57 -52 -68 -33 -3 5 1 64 9 132 8 68 15 130 15 137 0 8 -18 12 -55 12 -36 0 -57 -4 -60 -12z"/>
                         <path d="M1725 443 c-9 -39 -80 -214 -110 -274 l-25 -49 70 0 c68 0 71 1 81 28 36 90 109 296 109 308 0 10 -15 14 -59 14 -56 0 -59 -1 -66 -27z"/>
                         <path d="M2895 393 c-12 -53 -51 -98 -106 -125 -61 -30 -162 -58 -207 -58 -33 0 -42 -14 -42 -66 0 -32 2 -34 33 -34 60 1 205 38 268 71 116 58 176 123 194 207 l7 32 -70 0 c-68 0 -70 -1 -77 -27z"/>
