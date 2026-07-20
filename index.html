@@ -384,7 +384,7 @@
         .action-icon { font-size: 1.8rem; margin-bottom: 12px; display: inline-block; }
 
         /* ==========================================================================
-           iOS 26 Liquid Glass (液体玻璃) 悬浮岛 UI & 物理特效重构
+           iOS 26 Liquid Glass (液体玻璃) 悬浮岛 UI & 物理特效重构 (已优化修复版)
            ========================================================================== */
         .bottom-nav-container {
             position: fixed;
@@ -406,58 +406,60 @@
             position: relative;
             display: inline-flex;
             align-items: center;
-            gap: 2px;
+            gap: 4px;
             padding: 6px;
             border-radius: var(--radius-pill);
-            background: rgba(255, 255, 255, 0.62);
-            backdrop-filter: blur(28px) saturate(210%) contrast(105%);
-            -webkit-backdrop-filter: blur(28px) saturate(210%) contrast(105%);
-            border: 1px solid rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(30px) saturate(220%) contrast(108%);
+            -webkit-backdrop-filter: blur(30px) saturate(220%) contrast(108%);
+            border: 1px solid rgba(255, 255, 255, 0.75);
             box-shadow: 
-                0 20px 40px -10px rgba(0, 0, 0, 0.12),
-                0 0 0 1px rgba(255, 255, 255, 0.6) inset,
-                inset 0 1.5px 3px rgba(255, 255, 255, 0.9),
-                inset 0 -1.5px 3px rgba(0, 0, 0, 0.05);
+                0 20px 45px -12px rgba(0, 0, 0, 0.12),
+                0 0 0 1px rgba(255, 255, 255, 0.8) inset,
+                inset 0 2px 4px rgba(255, 255, 255, 0.95),
+                inset 0 -1.5px 3px rgba(0, 0, 0, 0.04);
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
             will-change: transform;
+            transform: translateZ(0); /* 开启独立 GPU 图层渲染 */
         }
 
-        /* iOS 26 玻璃表面流体光泽反射 */
+        /* iOS 26 玻璃表面流体光泽反射层 */
         .bottom-nav::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -60%;
+            left: -60%;
+            width: 220%;
+            height: 220%;
             background: linear-gradient(
                 135deg,
-                rgba(255, 255, 255, 0.45) 0%,
-                rgba(255, 255, 255, 0) 40%,
-                rgba(255, 255, 255, 0.1) 60%,
-                rgba(255, 255, 255, 0.35) 100%
+                rgba(255, 255, 255, 0.5) 0%,
+                rgba(255, 255, 255, 0) 38%,
+                rgba(255, 255, 255, 0.12) 58%,
+                rgba(255, 255, 255, 0.4) 100%
             );
             pointer-events: none;
-            transform: rotate(30deg);
+            mix-blend-mode: overlay;
+            transform: rotate(28deg);
             opacity: 0.85;
-            animation: liquidSpecular 8s ease-in-out infinite alternate;
+            animation: liquidSpecular 9s ease-in-out infinite alternate;
         }
 
         @keyframes liquidSpecular {
-            0% { transform: translateY(-15%) rotate(25deg); }
-            100% { transform: translateY(15%) rotate(35deg); }
+            0% { transform: translateY(-12%) rotate(22deg); }
+            100% { transform: translateY(12%) rotate(32deg); }
         }
 
         [data-theme="dark"] .bottom-nav {
-            background: rgba(22, 27, 34, 0.62);
-            backdrop-filter: blur(28px) saturate(200%) brightness(110%);
-            -webkit-backdrop-filter: blur(28px) saturate(200%) brightness(110%);
-            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(22, 27, 34, 0.68);
+            backdrop-filter: blur(30px) saturate(200%) brightness(115%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%) brightness(115%);
+            border: 1px solid rgba(255, 255, 255, 0.16);
             box-shadow: 
-                0 20px 50px -10px rgba(0, 0, 0, 0.7),
-                0 0 0 1px rgba(255, 255, 255, 0.08) inset,
-                inset 0 1.5px 2px rgba(255, 255, 255, 0.2);
+                0 20px 50px -10px rgba(0, 0, 0, 0.75),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+                inset 0 1.5px 2px rgba(255, 255, 255, 0.25);
         }
 
         /* 液态滑块 (Liquid Glider) */
@@ -466,30 +468,30 @@
             top: 6px;
             left: 0;
             height: calc(100% - 12px);
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 243, 246, 0.85) 100%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 243, 246, 0.88) 100%);
             border-radius: var(--radius-pill);
             box-shadow: 
-                0 8px 20px -4px rgba(0, 0, 0, 0.12),
-                inset 0 1px 1.5px rgba(255, 255, 255, 1),
+                0 8px 22px -4px rgba(0, 0, 0, 0.12),
+                inset 0 1px 2px rgba(255, 255, 255, 1),
                 inset 0 -1px 2px rgba(0, 0, 0, 0.04);
             z-index: 1;
             pointer-events: none;
             transform-origin: center center;
             transition: 
-                transform 0.45s cubic-bezier(0.34, 1.4, 0.3, 1),
-                width 0.45s cubic-bezier(0.34, 1.4, 0.3, 1);
+                transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                width 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             will-change: transform, width;
         }
 
         .nav-pill-glider.is-morphing {
-            filter: drop-shadow(0 4px 10px rgba(255, 68, 0, 0.25));
+            filter: drop-shadow(0 4px 12px rgba(255, 68, 0, 0.22));
         }
 
         [data-theme="dark"] .nav-pill-glider {
-            background: linear-gradient(135deg, #2D333B 0%, #22272E 100%);
+            background: linear-gradient(135deg, #30363D 0%, #21262D 100%);
             box-shadow: 
-                0 8px 24px -4px rgba(0, 0, 0, 0.5),
-                inset 0 1px 1px rgba(255, 255, 255, 0.18);
+                0 8px 24px -4px rgba(0, 0, 0, 0.55),
+                inset 0 1px 1px rgba(255, 255, 255, 0.22);
         }
 
         .nav-item {
@@ -528,8 +530,8 @@
             overflow: hidden;
             letter-spacing: -0.01em;
             transition: 
-                max-width 0.4s cubic-bezier(0.34, 1.4, 0.3, 1),
-                opacity 0.25s ease-out;
+                max-width 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                opacity 0.22s ease-out;
         }
 
         .nav-item.active {
@@ -981,7 +983,7 @@
                         <path d="M4425 490 l35 -70 65 0 c36 0 65 4 65 9 0 20 -42 107 -57 119 -10 6 -45 12 -80 12 l-63 0 35 -70z"/>
                         <path d="M2646 508 c-10 -59 -26 -189 -26 -209 0 -17 7 -19 59 -19 33 0 63 5 66 11 4 6 9 46 12 90 l6 79 101 1 c102 1 266 1 299 0 16 -1 18 -7 13 -38 -3 -21 -8 -59 -12 -85 l-6 -48 60 0 c36 0 64 5 70 13 5 6 13 48 16 92 4 44 10 95 13 113 l5 32 -335 0 -336 0 -5 -32z"/>
                         <path d="M1946 493 c-2 -10 -7 -38 -11 -63 -10 -73 -42 -161 -85 -234 -22 -37 -40 -70 -40 -72 0 -2 26 -4 59 -4 57 0 59 1 85 40 38 58 66 132 87 238 10 52 19 98 19 103 0 5 -24 9 -54 9 -44 0 -56 -4 -60 -17z"/>
-                        <path d="M2116 498 c-2 -7 -13 -83 -25 -168 -12 -85 -25 -167 -27 -182 l-6 -28 61 0 c34 0 61 1 61 3 0 1 11 87 25 191 14 104 25 191 25 193 0 1 -25 3 -55 3 -36 0 -57 -4 -59 -12z"/>
+                        <path d="M2116 498 c-2 -7 -13 -83 -25 -168 -12 -85 -25 -167 -27 -182 l-6 -28 61 0 c34 0 61 1 61 3 0 1 11 87 25 191 14 104 25 191 25 193 0 1 -25 3 -55 3 -36 0 -57 -4 -60 -12z"/>
                         <path d="M2295 498 c-9 -30 -35 -247 -35 -294 0 -69 18 -84 99 -84 34 0 71 4 81 10 21 11 35 52 44 124 l6 50 -36 -42 c-34 -41 -57 -52 -68 -33 -3 5 1 64 9 132 8 68 15 130 15 137 0 8 -18 12 -55 12 -36 0 -57 -4 -60 -12z"/>
                         <path d="M1725 443 c-9 -39 -80 -214 -110 -274 l-25 -49 70 0 c68 0 71 1 81 28 36 90 109 296 109 308 0 10 -15 14 -59 14 -56 0 -59 -1 -66 -27z"/>
                         <path d="M2895 393 c-12 -53 -51 -98 -106 -125 -61 -30 -162 -58 -207 -58 -33 0 -42 -14 -42 -66 0 -32 2 -34 33 -34 60 1 205 38 268 71 116 58 176 123 194 207 l7 32 -70 0 c-68 0 -70 -1 -77 -27z"/>
@@ -1363,7 +1365,7 @@
             const visibilityMap = {};
 
             /* ==========================================================================
-               iOS 26 Liquid Glass 物理弹性滑块引擎整合
+               iOS 26 Liquid Glass 物理弹性滑块引擎整合（优化 Bug 修复版）
                ========================================================================== */
             const mobileNavContainer = document.querySelector('.bottom-nav');
             const navGlider = document.getElementById('navGlider');
@@ -1371,6 +1373,7 @@
 
             let lastGliderOffsetLeft = 0;
             let gliderTransformTimeout = null;
+            let isInitialGliderSetup = true; // 首次加载标记，防止初始化时的位移畸变
 
             const updateGliderPosition = () => {
                 if (!mobileNavContainer || !navGlider || mobileNavItems.length === 0) return;
@@ -1383,19 +1386,21 @@
                 const offsetLeft = itemRect.left - containerRect.left;
                 const itemWidth = itemRect.width;
 
-                // 计算滑块跨度物理速度，产生液态水滴挤压拉伸效果
-                const deltaX = Math.abs(offsetLeft - lastGliderOffsetLeft);
                 let scaleX = 1;
                 let scaleY = 1;
 
-                if (deltaX > 10) {
-                    // 随着滑动距离增加产生弹性拉伸 deformation
-                    scaleX = Math.min(1.18, 1 + deltaX / 550);
-                    scaleY = Math.max(0.85, 1 - deltaX / 1100);
+                // 只有在非首次加载且真实发生横向偏移时才施加物理形变
+                if (!isInitialGliderSetup && lastGliderOffsetLeft > 0) {
+                    const deltaX = Math.abs(offsetLeft - lastGliderOffsetLeft);
+                    if (deltaX > 8) {
+                        scaleX = Math.min(1.15, 1 + deltaX / 600);
+                        scaleY = Math.max(0.88, 1 - deltaX / 1200);
+                    }
                 }
-                lastGliderOffsetLeft = offsetLeft;
 
-                // 注入 Translate3D 与物理变形 Scale
+                lastGliderOffsetLeft = offsetLeft;
+                isInitialGliderSetup = false;
+
                 navGlider.style.transform = `translate3d(${offsetLeft}px, 0, 0) scale(${scaleX}, ${scaleY})`;
                 navGlider.style.width = `${itemWidth}px`;
                 navGlider.classList.add('is-morphing');
@@ -1404,7 +1409,7 @@
                 gliderTransformTimeout = setTimeout(() => {
                     navGlider.style.transform = `translate3d(${offsetLeft}px, 0, 0) scale(1, 1)`;
                     navGlider.classList.remove('is-morphing');
-                }, 300);
+                }, 320);
             };
 
             const setActiveTab = (targetItem) => {
@@ -1417,11 +1422,15 @@
                     }
                 });
                 updateGliderPosition();
-                setTimeout(updateGliderPosition, 220); // 补偿文字展开后的容器重绘尺寸
+                setTimeout(updateGliderPosition, 200); // 补偿布局展开重绘时长
             };
 
             if (mobileNavContainer) {
-                const resizeObserver = new ResizeObserver(updateGliderPosition);
+                const resizeObserver = new ResizeObserver(() => {
+                    // 容器 Resize 时临时跳过挤压变形
+                    isInitialGliderSetup = true;
+                    updateGliderPosition();
+                });
                 resizeObserver.observe(mobileNavContainer);
                 cleanupRegistry.observers.push(resizeObserver);
             }
@@ -1489,7 +1498,7 @@
                             themeIcon.style.transform = 'scale(1) rotate(0deg)';
                         }, 150);
                     }
-                    setTimeout(updateGliderPosition, 300); // 避开切换主题导致的重绘位移
+                    setTimeout(updateGliderPosition, 300);
                 });
             }
 
