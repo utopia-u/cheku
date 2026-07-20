@@ -63,6 +63,20 @@
             --nav-height: 80px;
             --header-height: auto; 
             --location-border: rgba(255, 68, 0, 0.12);
+
+            /* 2026 超流体悬浮岛（Spatial Liquid Island）高质感变量 */
+            --island-bg-light: rgba(255, 255, 255, 0.72);
+            --island-border-light: rgba(255, 255, 255, 0.85);
+            --island-shadow-light: 
+                0 20px 40px -12px rgba(255, 68, 0, 0.15),
+                0 8px 16px -8px rgba(0, 0, 0, 0.06),
+                inset 0 1px 2px 0 rgba(255, 255, 255, 0.95),
+                inset 0 -1px 2px 0 rgba(0, 0, 0, 0.05);
+                
+            --glider-gradient: linear-gradient(135deg, #FF5500 0%, #FF2200 100%);
+            --glider-shadow: 
+                0 6px 18px -2px rgba(255, 68, 0, 0.48),
+                inset 0 1px 1.5px rgba(255, 255, 255, 0.4);
         }
 
         [data-theme="dark"] {
@@ -83,6 +97,15 @@
             --card-shadow: 0 12px 32px rgba(0,0,0,0.5);
             --inner-card-shadow: 0 6px 18px rgba(0,0,0,0.4);
             --location-border: rgba(255, 68, 0, 0.15);
+
+            /* 暗黑模式悬浮岛变量 */
+            --island-bg-dark: rgba(28, 25, 23, 0.75);
+            --island-border-dark: rgba(255, 255, 255, 0.12);
+            --island-shadow-dark: 
+                0 20px 45px -10px rgba(0, 0, 0, 0.65),
+                0 8px 20px -6px rgba(0, 0, 0, 0.45),
+                inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
+                inset 0 -1px 1px 0 rgba(0, 0, 0, 0.6);
         }
 
         html, body {
@@ -383,21 +406,135 @@
         .action-btn:focus-visible { outline: 3px solid var(--accent-color); }
         .action-icon { font-size: 1.8rem; margin-bottom: 12px; display: inline-block; }
 
-        /* 底部导航栏 */
+        /* ==========================================================================
+           2026 超流体悬浮岛 (Spatial Liquid Island) - 样式升级
+           ========================================================================== */
         .bottom-nav-container {
-            position: fixed; bottom: calc(20px + var(--safe-bottom)); left: 0; right: 0;
-            display: flex; justify-content: center; z-index: 1000; pointer-events: none;
+            position: fixed;
+            bottom: calc(16px + var(--safe-bottom, 0px));
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            pointer-events: none;
+            padding: 0 16px;
+            box-sizing: border-box;
         }
+
         .bottom-nav {
-            pointer-events: auto; background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: var(--radius-pill); 
-            padding: 8px 12px; display: flex; align-items: center;
-            gap: 8px; box-shadow: 0 10px 30px rgba(255, 68, 0, 0.08); border: 1px solid rgba(255,255,255,0.3);
+            pointer-events: auto;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px;
+            border-radius: var(--radius-pill);
+            background: var(--island-bg-light);
+            backdrop-filter: blur(28px) saturate(210%);
+            -webkit-backdrop-filter: blur(28px) saturate(210%);
+            border: 1px solid var(--island-border-light);
+            box-shadow: var(--island-shadow-light);
+            transition: 
+                background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            will-change: transform, background;
         }
-        [data-theme="dark"] .bottom-nav { background: rgba(38, 34, 32, 0.85); border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-        .nav-item { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 1.3rem; transition: all 0.3s; text-decoration: none; position: relative; touch-action: manipulation; }
-        .nav-item.active { color: #fff; background: var(--accent-color); box-shadow: 0 4px 12px rgba(255, 68, 0, 0.2); }
+
+        [data-theme="dark"] .bottom-nav {
+            background: var(--island-bg-dark);
+            border: 1px solid var(--island-border-dark);
+            box-shadow: var(--island-shadow-dark);
+        }
+
+        /* 物理弹簧轨迹滑块 */
+        .nav-pill-glider {
+            position: absolute;
+            top: 6px;
+            left: 0;
+            height: calc(100% - 12px);
+            background: var(--glider-gradient);
+            border-radius: var(--radius-pill);
+            box-shadow: var(--glider-shadow);
+            z-index: 1;
+            pointer-events: none;
+            transition: 
+                transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
+                width 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+            will-change: transform, width;
+        }
+
+        .nav-item {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 44px;
+            padding: 0 14px;
+            border-radius: var(--radius-pill);
+            color: var(--text-secondary);
+            text-decoration: none;
+            outline: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: color 0.25s ease, transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .nav-item i {
+            font-size: 1.35rem;
+            line-height: 1;
+            flex-shrink: 0;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .nav-item .nav-text {
+            font-size: 0.85rem;
+            font-weight: 700;
+            white-space: nowrap;
+            max-width: 0;
+            opacity: 0;
+            overflow: hidden;
+            letter-spacing: -0.01em;
+            transition: 
+                max-width 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.25s ease-out;
+        }
+
+        .nav-item.active {
+            color: #FFFFFF !important;
+        }
+
+        .nav-item.active i {
+            transform: scale(1.05);
+        }
+
+        .nav-item.active .nav-text {
+            max-width: 88px;
+            opacity: 1;
+        }
+
+        .nav-item:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        .nav-item:hover:not(.active) i {
+            transform: translateY(-1px);
+        }
+
+        .nav-item:active {
+            transform: scale(0.92);
+        }
+
+        .nav-item:focus-visible {
+            box-shadow: 0 0 0 3px rgba(255, 68, 0, 0.4);
+        }
 
         /* 恶劣天气视觉控制 */
         .weather-action-row {
@@ -943,13 +1080,29 @@
         </section>
     </div>
 
-    <nav class="bottom-nav-container">
-        <div class="bottom-nav">
-            <a href="#risk" class="nav-item"><i class="ph ph-warning-circle"></i></a>
-            <a href="#prevention" class="nav-item"><i class="ph ph-list-numbers"></i></a>
-            <a href="#actions" class="nav-item"><i class="ph ph-lightning"></i></a>
-            <a href="#weather" class="nav-item"><i class="ph ph-camera"></i></a>
-            <a href="#calculator" class="nav-item"><i class="ph ph-calculator"></i></a>
+    <nav class="bottom-nav-container" aria-label="移动端主导航栏">
+        <div class="bottom-nav" role="tablist">
+            <div class="nav-pill-glider" id="navGlider" aria-hidden="true"></div>
+            <a href="#risk" class="nav-item active" role="tab" aria-selected="true" aria-label="超时罚款预警" id="tab-risk">
+                <i class="ph ph-warning-circle" aria-hidden="true"></i>
+                <span class="nav-text">罚款预警</span>
+            </a>
+            <a href="#prevention" class="nav-item" role="tab" aria-selected="false" aria-label="免责报备流程" id="tab-prevention">
+                <i class="ph ph-list-numbers" aria-hidden="true"></i>
+                <span class="nav-text">免责流程</span>
+            </a>
+            <a href="#actions" class="nav-item" role="tab" aria-selected="false" aria-label="紧急应对措施" id="tab-actions">
+                <i class="ph ph-lightning" aria-hidden="true"></i>
+                <span class="nav-text">紧急应对</span>
+            </a>
+            <a href="#weather" class="nav-item" role="tab" aria-selected="false" aria-label="恶劣天气拍照报备" id="tab-weather">
+                <i class="ph ph-camera" aria-hidden="true"></i>
+                <span class="nav-text">天气报备</span>
+            </a>
+            <a href="#calculator" class="nav-item" role="tab" aria-selected="false" aria-label="阶梯单量计算器" id="tab-calculator">
+                <i class="ph ph-calculator" aria-hidden="true"></i>
+                <span class="nav-text">核算工具</span>
+            </a>
         </div>
     </nav>
 
@@ -993,6 +1146,47 @@
             let scrollTimeout = null;
             const visibilityMap = {};
 
+            /* ==========================================================================
+               悬浮岛 Dynamic Glider 物理滑块逻辑整合
+               ========================================================================== */
+            const mobileNavContainer = document.querySelector('.bottom-nav');
+            const navGlider = document.getElementById('navGlider');
+            const mobileNavItems = document.querySelectorAll('.bottom-nav .nav-item');
+
+            const updateGliderPosition = () => {
+                if (!mobileNavContainer || !navGlider || mobileNavItems.length === 0) return;
+                const activeItem = mobileNavContainer.querySelector('.nav-item.active') || mobileNavItems[0];
+                if (!activeItem) return;
+
+                const containerRect = mobileNavContainer.getBoundingClientRect();
+                const itemRect = activeItem.getBoundingClientRect();
+
+                const offsetLeft = itemRect.left - containerRect.left;
+                const itemWidth = itemRect.width;
+
+                navGlider.style.transform = `translate3d(${offsetLeft}px, 0, 0)`;
+                navGlider.style.width = `${itemWidth}px`;
+            };
+
+            const setActiveTab = (targetItem) => {
+                if (!targetItem) return;
+                navItems.forEach(item => {
+                    const isMatched = item.getAttribute('href') === targetItem.getAttribute('href');
+                    item.classList.toggle('active', isMatched);
+                    if (item.hasAttribute('aria-selected')) {
+                        item.setAttribute('aria-selected', isMatched ? 'true' : 'false');
+                    }
+                });
+                updateGliderPosition();
+                setTimeout(updateGliderPosition, 220); // 补偿 CSS 展开时长
+            };
+
+            if (mobileNavContainer) {
+                const resizeObserver = new ResizeObserver(updateGliderPosition);
+                resizeObserver.observe(mobileNavContainer);
+                cleanupRegistry.observers.push(resizeObserver);
+            }
+
             function clearScrollLock() { isProgrammaticScrolling = false; }
             if ('onscrollend' in window) window.addEventListener('scrollend', clearScrollLock);
 
@@ -1012,10 +1206,10 @@
                 }
                 if (visibilityMap['scroll-sentinel'] > 0 && sections.length > 0) activeId = sections[sections.length - 1].getAttribute('id');
                 if (activeId) {
-                    navItems.forEach(link => {
-                        const href = link.getAttribute('href');
-                        if (href) link.classList.toggle('active', href.includes(activeId));
-                    });
+                    const activeTarget = document.querySelector(`.bottom-nav .nav-item[href="#${activeId}"]`);
+                    if (activeTarget) {
+                        setActiveTab(activeTarget);
+                    }
                 }
             }, { threshold: [0, 0.2, 0.5, 0.8, 1.0] });
 
@@ -1030,7 +1224,7 @@
                 const targetSection = document.querySelector(targetId);
                 if (targetSection) {
                     isProgrammaticScrolling = true;
-                    navItems.forEach(l => l.classList.toggle('active', l.getAttribute('href') === targetId));
+                    setActiveTab(this);
                     const isMobile = window.innerWidth < 992;
                     window.scrollTo({ top: targetSection.getBoundingClientRect().top + window.scrollY - (isMobile ? 80 : 90) - 10, behavior: 'smooth' });
                     clearTimeout(scrollTimeout);
@@ -1038,6 +1232,7 @@
                 }
             }));
 
+            // 主题切换处理
             const themeToggle = document.getElementById('themeToggle');
             if (themeToggle) {
                 const themeIcon = themeToggle.querySelector('i');
@@ -1055,8 +1250,12 @@
                             themeIcon.style.transform = 'scale(1) rotate(0deg)';
                         }, 150);
                     }
+                    setTimeout(updateGliderPosition, 300); // 避开切换主题导致的重绘位移
                 });
             }
+
+            // 初始化滑块位置
+            updateGliderPosition();
 
             // ==============================
             // 腾讯地图定位及刷新逻辑
