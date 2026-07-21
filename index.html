@@ -351,7 +351,7 @@
             display: flex; flex-direction: column; gap: 8px;
             cursor: pointer; transition: transform 0.2s ease;
         }
-        .step-item:active { transform: scale(0.95); }
+        .step-item:active { transform: scale(0.96); }
 
         .step-img-wrapper {
             position: relative; width: 100%; aspect-ratio: 1/1; 
@@ -373,12 +373,12 @@
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative; overflow: hidden; touch-action: manipulation; font-family: inherit;
         }
-        .action-btn:active { transform: scale(0.96); }
+        .action-btn:active { transform: scale(0.98); }
         .action-btn:focus-visible { outline: 3px solid var(--accent-color); }
         .action-icon { font-size: 1.8rem; margin-bottom: 12px; display: inline-block; }
 
         /* ==========================================================================
-           iOS 26 Liquid Glass 悬浮岛 UI（精细化&高级感调优版）
+           iOS 26 Liquid Glass 悬浮岛 UI（平缓自然去剧烈动效版）
            ========================================================================== */
         .bottom-nav-container {
             position: fixed;
@@ -403,20 +403,20 @@
             gap: 4px;
             padding: 5px;
             border-radius: var(--radius-pill);
-            background: rgba(255, 255, 255, 0.42);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
             border: 1px solid rgba(255, 255, 255, 0.6);
             box-shadow: 
-                0 12px 32px -6px rgba(0, 0, 0, 0.06),
+                0 10px 28px -6px rgba(0, 0, 0, 0.05),
                 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.25s ease;
             overflow: hidden;
             will-change: transform;
             transform: translateZ(0);
         }
 
-        /* 极柔和高光扫光（周期调长，柔化遮罩） */
+        /* 超轻微高光背景微光 */
         .bottom-nav::before {
             content: '';
             position: absolute;
@@ -426,70 +426,52 @@
             height: 220%;
             background: linear-gradient(
                 135deg,
-                rgba(255, 255, 255, 0.25) 0%,
-                rgba(255, 255, 255, 0) 40%,
-                rgba(255, 255, 255, 0.12) 100%
+                rgba(255, 255, 255, 0.15) 0%,
+                rgba(255, 255, 255, 0) 50%,
+                rgba(255, 255, 255, 0.08) 100%
             );
             pointer-events: none;
             transform: rotate(28deg);
-            opacity: 0.35;
-            animation: liquidSpecular 14s ease-in-out infinite alternate;
-        }
-
-        @keyframes liquidSpecular {
-            0% { transform: translateY(-5%) rotate(24deg); }
-            100% { transform: translateY(5%) rotate(30deg); }
+            opacity: 0.2;
         }
 
         /* 暗色模式外壳 */
         [data-theme="dark"] .bottom-nav {
-            background: rgba(26, 22, 20, 0.62);
-            backdrop-filter: blur(24px) saturate(180%) brightness(102%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(102%);
-            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(26, 22, 20, 0.68);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             box-shadow: 
-                0 16px 40px -8px rgba(0, 0, 0, 0.55),
-                0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+                0 14px 36px -8px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset;
         }
 
-        [data-theme="dark"] .bottom-nav::before {
-            background: linear-gradient(
-                135deg,
-                rgba(255, 255, 255, 0.18) 0%,
-                rgba(255, 255, 255, 0) 45%,
-                rgba(255, 255, 255, 0.08) 100%
-            );
-            mix-blend-mode: overlay;
-            opacity: 0.25;
-        }
-
-        /* 高透水滴滑块（优化过渡动画曲线：去弹性冲刺，保留极柔平滑感） */
+        /* 高透平滑滑块：去弹性拉伸，仅使用原生经典平滑缓动 */
         .nav-pill-glider {
             position: absolute;
             top: 5px;
             left: 0;
             height: calc(100% - 10px);
-            background: rgba(255, 255, 255, 0.72);
+            background: rgba(255, 255, 255, 0.75);
             border-radius: var(--radius-pill);
             border: 1px solid rgba(255, 255, 255, 0.85);
             box-shadow: 
-                0 3px 10px -2px rgba(0, 0, 0, 0.06),
-                inset 0 1px 1px rgba(255, 255, 255, 0.95);
+                0 2px 8px -2px rgba(0, 0, 0, 0.05),
+                inset 0 1px 1px rgba(255, 255, 255, 0.9);
             z-index: 1;
             pointer-events: none;
-            transform-origin: center center;
             transition: 
-                transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+                transform 0.28s cubic-bezier(0.2, 0, 0, 1),
+                width 0.28s cubic-bezier(0.2, 0, 0, 1);
             will-change: transform, width;
         }
 
         [data-theme="dark"] .nav-pill-glider {
-            background: rgba(255, 255, 255, 0.14);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.18);
             box-shadow: 
-                0 3px 12px -2px rgba(0, 0, 0, 0.35),
-                inset 0 1px 1px rgba(255, 255, 255, 0.15);
+                0 2px 10px -2px rgba(0, 0, 0, 0.3),
+                inset 0 1px 1px rgba(255, 255, 255, 0.12);
         }
 
         .nav-item {
@@ -508,7 +490,7 @@
             user-select: none;
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
-            transition: color 0.2s ease, transform 0.2s ease;
+            transition: color 0.2s ease, transform 0.15s ease;
             cursor: pointer;
         }
 
@@ -516,7 +498,7 @@
             font-size: 1.2rem;
             line-height: 1;
             flex-shrink: 0;
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+            transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), color 0.2s ease;
         }
 
         .nav-item .nav-text {
@@ -528,8 +510,8 @@
             overflow: hidden;
             letter-spacing: -0.01em;
             transition: 
-                max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 0.2s ease-out;
+                max-width 0.28s cubic-bezier(0.2, 0, 0, 1),
+                opacity 0.18s ease-out;
         }
 
         .nav-item.active {
@@ -538,17 +520,17 @@
 
         [data-theme="dark"] .nav-item.active {
             color: #FFFFFF !important;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.18);
         }
 
         .nav-item.active i {
             color: var(--accent-color);
-            transform: scale(1.08); /* 收敛放大效果（1.12 -> 1.08） */
+            transform: scale(1.03); /* 极弱放缩，消除突兀感 */
         }
 
         [data-theme="dark"] .nav-item.active i {
             color: #FF5500;
-            filter: drop-shadow(0 0 5px rgba(255, 85, 0, 0.35));
+            filter: drop-shadow(0 0 4px rgba(255, 85, 0, 0.3));
         }
 
         .nav-item.active .nav-text {
@@ -561,7 +543,7 @@
         }
 
         .nav-item:active {
-            transform: scale(0.95); /* 收敛点击响应反馈 */
+            transform: scale(0.97); /* 极轻微按压反馈 */
         }
 
         .nav-item:focus-visible {
@@ -578,7 +560,7 @@
             cursor: pointer; outline: none !important; box-shadow: none !important;
             transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color: transparent;
         }
-        .weather-action-trigger:active { transform: scale(0.92); }
+        .weather-action-trigger:active { transform: scale(0.95); }
         .weather-large-icon-box {
             width: 80px; height: 80px; background-color: var(--accent-light); color: var(--accent-color);
             border-radius: var(--radius-pill); display: flex; align-items: center; justify-content: center;
@@ -1260,7 +1242,7 @@
 
                 <div class="col-12 col-lg-4 d-flex align-items-start justify-content-center">
                     <div class="w-100 py-2" style="max-width: 320px;">
-                        <div class="text-center mb-2"><span class="text-xs fw-bold text-secondary"><i class="ph ph-calculator me-1"></i> 便捷快速核算辅助盘</span></div>
+                        <div class="text-center mb-2"><span class="text-xs fw-bold text-secondary"><i class="ph ph-calculator me-1"></i> 便慢快速核算辅助盘</span></div>
                         <div class="calculator-wrapper">
                             <input type="text" id="calcDisplay" readonly placeholder="0">
                             <div class="calc-buttons">
@@ -1361,15 +1343,11 @@
             const visibilityMap = {};
 
             /* ==========================================================================
-               iOS 26 精细化水滴滑块引擎
+               iOS 悬浮导航极简平滑引擎（移除高剧烈形变）
                ========================================================================== */
             const mobileNavContainer = document.querySelector('.bottom-nav');
             const navGlider = document.getElementById('navGlider');
             const mobileNavItems = document.querySelectorAll('.bottom-nav .nav-item');
-
-            let lastGliderOffsetLeft = 0;
-            let gliderTransformTimeout = null;
-            let isInitialGliderSetup = true;
 
             const updateGliderPosition = () => {
                 if (!mobileNavContainer || !navGlider || mobileNavItems.length === 0) return;
@@ -1382,28 +1360,9 @@
                 const offsetLeft = itemRect.left - containerRect.left;
                 const itemWidth = itemRect.width;
 
-                let scaleX = 1;
-                let scaleY = 1;
-
-                // 优化后的微形变计算：幅度更低、响应更细腻（上限极值从 1.15 -> 1.04）
-                if (!isInitialGliderSetup && lastGliderOffsetLeft > 0) {
-                    const deltaX = Math.abs(offsetLeft - lastGliderOffsetLeft);
-                    if (deltaX > 8) {
-                        scaleX = Math.min(1.04, 1 + deltaX / 1600);
-                        scaleY = Math.max(0.97, 1 - deltaX / 2800);
-                    }
-                }
-
-                lastGliderOffsetLeft = offsetLeft;
-                isInitialGliderSetup = false;
-
-                navGlider.style.transform = `translate3d(${offsetLeft}px, 0, 0) scale(${scaleX}, ${scaleY})`;
+                // 纯粹的位移与宽度过渡，完全移除剧烈的 scale 挤压效果
+                navGlider.style.transform = `translate3d(${offsetLeft}px, 0, 0)`;
                 navGlider.style.width = `${itemWidth}px`;
-
-                if (gliderTransformTimeout) clearTimeout(gliderTransformTimeout);
-                gliderTransformTimeout = setTimeout(() => {
-                    navGlider.style.transform = `translate3d(${offsetLeft}px, 0, 0) scale(1, 1)`;
-                }, 280);
             };
 
             const setActiveTab = (targetItem) => {
@@ -1421,7 +1380,6 @@
 
             if (mobileNavContainer) {
                 const resizeObserver = new ResizeObserver(() => {
-                    isInitialGliderSetup = true;
                     updateGliderPosition();
                 });
                 resizeObserver.observe(mobileNavContainer);
