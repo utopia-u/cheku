@@ -27,7 +27,7 @@
 
     <style>
         /* ==============================
-           1. 全局与移动端基础样式
+           1. 全局与基础样式定义
            ============================== */
         :root {
             --bg-body: #FDFBF9;
@@ -58,8 +58,8 @@
 
             --card-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.04), 0 2px 6px -2px rgba(0, 0, 0, 0.02);
             --inner-card-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
-            --safe-top: env(safe-area-inset-top);
-            --safe-bottom: env(safe-area-inset-bottom);
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
             --nav-height: 80px;
             --header-height: auto; 
             --location-border: rgba(255, 68, 0, 0.12);
@@ -94,13 +94,12 @@
             font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
             background-color: var(--bg-body);
             color: var(--text-primary);
-            padding-bottom: calc(var(--nav-height) + 20px + var(--safe-bottom));
+            padding-bottom: calc(var(--nav-height) + 28px + var(--safe-bottom));
             -webkit-tap-highlight-color: transparent;
             transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
             line-height: 1.6;
         }
 
-        /* 旋转动画补丁 - Phosphor 图标通用 */
         @keyframes ph-spin-animation {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -113,7 +112,7 @@
         /* 顶部导航 */
         .app-header {
             padding: calc(10px + var(--safe-top)) 20px 10px; 
-            background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface-rgb), 0.8) 100%);
+            background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(var(--bg-surface-rgb), 0.85) 100%);
             position: sticky;
             top: 0;
             z-index: 50;
@@ -199,7 +198,7 @@
 
         .desktop-nav { display: none; }
 
-        /* 外壳主框架大卡片 */
+        /* 外壳大卡片 */
         .section-card {
             background: var(--bg-surface);
             margin: 20px;
@@ -343,7 +342,7 @@
             box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
         }
 
-        /* 步骤横向滚动图组 */
+        /* 步骤横向滚动组 */
         .steps-scroller {
             display: flex; gap: 16px; overflow-x: auto;
             padding: 4px 4px 20px 4px; scroll-behavior: smooth;
@@ -384,45 +383,45 @@
         .action-icon { font-size: 1.8rem; margin-bottom: 12px; display: inline-block; }
 
         /* ==========================================================================
-           iOS 26 Liquid Glass 超透玻璃悬浮岛 UI & 黑夜模式 Bug 修复重构
+           2. 全平台 iOS 26 Liquid Glass 超透玻璃悬浮岛 UI（重构优化版）
            ========================================================================== */
         .bottom-nav-container {
             position: fixed;
-            bottom: calc(16px + var(--safe-bottom, 0px));
+            bottom: max(16px, env(safe-area-inset-bottom, 16px));
             left: 0;
             right: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 1080;
             pointer-events: none;
             padding: 0 16px;
             box-sizing: border-box;
         }
 
-        /* 悬浮岛外壳（亮色） */
+        /* 悬浮岛外壳（亮色/默认） */
         .bottom-nav {
             pointer-events: auto;
             position: relative;
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 6px;
+            padding: 6px 8px;
             border-radius: var(--radius-pill);
-            background: rgba(255, 255, 255, 0.38);
-            backdrop-filter: blur(28px) saturate(200%);
-            -webkit-backdrop-filter: blur(28px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.55);
+            background: rgba(255, 255, 255, 0.48);
+            backdrop-filter: blur(32px) saturate(210%);
+            -webkit-backdrop-filter: blur(32px) saturate(210%);
+            border: 1px solid rgba(255, 255, 255, 0.65);
             box-shadow: 
-                0 16px 36px -8px rgba(0, 0, 0, 0.08),
-                0 0 0 1px rgba(255, 255, 255, 0.3) inset;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow: hidden;
-            will-change: transform;
+                0 20px 44px -12px rgba(0, 0, 0, 0.12),
+                0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+            transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+            isolation: isolate;
             transform: translateZ(0);
+            max-width: calc(100vw - 32px);
         }
 
-        /* 高光微反射水波扫光（亮色） */
+        /* 微高光流动扫光 */
         .bottom-nav::before {
             content: '';
             position: absolute;
@@ -432,37 +431,37 @@
             height: 220%;
             background: linear-gradient(
                 135deg,
-                rgba(255, 255, 255, 0.4) 0%,
+                rgba(255, 255, 255, 0.45) 0%,
                 rgba(255, 255, 255, 0) 40%,
-                rgba(255, 255, 255, 0.2) 100%
+                rgba(255, 255, 255, 0.25) 100%
             );
             pointer-events: none;
             transform: rotate(28deg);
             opacity: 0.6;
-            animation: liquidSpecular 9s ease-in-out infinite alternate;
+            animation: liquidSpecular 10s ease-in-out infinite alternate;
+            border-radius: inherit;
         }
 
         @keyframes liquidSpecular {
-            0% { transform: translateY(-10%) rotate(22deg); }
-            100% { transform: translateY(10%) rotate(32deg); }
+            0% { transform: translateY(-8%) rotate(22deg); }
+            100% { transform: translateY(8%) rotate(34deg); }
         }
 
-        /* 悬浮岛外壳（黑夜模式修复：消除发灰与渲染卡顿） */
+        /* 悬浮岛外壳（黑夜模式修复：抗高光渲染 + 移除黑块） */
         [data-theme="dark"] .bottom-nav {
-            background: rgba(22, 27, 34, 0.52);
-            backdrop-filter: blur(28px) saturate(190%) brightness(105%);
-            -webkit-backdrop-filter: blur(28px) saturate(190%) brightness(105%);
-            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(28, 23, 20, 0.68);
+            backdrop-filter: blur(32px) saturate(190%) brightness(108%);
+            -webkit-backdrop-filter: blur(32px) saturate(190%) brightness(108%);
+            border: 1px solid rgba(255, 255, 255, 0.18);
             box-shadow: 
-                0 20px 48px -10px rgba(0, 0, 0, 0.65),
-                0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+                0 20px 52px -10px rgba(0, 0, 0, 0.72),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
         }
 
-        /* 黑夜模式扫光修复：使用混合模式 mix-blend-mode 避免灰黑沉淀 */
         [data-theme="dark"] .bottom-nav::before {
             background: linear-gradient(
                 135deg,
-                rgba(255, 255, 255, 0.25) 0%,
+                rgba(255, 255, 255, 0.22) 0%,
                 rgba(255, 255, 255, 0) 45%,
                 rgba(255, 255, 255, 0.12) 100%
             );
@@ -470,34 +469,34 @@
             opacity: 0.35;
         }
 
-        /* 液态高透水滴滑块（关键修复：移除子级 backdrop-filter，解决黑夜模式 WebKit 嵌套 Blur 黑块 Bug） */
+        /* 液态超高透滑块（移除子级 backdrop-filter 避免 Safari 嵌套模糊缺陷） */
         .nav-pill-glider {
             position: absolute;
             top: 6px;
             left: 0;
             height: calc(100% - 12px);
-            background: rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.88);
             border-radius: var(--radius-pill);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.95);
             box-shadow: 
-                0 4px 12px -2px rgba(0, 0, 0, 0.08),
-                inset 0 1px 1px rgba(255, 255, 255, 0.9);
+                0 4px 16px -2px rgba(0, 0, 0, 0.1),
+                inset 0 1px 2px rgba(255, 255, 255, 1);
             z-index: 1;
             pointer-events: none;
             transform-origin: center center;
-            transition: 
-                transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-                width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             will-change: transform, width;
+            transition: 
+                transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* 黑夜模式下极透滑块微调 */
+        /* 黑夜模式极透滑块 */
         [data-theme="dark"] .nav-pill-glider {
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.28);
             box-shadow: 
-                0 4px 16px -2px rgba(0, 0, 0, 0.4),
-                inset 0 1px 1px rgba(255, 255, 255, 0.18);
+                0 4px 18px -2px rgba(0, 0, 0, 0.5),
+                inset 0 1px 1px rgba(255, 255, 255, 0.25);
         }
 
         .nav-item {
@@ -507,7 +506,7 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            height: 40px;
+            height: 42px;
             padding: 0 14px;
             border-radius: var(--radius-pill);
             color: var(--text-secondary);
@@ -521,14 +520,14 @@
         }
 
         .nav-item i {
-            font-size: 1.25rem;
+            font-size: 1.28rem;
             line-height: 1;
             flex-shrink: 0;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease;
         }
 
         .nav-item .nav-text {
-            font-size: 0.82rem;
+            font-size: 0.84rem;
             font-weight: 700;
             white-space: nowrap;
             max-width: 0;
@@ -536,8 +535,8 @@
             overflow: hidden;
             letter-spacing: -0.01em;
             transition: 
-                max-width 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-                opacity 0.22s ease-out;
+                max-width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.2s ease-out;
         }
 
         .nav-item.active {
@@ -546,7 +545,7 @@
 
         [data-theme="dark"] .nav-item.active {
             color: #FFFFFF !important;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
         }
 
         .nav-item.active i {
@@ -556,11 +555,11 @@
 
         [data-theme="dark"] .nav-item.active i {
             color: #FF5500;
-            filter: drop-shadow(0 0 6px rgba(255, 85, 0, 0.4));
+            filter: drop-shadow(0 0 8px rgba(255, 85, 0, 0.5));
         }
 
         .nav-item.active .nav-text {
-            max-width: 88px;
+            max-width: 90px;
             opacity: 1;
         }
 
@@ -573,7 +572,7 @@
         }
 
         .nav-item:focus-visible {
-            box-shadow: 0 0 0 2px #0969da;
+            box-shadow: 0 0 0 2px var(--accent-color);
         }
 
         /* 恶劣天气视觉控制 */
@@ -904,9 +903,9 @@
         .text-xs { font-size: 0.75rem; }
         .text-sm { font-size: 0.875rem; }
 
-        /* PC端响应式 */
+        /* PC / 大屏端适配 */
         @media (min-width: 992px) {
-            body { padding-bottom: 40px; }
+            body { padding-bottom: 90px; }
             .main-layout-wrapper {
                 max-width: 1200px; margin: 0 auto; padding: 24px;
                 display: grid; grid-template-columns: 360px 1fr; 
@@ -923,7 +922,10 @@
             #actions { grid-area: actions; } #weather { grid-area: weather; }
             #calculator { grid-area: calculator; }
             
-            .bottom-nav-container { display: none !important; }
+            /* 桌面端保留精美底部悬浮岛 Dock 联动 */
+            .bottom-nav-container {
+                bottom: 24px;
+            }
             .desktop-nav { display: flex; gap: 12px; margin-right: 24px; }
             .desktop-nav-link {
                 text-decoration: none; color: var(--text-secondary); font-weight: 600;
@@ -1302,7 +1304,7 @@
         </section>
     </div>
 
-    <nav class="bottom-nav-container" aria-label="移动端主导航栏">
+    <nav class="bottom-nav-container" aria-label="主导航栏">
         <div class="bottom-nav" role="tablist">
             <div class="nav-pill-glider" id="navGlider" aria-hidden="true"></div>
             <a href="#risk" class="nav-item active" role="tab" aria-selected="true" aria-label="超时罚款预警" id="tab-risk">
@@ -1358,7 +1360,8 @@
             const cleanupRegistry = {
                 intervals: [],
                 observers: [],
-                timeouts: []
+                timeouts: [],
+                rafs: []
             };
 
             const sections = document.querySelectorAll('section');
@@ -1369,26 +1372,29 @@
             const visibilityMap = {};
 
             /* ==========================================================================
-               iOS 26 Liquid Glass 物理弹性滑块引擎
+               iOS 26 Liquid Glass 动态高精度弹性滑块引擎（修复滞后与尺寸测量 Bug）
                ========================================================================== */
-            const mobileNavContainer = document.querySelector('.bottom-nav');
+            const floatNavContainer = document.querySelector('.bottom-nav');
             const navGlider = document.getElementById('navGlider');
-            const mobileNavItems = document.querySelectorAll('.bottom-nav .nav-item');
+            const floatNavItems = document.querySelectorAll('.bottom-nav .nav-item');
 
             let lastGliderOffsetLeft = 0;
             let gliderTransformTimeout = null;
             let isInitialGliderSetup = true;
+            let gliderAnimationFrameId = null;
 
             const updateGliderPosition = () => {
-                if (!mobileNavContainer || !navGlider || mobileNavItems.length === 0) return;
-                const activeItem = mobileNavContainer.querySelector('.nav-item.active') || mobileNavItems[0];
+                if (!floatNavContainer || !navGlider || floatNavItems.length === 0) return;
+                const activeItem = floatNavContainer.querySelector('.nav-item.active') || floatNavItems[0];
                 if (!activeItem) return;
 
-                const containerRect = mobileNavContainer.getBoundingClientRect();
+                const containerRect = floatNavContainer.getBoundingClientRect();
                 const itemRect = activeItem.getBoundingClientRect();
 
                 const offsetLeft = itemRect.left - containerRect.left;
                 const itemWidth = itemRect.width;
+
+                if (itemWidth === 0) return; // 避免未挂载时的计算错误
 
                 let scaleX = 1;
                 let scaleY = 1;
@@ -1396,8 +1402,8 @@
                 if (!isInitialGliderSetup && lastGliderOffsetLeft > 0) {
                     const deltaX = Math.abs(offsetLeft - lastGliderOffsetLeft);
                     if (deltaX > 8) {
-                        scaleX = Math.min(1.15, 1 + deltaX / 600);
-                        scaleY = Math.max(0.88, 1 - deltaX / 1200);
+                        scaleX = Math.min(1.12, 1 + deltaX / 650);
+                        scaleY = Math.max(0.9, 1 - deltaX / 1300);
                     }
                 }
 
@@ -1410,28 +1416,48 @@
                 if (gliderTransformTimeout) clearTimeout(gliderTransformTimeout);
                 gliderTransformTimeout = setTimeout(() => {
                     navGlider.style.transform = `translate3d(${offsetLeft}px, 0, 0) scale(1, 1)`;
-                }, 320);
+                }, 300);
+            };
+
+            // 动画帧追踪：在文字展开/收起（380ms内）平滑追踪尺寸，彻底解决测量滞后 Bug
+            const animateGliderToActive = () => {
+                const startTime = performance.now();
+                const duration = 380; 
+
+                const step = (now) => {
+                    updateGliderPosition();
+                    if (now - startTime < duration) {
+                        gliderAnimationFrameId = requestAnimationFrame(step);
+                    }
+                };
+                
+                if (gliderAnimationFrameId) cancelAnimationFrame(gliderAnimationFrameId);
+                gliderAnimationFrameId = requestAnimationFrame(step);
+                cleanupRegistry.rafs.push(gliderAnimationFrameId);
             };
 
             const setActiveTab = (targetItem) => {
                 if (!targetItem) return;
+                const targetHref = targetItem.getAttribute('href');
+
                 navItems.forEach(item => {
-                    const isMatched = item.getAttribute('href') === targetItem.getAttribute('href');
+                    const isMatched = item.getAttribute('href') === targetHref;
                     item.classList.toggle('active', isMatched);
                     if (item.hasAttribute('aria-selected')) {
                         item.setAttribute('aria-selected', isMatched ? 'true' : 'false');
                     }
                 });
-                updateGliderPosition();
-                setTimeout(updateGliderPosition, 200);
+
+                // 启动连续帧追踪，保证滑块尺寸与 Tab 展开无缝吻合
+                animateGliderToActive();
             };
 
-            if (mobileNavContainer) {
+            if (floatNavContainer) {
                 const resizeObserver = new ResizeObserver(() => {
                     isInitialGliderSetup = true;
                     updateGliderPosition();
                 });
-                resizeObserver.observe(mobileNavContainer);
+                resizeObserver.observe(floatNavContainer);
                 cleanupRegistry.observers.push(resizeObserver);
             }
 
@@ -1476,7 +1502,7 @@
                     const isMobile = window.innerWidth < 992;
                     window.scrollTo({ top: targetSection.getBoundingClientRect().top + window.scrollY - (isMobile ? 80 : 90) - 10, behavior: 'smooth' });
                     clearTimeout(scrollTimeout);
-                    scrollTimeout = setTimeout(clearScrollLock, 600);
+                    scrollTimeout = setTimeout(clearScrollLock, 650);
                 }
             }));
 
@@ -1498,7 +1524,7 @@
                             themeIcon.style.transform = 'scale(1) rotate(0deg)';
                         }, 150);
                     }
-                    setTimeout(updateGliderPosition, 300);
+                    setTimeout(updateGliderPosition, 250);
                 });
             }
 
@@ -2061,6 +2087,7 @@
                 cleanupRegistry.intervals.forEach(clearInterval);
                 cleanupRegistry.observers.forEach(obs => obs.disconnect());
                 cleanupRegistry.timeouts.forEach(clearTimeout);
+                cleanupRegistry.rafs.forEach(cancelAnimationFrame);
             });
         });
     </script>
