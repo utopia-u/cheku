@@ -384,7 +384,7 @@
         .action-icon { font-size: 1.8rem; margin-bottom: 12px; display: inline-block; }
 
         /* ==========================================================================
-           iOS Liquid Glass 超透悬浮岛 UI - 零重排（Zero-Reflow）极致性能重构
+           iOS 26 Liquid Glass 超透玻璃悬浮岛 UI & 黑夜模式 Bug 修复重构
            ========================================================================== */
         .bottom-nav-container {
             position: fixed;
@@ -400,7 +400,7 @@
             box-sizing: border-box;
         }
 
-        /* 悬浮岛外壳（提至独立 GPU 合成层，精准 transition） */
+        /* 悬浮岛外壳（亮色） */
         .bottom-nav {
             pointer-events: auto;
             position: relative;
@@ -416,14 +416,13 @@
             box-shadow: 
                 0 16px 36px -8px rgba(0, 0, 0, 0.08),
                 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
             will-change: transform;
-            transform: translate3d(0, 0, 0);
-            contain: layout style paint;
+            transform: translateZ(0);
         }
 
-        /* 高光微反射水波扫光 */
+        /* 高光微反射水波扫光（亮色） */
         .bottom-nav::before {
             content: '';
             position: absolute;
@@ -441,15 +440,14 @@
             transform: rotate(28deg);
             opacity: 0.6;
             animation: liquidSpecular 9s ease-in-out infinite alternate;
-            will-change: transform;
         }
 
         @keyframes liquidSpecular {
-            0% { transform: translate3d(0, -10%, 0) rotate(22deg); }
-            100% { transform: translate3d(0, 10%, 0) rotate(32deg); }
+            0% { transform: translateY(-10%) rotate(22deg); }
+            100% { transform: translateY(10%) rotate(32deg); }
         }
 
-        /* 暗黑模式下悬浮岛修复 */
+        /* 悬浮岛外壳（黑夜模式修复：消除发灰与渲染卡顿） */
         [data-theme="dark"] .bottom-nav {
             background: rgba(22, 27, 34, 0.52);
             backdrop-filter: blur(28px) saturate(190%) brightness(105%);
@@ -460,6 +458,7 @@
                 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
         }
 
+        /* 黑夜模式扫光修复：使用混合模式 mix-blend-mode 避免灰黑沉淀 */
         [data-theme="dark"] .bottom-nav::before {
             background: linear-gradient(
                 135deg,
@@ -471,12 +470,11 @@
             opacity: 0.35;
         }
 
-        /* 液态滑块：使用 1px 轴心基准 + GPU scaleX 变换，零重排 */
+        /* 液态高透水滴滑块（关键修复：移除子级 backdrop-filter，解决黑夜模式 WebKit 嵌套 Blur 黑块 Bug） */
         .nav-pill-glider {
             position: absolute;
             top: 6px;
             left: 0;
-            width: 1px;
             height: calc(100% - 12px);
             background: rgba(255, 255, 255, 0.65);
             border-radius: var(--radius-pill);
@@ -486,12 +484,14 @@
                 inset 0 1px 1px rgba(255, 255, 255, 0.9);
             z-index: 1;
             pointer-events: none;
-            transform-origin: left center;
-            transition: transform 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            will-change: transform;
-            transform: translate3d(0, 0, 0) scaleX(0);
+            transform-origin: center center;
+            transition: 
+                transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            will-change: transform, width;
         }
 
+        /* 黑夜模式下极透滑块微调 */
         [data-theme="dark"] .nav-pill-glider {
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.22);
@@ -574,16 +574,6 @@
 
         .nav-item:focus-visible {
             box-shadow: 0 0 0 2px #0969da;
-        }
-
-        /* 减弱动态效果支持 */
-        @media (prefers-reduced-motion: reduce) {
-            .bottom-nav,
-            .nav-pill-glider,
-            .bottom-nav::before {
-                animation: none !important;
-                transition: none !important;
-            }
         }
 
         /* 恶劣天气视觉控制 */
@@ -1379,7 +1369,7 @@
             const visibilityMap = {};
 
             /* ==========================================================================
-               iOS Liquid Glass 物理弹性滑块引擎（rAF 防抖与纯 GPU Transform 渲染）
+               iOS 26 Liquid Glass 物理弹性滑块引擎
                ========================================================================== */
             const mobileNavContainer = document.querySelector('.bottom-nav');
             const navGlider = document.getElementById('navGlider');
@@ -1388,51 +1378,39 @@
             let lastGliderOffsetLeft = 0;
             let gliderTransformTimeout = null;
             let isInitialGliderSetup = true;
-            let gliderRafId = null;
 
             const updateGliderPosition = () => {
-                if (gliderRafId) cancelAnimationFrame(gliderRafId);
+                if (!mobileNavContainer || !navGlider || mobileNavItems.length === 0) return;
+                const activeItem = mobileNavContainer.querySelector('.nav-item.active') || mobileNavItems[0];
+                if (!activeItem) return;
 
-                gliderRafId = requestAnimationFrame(() => {
-                    if (!mobileNavContainer || !navGlider || mobileNavItems.length === 0) return;
-                    if (mobileNavContainer.offsetWidth === 0 || mobileNavContainer.offsetHeight === 0) return;
+                const containerRect = mobileNavContainer.getBoundingClientRect();
+                const itemRect = activeItem.getBoundingClientRect();
 
-                    const activeItem = mobileNavContainer.querySelector('.nav-item.active') || mobileNavItems[0];
-                    if (!activeItem) return;
+                const offsetLeft = itemRect.left - containerRect.left;
+                const itemWidth = itemRect.width;
 
-                    const containerRect = mobileNavContainer.getBoundingClientRect();
-                    const itemRect = activeItem.getBoundingClientRect();
+                let scaleX = 1;
+                let scaleY = 1;
 
-                    if (!containerRect || !itemRect || itemRect.width <= 0) return;
-
-                    const offsetLeft = itemRect.left - containerRect.left;
-                    const itemWidth = itemRect.width;
-
-                    let scaleX = itemWidth; // 1px 基准缩放
-                    let scaleY = 1;
-
-                    if (!isInitialGliderSetup && lastGliderOffsetLeft > 0) {
-                        const deltaX = Math.abs(offsetLeft - lastGliderOffsetLeft);
-                        if (deltaX > 8) {
-                            scaleX = itemWidth * Math.min(1.15, 1 + deltaX / 600);
-                            scaleY = Math.max(0.88, 1 - deltaX / 1200);
-                        }
+                if (!isInitialGliderSetup && lastGliderOffsetLeft > 0) {
+                    const deltaX = Math.abs(offsetLeft - lastGliderOffsetLeft);
+                    if (deltaX > 8) {
+                        scaleX = Math.min(1.15, 1 + deltaX / 600);
+                        scaleY = Math.max(0.88, 1 - deltaX / 1200);
                     }
+                }
 
-                    lastGliderOffsetLeft = offsetLeft;
-                    isInitialGliderSetup = false;
+                lastGliderOffsetLeft = offsetLeft;
+                isInitialGliderSetup = false;
 
-                    navGlider.style.transform = `translate3d(${offsetLeft}px, 0, 0) scale(${scaleX}, ${scaleY})`;
+                navGlider.style.transform = `translate3d(${offsetLeft}px, 0, 0) scale(${scaleX}, ${scaleY})`;
+                navGlider.style.width = `${itemWidth}px`;
 
-                    if (gliderTransformTimeout) clearTimeout(gliderTransformTimeout);
-                    gliderTransformTimeout = setTimeout(() => {
-                        requestAnimationFrame(() => {
-                            if (navGlider) {
-                                navGlider.style.transform = `translate3d(${offsetLeft}px, 0, 0) scale(${itemWidth}, 1)`;
-                            }
-                        });
-                    }, 320);
-                });
+                if (gliderTransformTimeout) clearTimeout(gliderTransformTimeout);
+                gliderTransformTimeout = setTimeout(() => {
+                    navGlider.style.transform = `translate3d(${offsetLeft}px, 0, 0) scale(1, 1)`;
+                }, 320);
             };
 
             const setActiveTab = (targetItem) => {
@@ -1445,6 +1423,7 @@
                     }
                 });
                 updateGliderPosition();
+                setTimeout(updateGliderPosition, 200);
             };
 
             if (mobileNavContainer) {
@@ -1519,17 +1498,12 @@
                             themeIcon.style.transform = 'scale(1) rotate(0deg)';
                         }, 150);
                     }
-                    setTimeout(updateGliderPosition, 100);
+                    setTimeout(updateGliderPosition, 300);
                 });
             }
 
             // 初始化滑块位置
             updateGliderPosition();
-
-            // 针对自定义字体加载延迟引发的尺寸错位兜底
-            if (document.fonts && document.fonts.ready) {
-                document.fonts.ready.then(updateGliderPosition);
-            }
 
             // ==============================
             // 腾讯地图定位及刷新逻辑
