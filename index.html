@@ -6,7 +6,7 @@
     <title>淘宝闪购物流责任防范与结算助手</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="text/javascript" src="https://apis.map.qq.com/tools/geolocation/min?key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=wuliu"></script>
@@ -27,9 +27,13 @@
 
     <style>
         /* ==============================
-           1. 全局与基础样式定义
+           1. 全局与统一字体规范定义
            ============================== */
         :root {
+            /* 全局统一字体栈 */
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+            --font-mono: 'Plus Jakarta Sans', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
             --bg-body: #FDFBF9;
             --bg-surface-rgb: 255, 255, 255;
             --bg-surface: rgb(var(--bg-surface-rgb));
@@ -88,16 +92,24 @@
         html, body {
             touch-action: manipulation;
             scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* 强制全站包含输入框与按钮统一继承字体 system */
+        body, input, button, select, textarea, .form-control, .btn, .badge {
+            font-family: var(--font-sans) !important;
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
             background-color: var(--bg-body);
             color: var(--text-primary);
             padding-bottom: calc(var(--nav-height) + 28px + var(--safe-bottom));
             -webkit-tap-highlight-color: transparent;
             transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
-            line-height: 1.6;
+            line-height: 1.5;
+            font-feature-settings: "tnum" 1, "cv05" 1; /* 全局数字等宽渲染 */
         }
 
         @keyframes ph-spin-animation {
@@ -147,6 +159,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 220px; 
+            letter-spacing: 0.01em;
         }
 
         .header-title {
@@ -214,7 +227,7 @@
         }
 
         .section-title {
-            font-size: 1.1rem;
+            font-size: 1.12rem;
             font-weight: 800;
             margin-bottom: 20px;
             display: flex;
@@ -317,10 +330,10 @@
             margin-top: 4px;
             color: var(--accent-color); 
         }
-        .fine-symbol { font-size: 1.5rem; font-weight: 600; margin-right: 4px; }
+        .fine-symbol { font-size: 1.5rem; font-weight: 700; margin-right: 4px; }
         .fine-amount { 
-            font-size: 3.8rem; font-weight: 800; letter-spacing: -3px; 
-            line-height: 0.9; font-family: 'Plus Jakarta Sans', sans-serif; 
+            font-size: 3.8rem; font-weight: 800; letter-spacing: -2.5px; 
+            line-height: 0.9; 
         }
         .fine-amount-wrapper .fine-unit { font-size: 1rem; opacity: 0.8; font-weight: 600; margin-left: 8px; color: var(--text-secondary); }
 
@@ -368,7 +381,7 @@
         [data-theme="dark"] .step-img-wrapper { box-shadow: 0 6px 16px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); background-color: #334155; }
         .step-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
         .step-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; padding: 4px 8px; border-radius: var(--radius-sm); font-size: 0.7rem; font-weight: 700; }
-        .step-caption { font-size: 0.85rem; text-align: center; font-weight: 600; color: var(--text-primary); }
+        .step-caption { font-size: 0.85rem; text-align: center; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
 
         /* 紧急应对模块主按钮 */
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -376,7 +389,7 @@
             background: var(--bg-body); padding: 20px; border-radius: var(--radius-lg); 
             border: 0; box-shadow: var(--inner-card-shadow); text-align: left;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative; overflow: hidden; touch-action: manipulation; font-family: inherit;
+            position: relative; overflow: hidden; touch-action: manipulation;
         }
         .action-btn:active { transform: scale(0.96); }
         .action-btn:focus-visible { outline: 3px solid var(--accent-color); }
@@ -622,7 +635,7 @@
         }
 
         /* ==========================================================================
-           3. 重构版 2026 Bento-Fintech 阶梯单量计算器与 Hero 主卡专属美化
+           3. 重构版 Bento-Fintech 计算器与 Hero 主卡
            ========================================================================== */
         .calc-bento-card {
             background: var(--bg-surface);
@@ -641,16 +654,16 @@
             box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.4);
         }
 
-        /* Hero 汇总主卡 - 响应式防截断重构 */
+        /* Hero 汇总主卡 - 极简排版与流体字号系统 */
         .grand-total-hero {
             background: linear-gradient(135deg, #059669 0%, #10B981 50%, #047857 100%);
             color: #FFFFFF;
-            padding: 20px 18px;
+            padding: 22px 20px 18px;
             border-radius: var(--radius-lg);
             position: relative;
             box-shadow: 0 16px 36px -8px rgba(16, 185, 129, 0.38);
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.22);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             box-sizing: border-box;
             width: 100%;
@@ -663,7 +676,7 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.25) 0%, transparent 65%);
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.28) 0%, transparent 65%);
             pointer-events: none;
         }
 
@@ -671,27 +684,27 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             position: relative;
             z-index: 2;
-            flex-wrap: wrap; /* 允许极窄视口下弹性叠放，防止右侧标签裁切 */
+            flex-wrap: wrap;
             width: 100%;
         }
 
         .hero-badge {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 5px;
             background: rgba(0, 0, 0, 0.18);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            padding: 5px 12px;
+            padding: 5px 13px;
             border-radius: var(--radius-pill);
-            font-size: clamp(0.7rem, 2.8vw, 0.8rem);
+            font-size: clamp(0.72rem, 2.8vw, 0.8rem);
             font-weight: 700;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.02em;
             white-space: nowrap;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.22);
             max-width: 100%;
             box-sizing: border-box;
         }
@@ -702,7 +715,7 @@
         }
 
         .hero-amount-wrapper {
-            margin: 12px 0 16px;
+            margin: 14px 0 16px;
             display: flex;
             align-items: baseline;
             gap: 4px;
@@ -713,21 +726,19 @@
         }
 
         .hero-currency-symbol {
-            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-size: clamp(1.3rem, 4.2vw, 1.8rem);
             font-weight: 700;
             opacity: 0.92;
-            font-family: 'Plus Jakarta Sans', sans-serif;
             flex-shrink: 0;
+            transform: translateY(-2px);
         }
 
         .hero-amount-number {
-            font-size: clamp(1.8rem, 7.5vw, 2.8rem); /* 关键：流体字体调节，彻底规避数字超出右侧边缘 Bug */
+            font-size: clamp(2rem, 8vw, 3rem); 
             font-weight: 800;
-            letter-spacing: -1px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-variant-numeric: tabular-nums;
-            line-height: 1.1;
-            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            letter-spacing: -1.5px;
+            line-height: 1;
+            text-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
             white-space: nowrap;
             word-break: keep-all;
             overflow: hidden;
@@ -737,10 +748,10 @@
 
         /* 动态阶梯进度条 - 融合式底盒 */
         .hero-progress-box {
-            background: rgba(0, 0, 0, 0.18);
+            background: rgba(0, 0, 0, 0.16);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: var(--radius-md);
             padding: 10px 12px;
             position: relative;
@@ -771,14 +782,15 @@
             justify-content: space-between;
             align-items: center;
             gap: 8px;
-            font-size: clamp(0.68rem, 2.6vw, 0.78rem);
+            font-size: clamp(0.7rem, 2.6vw, 0.78rem);
             font-weight: 700;
             color: rgba(255, 255, 255, 0.95);
             width: 100%;
+            letter-spacing: 0.01em;
         }
 
         .hero-progress-info span {
-            white-space: nowrap; /* 关键：强制单行不折行，规避“位”或“单”单独落入第二行的缺陷 */
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -796,6 +808,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 8px;
+            letter-spacing: -0.01em;
         }
 
         [data-theme="dark"] .formula-preview-pill {
@@ -805,11 +818,50 @@
 
         .formula-preview-pill .formula-code {
             color: var(--accent-color);
-            font-family: 'Plus Jakarta Sans', monospace;
             font-weight: 800;
         }
 
-        /* 输入明细卡片与 Quick Chip */
+        /* 输入控制与 Quick-Add 芯片 */
+        .calc-input-group {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 100%;
+        }
+
+        .calc-input-group input {
+            width: 100%;
+            height: 50px;
+            padding: 8px 48px 8px 16px;
+            border: 1.5px solid var(--location-border);
+            border-radius: var(--radius-md);
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            background-color: var(--bg-body);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        [data-theme="dark"] .calc-input-group input {
+            background-color: rgba(0, 0, 0, 0.28);
+        }
+
+        .calc-input-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background-color: var(--bg-surface);
+            box-shadow: 0 0 0 4px var(--accent-light);
+        }
+
+        .calc-input-group .input-suffix {
+            position: absolute;
+            right: 16px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
         .quick-chip-group {
             display: flex;
             gap: 6px;
@@ -886,7 +938,6 @@
             font-size: 1.15rem;
             font-weight: 800;
             color: var(--text-primary);
-            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         /* 当前激活阶梯档位特效 */
@@ -920,6 +971,7 @@
             border-radius: var(--radius-pill);
             white-space: nowrap;
             box-shadow: 0 2px 6px rgba(255, 68, 0, 0.3);
+            letter-spacing: 0.02em;
         }
 
         /* 快捷辅助键盘 */
@@ -947,8 +999,6 @@
             color: var(--text-primary);
             font-weight: 800;
             letter-spacing: 0.5px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-variant-numeric: tabular-nums;
             transition: all 0.2s ease;
         }
 
@@ -1799,7 +1849,7 @@
                 });
             }
 
-            // Supabase 相册同步与动态水印绘制
+            // Supabase 相册同步与动态水印绘制（字体格式同步）
             const SUPABASE_URL = 'https://eggrroodfjvfrhdxsbkg.supabase.co'; 
             const SUPABASE_ANON_KEY = 'sb_publishable_BpL6_-8gWvPZ8A9CUzJ1Ag_pFNsuMwK';
             const BUCKET_NAME = 'weather-proofs'; 
@@ -1931,7 +1981,7 @@
                                 ctx.drawImage(img, 0, 0, w, h);
 
                                 const fSize = Math.max(14, Math.round(w * 0.026));
-                                ctx.font = `bold ${fSize}px sans-serif`;
+                                ctx.font = `bold ${fSize}px 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif`;
                                 ctx.textBaseline = 'top';
 
                                 const now = new Date();
